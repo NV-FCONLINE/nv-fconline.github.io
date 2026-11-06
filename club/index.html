@@ -175,7 +175,7 @@
 
   /* ---------- 탭 ---------- */
   .tabs {
-    display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(84px, 1fr));
     margin: 0 0 26px; border-bottom: 1px solid var(--rule);
   }
   .tabs a {
@@ -340,12 +340,103 @@
   }
   .toast.on { opacity: 1; transform: translate(-50%, 0); }
 
+  /* ---------- 관리 ---------- */
+  .b-admin { color: #f3c06b; border-color: rgba(240, 180, 76, 0.55); background: rgba(240, 180, 76, 0.08); height: 20px; padding: 0 6px; font-size: 11.5px; }
+  .b-ex { height: 20px; padding: 0 6px; font-size: 11.5px; color: var(--ink-hi); border-color: rgba(216, 216, 214, 0.4); background: rgba(216, 216, 214, 0.08); }
+  .a-intro p { margin: 0; }
+  .a-intro p + p { margin-top: 4px; }
+  .a-intro { margin-top: 14px; }
+  .m-summary {
+    margin: 0 0 16px; padding: 12px 14px; border: 1px solid var(--rule); background: rgba(255, 255, 255, 0.025);
+    font-size: 15px; color: var(--ink-mid);
+  }
+  .m-summary b { color: var(--ink-hi); font-weight: 700; font-variant-numeric: tabular-nums; }
+  .m-tools { display: grid; gap: 12px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 7px; min-height: 44px; padding: 0 14px; border-radius: 22px; cursor: pointer;
+    font-size: 14.5px; font-weight: 600; color: var(--ink-mid); background: transparent; border: 1px solid rgba(216, 216, 214, 0.25);
+  }
+  .chip:hover { color: var(--ink-hi); }
+  .chip[aria-pressed="true"] { color: var(--ink-hi); border-color: rgba(230, 74, 88, 0.7); background: rgba(160, 7, 30, 0.22); }
+  .chip-n { font-size: 12.5px; font-weight: 500; color: var(--ink-dim); font-variant-numeric: tabular-nums; }
+  .m-count { margin: 14px 0 6px; font-size: 13.5px; color: var(--ink-dim); }
+  .mlist { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--rule); }
+  .mrow { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 8px 14px; padding: 14px 4px; border-bottom: 1px solid var(--rule); }
+  .mrow.is-ex { background: rgba(216, 216, 214, 0.025); }
+  .mrow.is-ex .m-nm { color: var(--ink-mid); }
+  .m-who { display: flex; align-items: center; gap: 12px; min-width: 0; }
+  .m-av { width: 40px; height: 40px; border-radius: 50%; flex: none; background: #1a1012; object-fit: cover; }
+  .m-av-x { display: inline-flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; color: var(--ink-mid); border: 1px solid var(--rule); }
+  .m-id { min-width: 0; }
+  .m-name { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; }
+  .m-nm { font-size: 16px; font-weight: 600; color: var(--ink-hi); overflow-wrap: anywhere; }
+  .m-user { font-size: 13px; color: var(--ink-dim); overflow-wrap: anywhere; }
+  .m-act { grid-column: 2; grid-row: 1; }
+  .m-act .btn { min-width: 64px; }
+  .m-self { display: inline-flex; align-items: center; min-height: 44px; padding: 0 8px; font-size: 13.5px; color: var(--ink-dim); }
+  .m-sugg, .m-facts, .m-exinfo, .m-panel { grid-column: 1 / -1; }
+  .m-sugg { display: flex; flex-wrap: wrap; gap: 6px; padding-left: 52px; }
+  .sg { display: inline-flex; align-items: center; min-height: 26px; padding: 2px 9px; font-size: 12.5px; line-height: 1.4; border-radius: 2px; }
+  .sg-strong { font-weight: 600; color: #f3c06b; border: 1px solid rgba(240, 180, 76, 0.55); background: rgba(240, 180, 76, 0.09); }
+  .sg-weak { font-weight: 500; color: var(--ink-dim); border: 1px dashed rgba(216, 216, 214, 0.25); }
+  .m-facts { margin: 0; padding-left: 52px; font-size: 13.5px; color: var(--ink-dim); font-variant-numeric: tabular-nums; }
+  .nw { white-space: nowrap; }
+  .m-exinfo { margin: 0; padding-left: 52px; font-size: 13.5px; color: var(--ink-mid); overflow-wrap: anywhere; }
+  .m-panel { display: grid; gap: 14px; margin-top: 6px; padding: 16px; border: 1px solid rgba(230, 74, 88, 0.42); background: rgba(160, 7, 30, 0.08); }
+  .m-reasons { display: flex; flex-wrap: wrap; gap: 0 18px; margin: 0; padding: 0; border: 0; min-width: 0; }
+  .m-reasons legend { padding: 0; margin: 0 0 2px; font-size: 14px; font-weight: 600; color: var(--ink-mid); }
+  .check input[type="radio"] { width: 20px; height: 20px; accent-color: var(--red-mid); }
+  .check.warn { color: #f3c06b; }
+  .owner-note { margin: 0 0 18px; padding: 10px 14px; border-left: 2px solid rgba(240, 180, 76, 0.7); background: rgba(240, 180, 76, 0.06); font-size: 14.5px; color: var(--ink); }
+
+  .rp { display: grid; gap: 8px; }
+  .rp-sum { margin: 0; font-size: 13.5px; color: var(--ink-mid); overflow-wrap: anywhere; }
+  .rp-list { max-height: 330px; overflow-y: auto; overscroll-behavior: contain; border: 1px solid var(--rule); background: rgba(255, 255, 255, 0.02); }
+  .rp-list.compact { max-height: 224px; }
+  .rp-row { display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 12px; cursor: pointer; border-bottom: 1px solid rgba(216, 216, 214, 0.06); }
+  .rp-row:last-child { border-bottom: 0; }
+  .rp-row:hover { background: rgba(255, 255, 255, 0.03); }
+  .rp-row:has(input:checked) { background: rgba(160, 7, 30, 0.16); }
+  .rp-row input { width: 18px; height: 18px; flex: none; accent-color: var(--red-mid); }
+  .rdot { width: 10px; height: 10px; border-radius: 50%; flex: none; box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.6); }
+  .rp-name { flex: 1; min-width: 0; font-size: 14.5px; color: var(--ink-hi); overflow-wrap: anywhere; }
+  .rp-n { flex: none; font-size: 12.5px; color: var(--ink-dim); font-variant-numeric: tabular-nums; }
+  .rp-none { margin: 0; padding: 12px; font-size: 14px; color: var(--ink-dim); }
+
+  .b-list { display: grid; gap: 16px; }
+  .b-edit { display: grid; gap: 16px; }
+  .b-edit.is-hidden { border-style: dashed; }
+  .b-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 12px; }
+  .h3 { margin: 0; font-size: 18px; font-weight: 700; color: var(--ink-hi); }
+  .b-meta { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--ink-dim); }
+  .b-grid { display: grid; grid-template-columns: minmax(0, 1fr) 112px; gap: 12px; }
+  .b-grid .f-slug { grid-column: 1 / -1; }
+  .b-pols { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; align-items: start; }
+  .select {
+    appearance: none; -webkit-appearance: none; padding-right: 38px; cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%23c4c4c1' stroke-width='1.6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 14px center;
+  }
+  .select option { background: #140c0e; color: var(--ink-hi); }
+  .b-toggles { display: grid; gap: 2px; }
+  .check.tgl { align-items: flex-start; padding: 8px 0; line-height: 1.5; }
+  .check.tgl input { margin-top: 2px; flex: none; }
+  .check.tgl small { display: block; margin-top: 2px; font-size: 13px; font-weight: 400; color: var(--ink-dim); }
+  @media (max-width: 760px) {
+    .b-pols { grid-template-columns: minmax(0, 1fr); }
+  }
+
   @media (max-width: 560px) {
     main { padding-block: 16px 56px; }
+    .brand > span:first-of-type { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+    #whoStaff { display: none !important; }
+    .m-sugg, .m-facts, .m-exinfo { padding-left: 0; }
+    .b-grid { grid-template-columns: minmax(0, 1fr) 88px; }
     .brand-sub { display: none; }
     .who-name { max-width: 34vw; font-size: 14px; }
     .tabs { margin-bottom: 20px; }
-    .tabs a { font-size: 15px; }
+    .tabs a { font-size: 15px; padding: 0 2px; }
     .head .btn { width: 100%; }
     .post-body { font-size: 16px; }
     .rc-tab { min-height: 70px; padding: 10px 12px; }
@@ -361,6 +452,7 @@
       <img class="who-av" id="whoAv" alt="" width="28" height="28" hidden>
       <span class="who-name" id="whoName"></span>
       <span class="badge b-staff" id="whoStaff" hidden>운영진</span>
+      <a class="btn-text" id="adminLink" href="#/admin/members" hidden>관리</a>
       <button class="btn-text" id="logoutBtn" type="button">로그아웃</button>
     </div>
   </div>
@@ -398,13 +490,6 @@ const API_BASE = (function () {
 })();
 
 const TOKEN_KEY = 'nv_club_session';
-const BOARDS = [
-  { slug: 'notice', name: '공지사항', lat: 'NOTICE' },
-  { slug: 'suggest', name: '건의사항', lat: 'SUGGEST' },
-  { slug: 'free', name: '자유게시판', lat: 'FREE BOARD' },
-];
-const BOARD = Object.fromEntries(BOARDS.map((b) => [b.slug, b]));
-
 const LOGIN_ERR = {
   denied: '디스코드 로그인을 취소했어요. 다시 해 주세요.',
   not_member: 'NV 디스코드 서버의 클럽 멤버만 들어올 수 있어요. 서버에 들어와 있는지, 클럽 역할이 있는지 운영진에게 물어봐 주세요.',
@@ -430,7 +515,7 @@ const ERR = {
 };
 const errText = (e) => ERR[e && e.code] || ERR.server;
 
-const state = { token: null, me: null, loginError: null, seq: 0 };
+const state = { token: null, me: null, boards: [], loginError: null, seq: 0 };
 const $ = (id) => document.getElementById(id);
 const view = $('view');
 
@@ -575,8 +660,9 @@ function errorBox(e, retry) {
     retry ? h('button', { class: 'btn btn-ghost', type: 'button', onclick: retry }, '다시 불러오기') : null);
 }
 function tabs(active) {
+  if (!state.boards.length) return null;
   return h('nav', { class: 'tabs', 'aria-label': '게시판' },
-    BOARDS.map((b) => h('a', { href: `#/b/${b.slug}`, 'aria-current': b.slug === active ? 'page' : null }, b.name)));
+    state.boards.map((b) => h('a', { href: `#/b/${b.slug}`, 'aria-current': b.slug === active ? 'page' : null }, b.name)));
 }
 function badge(text, kind) { return h('span', { class: `badge b-${kind}` }, text); }
 function authorName(a) { return [h('span', { class: 'name' }, a.name), a.is_staff ? badge('운영진', 'staff') : null]; }
@@ -587,6 +673,7 @@ function renderWho() {
   if (!me) return;
   $('whoName').textContent = me.name;
   $('whoStaff').hidden = !me.is_staff;
+  $('adminLink').hidden = !me.is_admin;
   const av = $('whoAv');
   if (me.avatar_url) { av.src = me.avatar_url; av.hidden = false; av.onerror = () => { av.hidden = true; }; }
   else av.hidden = true;
@@ -603,12 +690,22 @@ function route() {
   let m;
   if (hsh === '#/privacy') return renderPrivacy();
   if (!state.me) return renderLogin();
-  if (hsh === '#/' || hsh === '#') return renderBoard('notice', seq);
-  if ((m = hsh.match(/^#\/b\/(notice|suggest|free)$/))) return renderBoard(m[1], seq);
+  if (hsh === '#/' || hsh === '#') {
+    if (state.boards[0]) return renderBoard(state.boards[0].slug, seq);
+    return show([h('h1', { class: 'h1', tabindex: '-1' }, '클럽 공간'), h('p', { class: 'desc' }, '아직 볼 수 있는 게시판이 없어요.')]);
+  }
+  if ((m = hsh.match(/^#\/b\/([a-z0-9-]{2,20})$/))) return renderBoard(m[1], seq);
   if ((m = hsh.match(/^#\/p\/(\d{1,15})$/))) return renderPost(+m[1], seq);
-  if ((m = hsh.match(/^#\/write\/(notice|suggest|free)$/))) return renderWrite(m[1], null, seq);
+  if ((m = hsh.match(/^#\/write\/([a-z0-9-]{2,20})$/))) return renderWrite(m[1], null, seq);
   if ((m = hsh.match(/^#\/edit\/(\d{1,15})$/))) return renderEdit(+m[1], seq);
   if ((m = hsh.match(/^#\/receipts\/(\d{1,15})$/))) return renderReceipts(+m[1], seq);
+  if (hsh === '#/admin' || (m = hsh.match(/^#\/admin\/(members|boards|roles)$/))) {
+    if (!state.me.is_admin) return notAdmin();
+    const page = m ? m[1] : 'members';
+    if (page === 'boards') return renderAdminBoards(seq);
+    if (page === 'roles') return renderAdminRoles(seq);
+    return renderAdminMembers(seq);
+  }
   return renderNotFound();
 }
 const stale = (seq) => seq !== state.seq;
@@ -630,20 +727,32 @@ function renderLogin() {
 }
 
 /* ---------- 게시판 목록 ---------- */
-function boardDesc(slug) {
-  const staff = state.me && state.me.is_staff;
-  if (slug === 'notice') return staff ? '공지를 올리면 그때의 클럽 멤버를 기준으로 열람과 확인을 따로 셉니다.' : '운영진 공지예요. 다 읽었으면 글 아래 ‘확인했어요’를 눌러 주세요.';
-  if (slug === 'suggest') return staff ? '멤버들이 남긴 건의예요. 댓글로 답하면 쓴 사람과 운영진만 볼 수 있어요.' : '운영진에게 전할 말을 남겨 주세요. 쓴 글은 나와 운영진만 볼 수 있어요.';
-  return '클럽 멤버라면 누구나 쓰고 읽을 수 있어요.';
+/* 게시판마다 권한이 다르다. 문구와 버튼은 서버가 준 설정(read/write_policy, private_own, receipts)으로 정한다 */
+const WHO_SHORT = { members: '클럽원', roles: '정한 역할', staff: '운영진', admin: '관리자' };
+const WHO_LONG = { members: '클럽원 전체', roles: '정한 역할', staff: '운영진', admin: '관리자' };
+const readersLabel = (b) => (b.read_policy === 'admin' ? '관리자' : b.read_policy === 'roles' ? '운영진과 정한 역할' : '운영진');
+const ownOnly = (b) => !!(b && b.private_own && !b.can_read_all);
+const latLabel = (slug) => slug.toUpperCase().replace(/-/g, ' ');
+const boardBy = (slug) => state.boards.find((b) => b.slug === slug);
+function boardDesc(b) {
+  if (ownOnly(b)) return `${readersLabel(b)}에게 전할 말을 남겨 주세요. 쓴 글은 나와 ${readersLabel(b)}만 볼 수 있어요.`;
+  if (b.private_own) return `멤버들이 남긴 글이에요. 댓글로 답하면 쓴 사람과 ${readersLabel(b)}만 볼 수 있어요.`;
+  if (b.receipts) {
+    if (b.can_write) return '글을 올린 때의 클럽 멤버를 기준으로 열람과 확인을 따로 셉니다.';
+    return `${b.write_policy === 'members' ? '' : WHO_SHORT[b.write_policy] + ' '}공지예요. 다 읽었으면 글 아래 ‘확인했어요’를 눌러 주세요.`;
+  }
+  if (b.read_policy === 'members' && b.write_policy === 'members') return '클럽 멤버라면 누구나 쓰고 읽을 수 있어요.';
+  return `읽기: ${WHO_LONG[b.read_policy]} · 쓰기: ${WHO_LONG[b.write_policy]}`;
 }
-function postRow(p, slug) {
+function writeLabel(b) { return b.receipts ? '공지 쓰기' : ownOnly(b) ? '새 글 남기기' : '글쓰기'; }
+function postRow(p, b) {
   const top = [];
   if (p.pinned) top.push(badge('고정', 'pin'));
   if (p.status === 'hidden') top.push(badge('숨김', 'hidden'));
-  if (slug === 'notice' && p.my && p.my.in_audience && !p.my.acked_at && !p.mine) top.push(badge('확인 전', 'todo'));
+  if (b.receipts && p.my && p.my.in_audience && !p.my.acked_at && !p.mine) top.push(badge('확인 전', 'todo'));
   top.push(h('span', { class: 'row-title' }, p.title));
   const meta = [p.author.name, fmtShort(p.created_at)];
-  if (p.comment_count) meta.push(`${slug === 'suggest' ? '답변·댓글' : '댓글'} ${p.comment_count}`);
+  if (p.comment_count) meta.push(`${b.private_own ? '답변·댓글' : '댓글'} ${p.comment_count}`);
   const rc = p.receipts
     ? h('span', { class: 'row-rc' }, '열람 ', h('b', null, `${p.receipts.opened}/${p.receipts.total}`), h('br'), '확인 ', h('b', null, `${p.receipts.acked}/${p.receipts.total}`))
     : null;
@@ -652,30 +761,36 @@ function postRow(p, slug) {
     h('span', { class: 'row-meta' }, meta.join(' · ')),
     rc));
 }
+function noBoardText(e) {
+  return e && e.code === 'not_found' ? '게시판을 찾을 수 없어요. 숨겨졌거나 볼 수 없는 게시판이에요.' : errText(e);
+}
 async function renderBoard(slug, seq) {
-  const b = BOARD[slug];
-  setTitle(b.name);
+  const known = boardBy(slug);
+  setTitle(known ? known.name : '게시판');
   show([tabs(slug), loadingEl()]);
   let data;
   try { data = await api(`/api/boards/${slug}/posts`); } catch (e) {
     if (e.handled || stale(seq)) return;
-    return show([tabs(slug), h('h1', { class: 'h1', tabindex: '-1', style: 'margin-bottom:16px' }, b.name), errorBox(e, () => renderBoard(slug, ++state.seq))]);
+    return show([tabs(slug), h('h1', { class: 'h1', tabindex: '-1', style: 'margin-bottom:16px' }, known ? known.name : '게시판'),
+      h('div', { class: 'alert', role: 'alert' }, h('p', { style: 'margin:0 0 10px' }, noBoardText(e)),
+        e.code === 'not_found' ? null : h('button', { class: 'btn btn-ghost', type: 'button', onclick: () => renderBoard(slug, ++state.seq) }, '다시 불러오기'))]);
   }
   if (stale(seq)) return;
-  const me = state.me;
-  const inlineSuggest = slug === 'suggest' && !me.is_staff;
+  const b = data.board;
+  setTitle(b.name);
+  const inlineOwn = ownOnly(b) && b.can_write;
   const head = h('div', { class: 'head' },
     h('div', null,
-      h('p', { class: 'idx' }, b.lat),
+      h('p', { class: 'idx' }, latLabel(b.slug)),
       h('h1', { class: 'h1', tabindex: '-1' }, b.name),
-      h('p', { class: 'desc' }, boardDesc(slug))),
-    data.board.can_write && !inlineSuggest ? h('a', { class: 'btn btn-primary', href: `#/write/${slug}` }, slug === 'notice' ? '공지 쓰기' : '글쓰기') : null);
+      h('p', { class: 'desc' }, boardDesc(b))),
+    b.can_write && !inlineOwn ? h('a', { class: 'btn btn-primary', href: `#/write/${b.slug}` }, writeLabel(b)) : null);
 
   const list = h('ul', { class: 'list' });
-  const fill = (posts) => posts.forEach((p) => list.append(postRow(p, slug)));
+  const fill = (posts) => posts.forEach((p) => list.append(postRow(p, b)));
   fill(data.posts);
   if (!data.posts.length) {
-    list.append(h('li', { class: 'empty' }, inlineSuggest ? '아직 남긴 건의가 없어요.' : '아직 글이 없어요.'));
+    list.append(h('li', { class: 'empty' }, inlineOwn ? '아직 남긴 글이 없어요.' : '아직 글이 없어요.'));
   }
   const more = h('div', { class: 'more' });
   let before = data.next_before;
@@ -693,11 +808,11 @@ async function renderBoard(slug, seq) {
   if (before) more.append(moreBtn);
 
   const parts = [tabs(slug), head];
-  if (inlineSuggest) {
-    parts.push(h('section', { class: 'panel hud', 'aria-labelledby': 'sg-h' },
-      h('h2', { class: 'h2', id: 'sg-h' }, '건의하기'),
-      postForm({ slug, inline: true, seq })));
-    parts.push(h('h2', { class: 'sub-h' }, '내가 남긴 건의'));
+  if (inlineOwn) {
+    parts.push(h('section', { class: 'panel hud', 'aria-labelledby': 'own-h' },
+      h('h2', { class: 'h2', id: 'own-h' }, '새 글 남기기'),
+      postForm({ board: b, inline: true, seq })));
+    parts.push(h('h2', { class: 'sub-h' }, '내가 남긴 글'));
   }
   parts.push(list, more);
   show(parts);
@@ -711,22 +826,23 @@ function counter(input, max) {
   upd();
   return c;
 }
-function postForm({ slug, post, inline, seq }) {
+function postForm({ board, post, inline, seq }) {
+  const b = board || (post && post.board) || {};
   const uid = Math.random().toString(36).slice(2, 8);
-  const title = h('input', { class: 'input', id: `t-${uid}`, name: 'title', maxlength: 80, required: true, autocomplete: 'off', placeholder: slug === 'suggest' ? '예: 내전 시작 시간을 바꿔 주세요' : '' });
+  const title = h('input', { class: 'input', id: `t-${uid}`, name: 'title', maxlength: 80, required: true, autocomplete: 'off' });
   const body = h('textarea', { class: 'textarea' + (inline ? ' short' : ''), id: `b-${uid}`, name: 'body', maxlength: 5000, required: true, rows: inline ? 5 : 12 });
   if (inline) body.style.minHeight = '140px';
   if (post) { title.value = post.title; body.value = post.body; }
-  const pin = slug === 'notice' && !post && state.me.is_staff ? h('input', { type: 'checkbox', name: 'pinned' }) : null;
+  const pin = !post && state.me.is_staff ? h('input', { type: 'checkbox', name: 'pinned' }) : null;
   const err = h('p', { class: 'alert form-err', role: 'alert' });
-  const submit = h('button', { class: 'btn btn-primary', type: 'submit' }, post ? '고친 내용 저장' : (slug === 'suggest' ? '건의 보내기' : (slug === 'notice' ? '공지 올리기' : '올리기')));
+  const submit = h('button', { class: 'btn btn-primary', type: 'submit' }, post ? '고친 내용 저장' : inline ? '보내기' : b.receipts ? '공지 올리기' : '올리기');
   const form = h('form', { class: 'form', novalidate: true },
     h('div', { class: 'field' }, h('label', { for: title.id }, '제목'), title, counter(title, 80)),
     h('div', { class: 'field' }, h('label', { for: body.id }, '내용'), body, counter(body, 5000)),
-    pin ? h('label', { class: 'check' }, pin, '공지 목록 맨 위에 고정') : null,
+    pin ? h('label', { class: 'check' }, pin, b.receipts ? '공지 목록 맨 위에 고정' : '목록 맨 위에 고정') : null,
     h('p', { class: 'hint' }, '줄바꿈과 링크는 그대로 보여요. 사진은 아직 올릴 수 없어요.'),
     err,
-    h('div', { class: 'actions' }, submit, inline ? null : h('a', { class: 'btn btn-ghost', href: post ? `#/p/${post.id}` : `#/b/${slug}` }, '취소')));
+    h('div', { class: 'actions' }, submit, inline ? null : h('a', { class: 'btn btn-ghost', href: post ? `#/p/${post.id}` : `#/b/${b.slug}` }, '취소')));
   form.addEventListener('submit', async (ev) => {
     ev.preventDefault();
     err.textContent = '';
@@ -740,10 +856,10 @@ function postForm({ slug, post, inline, seq }) {
         toast('고친 내용을 저장했어요.');
         go(`#/p/${post.id}`);
       } else {
-        const r = await api(`/api/boards/${slug}/posts`, { method: 'POST', body: { title: t, body: bd, pinned: pin ? pin.checked : undefined } });
-        if (r.audience) toast(`공지를 올렸어요. 클럽 멤버 ${r.audience.count}명을 기준으로 셉니다.`);
-        else toast(slug === 'suggest' ? '건의를 보냈어요. 운영진이 확인할게요.' : '글을 올렸어요.');
-        if (inline) renderBoard(slug, ++state.seq); else go(`#/p/${r.id}`);
+        const r = await api(`/api/boards/${b.slug}/posts`, { method: 'POST', body: { title: t, body: bd, pinned: pin ? pin.checked : undefined } });
+        if (r.audience) toast(`올렸어요. 클럽 멤버 ${r.audience.count}명을 기준으로 셉니다.`);
+        else toast(inline ? '보냈어요.' : '글을 올렸어요.');
+        if (inline) renderBoard(b.slug, ++state.seq); else go(`#/p/${r.id}`);
       }
     } catch (e) {
       if (e.handled) return;
@@ -754,19 +870,22 @@ function postForm({ slug, post, inline, seq }) {
   return form;
 }
 function renderWrite(slug, _unused, seq) {
-  const b = BOARD[slug];
-  const me = state.me;
-  setTitle(`${b.name} 쓰기`);
-  if (slug === 'notice' && !me.is_staff) {
-    return show([tabs(slug), h('h1', { class: 'h1', tabindex: '-1', style: 'margin-bottom:16px' }, '공지 쓰기'), h('p', { class: 'alert', role: 'alert' }, '공지는 운영진만 쓸 수 있어요.')]);
+  const b = boardBy(slug);
+  if (!b) {
+    setTitle('글쓰기');
+    return show([tabs(slug), h('h1', { class: 'h1', tabindex: '-1', style: 'margin-bottom:16px' }, '글쓰기'), h('p', { class: 'alert', role: 'alert' }, noBoardText({ code: 'not_found' }))]);
+  }
+  setTitle(`${b.name} ${writeLabel(b)}`);
+  if (!b.can_write) {
+    return show([tabs(slug), h('h1', { class: 'h1', tabindex: '-1', style: 'margin-bottom:16px' }, writeLabel(b)), h('p', { class: 'alert', role: 'alert' }, '이 게시판에는 글을 쓸 수 없어요.')]);
   }
   show([tabs(slug),
     h('a', { class: 'back', href: `#/b/${slug}` }, icon('back'), `${b.name} 목록`),
     h('section', { class: 'panel hud', 'aria-labelledby': 'w-h' },
-      h('p', { class: 'idx' }, b.lat),
-      h('h1', { class: 'h1', id: 'w-h', tabindex: '-1', style: 'margin-bottom:20px' }, slug === 'notice' ? '공지 쓰기' : slug === 'suggest' ? '건의하기' : '글쓰기'),
-      slug === 'suggest' ? h('p', { class: 'info' }, '건의는 나와 운영진만 볼 수 있어요.') : null,
-      postForm({ slug, seq }))]);
+      h('p', { class: 'idx' }, latLabel(slug)),
+      h('h1', { class: 'h1', id: 'w-h', tabindex: '-1', style: 'margin-bottom:20px' }, writeLabel(b)),
+      ownOnly(b) ? h('p', { class: 'info' }, `이 글은 나와 ${readersLabel(b)}만 볼 수 있어요.`) : null,
+      postForm({ board: b, seq }))]);
 }
 async function renderEdit(id, seq) {
   setTitle('글 고치기');
@@ -793,7 +912,7 @@ async function renderPost(id, seq, opts) {
   let d;
   try { d = await api(`/api/posts/${id}`); } catch (e) {
     if (e.handled || stale(seq)) return;
-    return show([h('h1', { class: 'h1', tabindex: '-1', style: 'margin-bottom:16px' }, '글을 열 수 없어요'), errorBox(e, e.code === 'not_found' ? null : () => renderPost(id, ++state.seq)), h('a', { class: 'btn btn-ghost', href: '#/' }, '공지사항으로')]);
+    return show([h('h1', { class: 'h1', tabindex: '-1', style: 'margin-bottom:16px' }, '글을 열 수 없어요'), errorBox(e, e.code === 'not_found' ? null : () => renderPost(id, ++state.seq)), h('a', { class: 'btn btn-ghost', href: '#/' }, '처음으로')]);
   }
   if (stale(seq)) return;
   const p = d.post, slug = p.board.slug, me = state.me;
@@ -870,9 +989,10 @@ async function act(fn, okMsg, after) {
   catch (e) { if (!e.handled) toast(errText(e)); }
 }
 function commentsSection(d, reload) {
-  const p = d.post, slug = p.board.slug, me = state.me;
+  const p = d.post, me = state.me;
+  const own = !!p.board.private_own;
   const cs = d.comments;
-  const label = slug === 'suggest' ? '답변과 댓글' : '댓글';
+  const label = own ? '답변과 댓글' : '댓글';
   const list = h('ul', { class: 'c-list' });
   for (const c of cs) {
     const tools = [];
@@ -888,16 +1008,16 @@ function commentsSection(d, reload) {
         },
       }, '지우기'));
     }
-    list.append(h('li', { class: 'c-item' + (slug === 'suggest' && c.author.is_staff ? ' staff-reply' : '') },
+    list.append(h('li', { class: 'c-item' + (own && c.author.is_staff ? ' staff-reply' : '') },
       h('div', { class: 'c-head' }, authorName(c.author), timeEl(c.created_at, true), c.status === 'hidden' ? badge('숨김', 'hidden') : null),
       h('p', { class: 'c-body' }, linkify(c.body)),
       tools.length ? h('div', { class: 'c-tools' }, tools) : null));
   }
-  if (!cs.length) list.append(h('li', { class: 'empty', style: 'padding:20px 0' }, slug === 'suggest' ? '아직 답변이 없어요.' : '아직 댓글이 없어요.'));
+  if (!cs.length) list.append(h('li', { class: 'empty', style: 'padding:20px 0' }, own ? '아직 답변이 없어요.' : '아직 댓글이 없어요.'));
 
   const ta = h('textarea', { class: 'textarea short', id: 'c-body', maxlength: 1000, rows: 3,
-    placeholder: slug === 'suggest' ? (me.is_staff ? '답변을 써 주세요. 쓴 사람과 운영진만 봐요.' : '덧붙일 말을 써 주세요.') : '댓글을 써 주세요.' });
-  const send = h('button', { class: 'btn btn-primary', type: 'submit' }, slug === 'suggest' && me.is_staff ? '답변 달기' : '댓글 달기');
+    placeholder: own ? (me.is_staff ? '답변을 써 주세요. 쓴 사람도 볼 수 있어요.' : '덧붙일 말을 써 주세요.') : '댓글을 써 주세요.' });
+  const send = h('button', { class: 'btn btn-primary', type: 'submit' }, own && me.is_staff ? '답변 달기' : '댓글 달기');
   const err = h('p', { class: 'alert form-err', role: 'alert' });
   const form = h('form', { class: 'c-form', novalidate: true },
     h('label', { class: 'sr-only', for: 'c-body' }, `${label} 쓰기`), ta, err,
@@ -912,7 +1032,8 @@ function commentsSection(d, reload) {
     catch (e) { if (e.handled) return; err.textContent = errText(e); send.disabled = false; }
   });
   return h('section', { class: 'comments', 'aria-labelledby': 'c-h' },
-    h('h2', { class: 'h2', id: 'c-h' }, `${label} ${cs.length}`), list, form);
+    h('h2', { class: 'h2', id: 'c-h' }, `${label} ${cs.length}`), list,
+    d.can.comment ? form : h('p', { class: 'hint' }, '이 게시판에서는 댓글을 달 수 없어요.'));
 }
 
 /* ---------- 읽음 현황(운영진) ---------- */
@@ -968,12 +1089,14 @@ async function renderReceipts(id, seq) {
       h('ul', { class: 'people' }, done.length ? done.map((a) => personRow(a, m.key)) : h('li', { class: 'none' }, '아직 없어요.')));
   }
   select('opened');
-  show([tabs('notice'),
+  show([tabs(null),
     h('a', { class: 'back', href: `#/p/${id}` }, icon('back'), '공지로 돌아가기'),
     h('p', { class: 'idx' }, 'RECEIPTS'),
     h('h1', { class: 'h1', tabindex: '-1' }, '읽음 현황'),
     h('p', { class: 'desc', style: 'color:var(--ink-mid);font-weight:600' }, d.post.title),
     h('p', { class: 'desc' }, `공지를 올린 ${fmtFull(d.post.created_at)} 기준 클럽 멤버 ${n}명이에요. 그 뒤에 들어온 멤버는 세지 않아요. 열람은 글을 처음 연 때, 확인은 ‘확인했어요’를 누른 때예요. 시각은 한국 시간이에요.`),
+    d.counts.excluded ? h('p', { class: 'info' }, `제외한 멤버 ${d.counts.excluded}명은 세지 않았어요.`,
+      state.me.is_admin ? [' ', h('a', { href: '#/admin/members' }, '멤버 관리에서 보기')] : null) : null,
     tablist, panel]);
 }
 
@@ -988,15 +1111,18 @@ function renderPrivacy() {
       h('p', { class: 'desc' }, 'NV 클럽 공간이 어떤 정보를 어디에 두고, 언제 지우는지 적었어요.'),
       h('h2', null, '저장하는 정보'),
       h('ul', null,
-        h('li', null, '디스코드 아이디(숫자), 서버 별명 또는 디스코드 이름, 프로필 사진 정보, 서버 역할'),
+        h('li', null, '디스코드 아이디(숫자), 서버 별명, 디스코드 이름과 사용자명, 프로필 사진 정보, 서버 역할, 서버에 들어온 날'),
+        h('li', null, '이 사이트에 마지막으로 로그인한 때'),
         h('li', null, '내가 쓴 글과 댓글'),
         h('li', null, '공지를 처음 연 시각, ‘확인했어요’를 누른 시각'),
+        h('li', null, '관리자가 공지 읽음 집계에서 뺐다면 그 사유와 메모'),
         h('li', null, '로그인 상태를 지키는 값. 브라우저에 두고, 서버에는 알아볼 수 없게 바꾼 값만 둬요.')),
       h('p', null, h('strong', null, '이메일, IP 주소, 디스코드 로그인 토큰은 저장하지 않아요.'), ' 디스코드 토큰은 로그인 확인에만 쓰고 바로 없앱니다.'),
-      h('h2', null, '운영진이 볼 수 있는 것'),
+      h('h2', null, '운영진과 관리자가 볼 수 있는 것'),
       h('ul', null,
         h('li', null, '공지마다 누가 열어 봤는지, 누가 확인했는지, 그 시각까지 볼 수 있어요.'),
-        h('li', null, '건의사항은 쓴 사람과 운영진만 볼 수 있어요.')),
+        h('li', null, '건의사항은 쓴 사람과 운영진만 볼 수 있어요.'),
+        h('li', null, '관리자는 멤버 관리 화면에서 서버에 들어온 날, 마지막 로그인, 최근 공지를 열어 봤는지를 볼 수 있어요.')),
       h('h2', null, '처리하는 곳'),
       h('ul', null,
         h('li', null, h('strong', null, 'Discord'), ': 로그인, 서버 멤버와 역할 확인'),
@@ -1013,7 +1139,381 @@ function renderPrivacy() {
 }
 function renderNotFound() {
   setTitle('없는 페이지');
-  show([h('h1', { class: 'h1', tabindex: '-1' }, '없는 페이지예요'), h('p', { class: 'desc' }, '주소를 다시 확인해 주세요.'), h('p', null, h('a', { class: 'btn btn-ghost', href: '#/' }, '공지사항으로'))]);
+  show([h('h1', { class: 'h1', tabindex: '-1' }, '없는 페이지예요'), h('p', { class: 'desc' }, '주소를 다시 확인해 주세요.'), h('p', null, h('a', { class: 'btn btn-ghost', href: '#/' }, '처음으로'))]);
+}
+
+/* ---------- 관리(관리자만): 멤버 관리 · 게시판 설정 · 권한 설정 ---------- */
+const ADMIN_TABS = [
+  { key: 'members', name: '멤버 관리' },
+  { key: 'boards', name: '게시판 설정' },
+  { key: 'roles', name: '권한 설정' },
+];
+const ADMIN_ERR = {
+  forbidden: '관리자만 할 수 있어요.',
+  bad_slug: '주소는 영어 소문자, 숫자, -로 2~20자를 써 주세요.',
+  slug_taken: '이미 있는 주소예요. 다른 주소를 써 주세요.',
+  write_looser_than_read: '읽을 수 없는 사람이 글을 쓸 수 있게 돼 있어요. 쓰기를 읽기만큼 좁히거나 ‘작성자 본인 글은 볼 수 있음’을 켜 주세요.',
+  comment_looser_than_read: '읽을 수 없는 사람이 댓글을 달 수 있게 돼 있어요. 댓글을 읽기만큼 좁히거나 ‘작성자 본인 글은 볼 수 있음’을 켜 주세요.',
+  read_roles_required: '읽기를 ‘특정 역할’로 정했다면 역할을 하나 이상 골라 주세요.',
+  write_roles_required: '쓰기를 ‘특정 역할’로 정했다면 역할을 하나 이상 골라 주세요.',
+  comment_roles_required: '댓글을 ‘특정 역할’로 정했다면 역할을 하나 이상 골라 주세요.',
+  bad_role: '없는 역할이 들어 있어요. 화면을 새로 불러와 주세요.',
+  too_many_roles: '역할은 25개까지 고를 수 있어요.',
+  name_required: '이름을 써 주세요.',
+  name_too_long: '이름은 20자까지 쓸 수 있어요.',
+  bad_sort_order: '순서는 0부터 999까지 숫자로 써 주세요.',
+  no_staff_roles: '운영진 역할을 하나 이상 골라 주세요.',
+  self_exclude: '나 자신은 집계에서 뺄 수 없어요.',
+  confirm_staff: '운영진 계정이에요. 확인 칸을 눌러 주세요.',
+  bad_reason: '제외 사유를 골라 주세요.',
+  note_too_long: '메모는 100자까지 쓸 수 있어요.',
+  bot_token_missing: '디스코드 역할 목록을 불러오지 못했어요. 잠시 뒤 다시 해 주세요.',
+  discord: '디스코드 역할 목록을 불러오지 못했어요. 잠시 뒤 다시 해 주세요.',
+};
+const adminErr = (e) => ADMIN_ERR[e && e.code] || errText(e);
+const POLICY_LABEL = { members: '클럽원 전체', staff: '운영진', admin: '관리자', roles: '특정 역할' };
+const REASON_LABEL = { stream: '방송용', dormant: '휴면', other: '기타' };
+function fmtDate(ms) { const o = kst(ms); return `${o.year}.${o.month}.${o.day}`; }
+
+async function loadBoards() {
+  state.boards = (await api('/api/boards')).boards;
+}
+function adminFrame(active, nodes) {
+  return [
+    h('nav', { class: 'tabs', 'aria-label': '관리' },
+      ADMIN_TABS.map((t) => h('a', { href: `#/admin/${t.key}`, 'aria-current': t.key === active ? 'page' : null }, t.name))),
+    nodes,
+  ];
+}
+function adminTitle(lat, title, lines) {
+  return [
+    h('p', { class: 'idx' }, lat),
+    h('h1', { class: 'h1', tabindex: '-1' }, title),
+    lines ? h('div', { class: 'info a-intro' }, lines.map((t) => h('p', null, t))) : null,
+  ];
+}
+function notAdmin() {
+  setTitle('관리');
+  show([h('h1', { class: 'h1', tabindex: '-1', style: 'margin-bottom:16px' }, '관리'), h('p', { class: 'alert', role: 'alert' }, '관리 페이지는 관리자만 볼 수 있어요.')]);
+}
+function adminFail(active, title, e, retry) {
+  show(adminFrame(active, [h('h1', { class: 'h1', tabindex: '-1', style: 'margin-bottom:16px' }, title),
+    h('div', { class: 'alert', role: 'alert' }, h('p', { style: 'margin:0 0 10px' }, adminErr(e)),
+      h('button', { class: 'btn btn-ghost', type: 'button', onclick: retry }, '다시 불러오기'))]));
+}
+
+function roleColor(c) { return c ? '#' + Number(c).toString(16).padStart(6, '0') : '#6f6f6b'; }
+function roleDot(r) { return h('span', { class: 'rdot', style: `background:${roleColor(r.color)}`, 'aria-hidden': 'true' }); }
+/* 역할 고르기: 이름 · 색 점 · 우리 명단의 인원 */
+function rolePicker(roles, selected, opts) {
+  opts = opts || {};
+  const sel = new Set(selected || []);
+  const sum = h('p', { class: 'rp-sum' });
+  const paintSum = () => {
+    const names = roles.filter((r) => sel.has(r.id)).map((r) => r.name);
+    sum.textContent = names.length ? `고른 역할: ${names.join(', ')}` : '아직 고른 역할이 없어요.';
+  };
+  const name = 'rp-' + Math.random().toString(36).slice(2, 8);
+  const list = h('div', { class: 'rp-list' + (opts.compact ? ' compact' : ''), role: 'group', 'aria-label': opts.label || '역할' });
+  for (const r of roles) {
+    const cb = h('input', { type: 'checkbox', name, value: r.id });
+    cb.checked = sel.has(r.id);
+    cb.addEventListener('change', () => { if (cb.checked) sel.add(r.id); else sel.delete(r.id); paintSum(); });
+    list.append(h('label', { class: 'rp-row' }, cb, roleDot(r), h('span', { class: 'rp-name' }, r.name), h('span', { class: 'rp-n' }, `${r.member_count}명`)));
+  }
+  if (!roles.length) list.append(h('p', { class: 'rp-none' }, '역할 목록이 비어 있어요.'));
+  paintSum();
+  return { el: h('div', { class: 'rp' }, sum, list), value: () => roles.filter((r) => sel.has(r.id)).map((r) => r.id) };
+}
+
+/* ---------- 멤버 관리 ---------- */
+async function renderAdminMembers(seq, keep) {
+  setTitle('멤버 관리');
+  if (!keep) show(adminFrame('members', loadingEl()));
+  let d;
+  try { d = await api('/api/members'); } catch (e) {
+    if (e.handled || stale(seq)) return;
+    return adminFail('members', '멤버 관리', e, () => renderAdminMembers(++state.seq));
+  }
+  if (stale(seq)) return;
+  const ui = keep || { q: '', filter: 'all', open: null };
+  const strong = (m) => m.suggestions.some((s) => s.strong);
+  const FILTERS = [
+    { key: 'all', label: '전체', test: () => true },
+    { key: 'suggest', label: '추천 있음', test: (m) => strong(m) && !m.excluded && !m.left },
+    { key: 'excluded', label: '제외됨', test: (m) => m.excluded },
+    { key: 'staff', label: '운영진', test: (m) => m.is_staff || m.is_admin },
+    { key: 'left', label: '서버 나감', test: (m) => m.left },
+  ];
+  const summary = h('p', { class: 'm-summary' });
+  const chips = h('div', { class: 'chips', role: 'group', 'aria-label': '멤버 거르기' });
+  const count = h('p', { class: 'm-count', 'aria-live': 'polite' });
+  const listEl = h('ul', { class: 'mlist' });
+  const search = h('input', { class: 'input', type: 'search', id: 'm-q', placeholder: '닉네임이나 사용자명', autocomplete: 'off', spellcheck: 'false' });
+  search.value = ui.q;
+  search.addEventListener('input', () => { ui.q = search.value; paint(); });
+
+  function paintSummary() {
+    const s = d.summary;
+    summary.replaceChildren('집계 대상 ', h('b', null, `${s.countable}명`), ' · 제외 ', h('b', null, `${s.excluded}명`), ' · 추천 ', h('b', null, `${s.suggested}명`));
+  }
+  function paintChips() {
+    chips.replaceChildren(...FILTERS.map((f) => h('button', {
+      type: 'button', class: 'chip', 'aria-pressed': ui.filter === f.key ? 'true' : 'false',
+      onclick: () => { ui.filter = f.key; ui.open = null; paintChips(); paint(); },
+    }, f.label, h('span', { class: 'chip-n' }, String(d.members.filter(f.test).length)))));
+  }
+  const matches = (m) => {
+    const q = ui.q.trim().toLowerCase();
+    return !q || [m.name, m.username, m.global_name].some((s) => s && s.toLowerCase().includes(q));
+  };
+  function paint() {
+    const f = FILTERS.find((x) => x.key === ui.filter);
+    const rows = d.members.filter((m) => f.test(m) && matches(m)).sort((a, b) => (a.left - b.left) || a.name.localeCompare(b.name, 'ko'));
+    count.textContent = `${rows.length}명`;
+    listEl.replaceChildren(...(rows.length ? rows.map(memberRow) : [h('li', { class: 'empty' }, '맞는 멤버가 없어요.')]));
+  }
+  async function reload() {
+    d = await api('/api/members');
+    paintSummary(); paintChips(); paint();
+  }
+  async function include(m, btn) {
+    btn.disabled = true;
+    try {
+      await api(`/api/members/${m.id}`, { method: 'PATCH', body: { excluded: false } });
+      toast(`${m.name}님을 집계에 다시 넣었어요.`);
+      await reload();
+    } catch (e) { if (!e.handled) { toast(adminErr(e)); btn.disabled = false; } }
+  }
+  function memberRow(m) {
+    const av = m.avatar_url
+      ? h('img', { class: 'm-av', src: m.avatar_url, alt: '', width: 40, height: 40, loading: 'lazy' })
+      : h('span', { class: 'm-av m-av-x', 'aria-hidden': 'true' }, [...(m.name || '?').replace(/^NV(?=.)/, '')][0]);
+    const badges = [];
+    if (m.is_owner) badges.push(badge('소유자', 'admin'));
+    else if (m.is_admin) badges.push(badge('관리자', 'admin'));
+    if (m.is_staff) badges.push(badge('운영진', 'staff'));
+    if (m.excluded) badges.push(badge(`제외됨 · ${REASON_LABEL[m.exclude_reason] || '기타'}`, 'ex'));
+    if (m.left) badges.push(badge('서버 나감', 'left'));
+    if (m.is_me) badges.push(badge('나', 'left'));
+    const rn = m.recent_notices;
+    const facts = [
+      m.guild_joined_at ? `서버 가입 ${fmtDate(m.guild_joined_at)}` : '서버 가입일 모름',
+      m.last_login_at ? `마지막 로그인 ${fmtDate(m.last_login_at)}` : '로그인 기록 없음',
+      rn.total ? `최근 공지 열람 ${rn.opened}/${rn.total}` : '받은 공지 없음',
+    ];
+    let act;
+    if (m.is_me) act = h('span', { class: 'm-self' }, '본인');
+    else if (m.excluded) {
+      act = h('button', { class: 'btn btn-ghost', type: 'button', onclick: (ev) => include(m, ev.currentTarget) }, '포함');
+    } else {
+      act = h('button', {
+        class: 'btn btn-danger', type: 'button', 'aria-expanded': ui.open === m.id ? 'true' : 'false',
+        onclick: () => { ui.open = ui.open === m.id ? null : m.id; paint(); },
+      }, '제외');
+    }
+    return h('li', { class: 'mrow' + (m.excluded ? ' is-ex' : '') },
+      h('div', { class: 'm-who' }, av, h('div', { class: 'm-id' },
+        h('div', { class: 'm-name' }, h('span', { class: 'm-nm' }, m.name), badges),
+        m.username ? h('div', { class: 'm-user' }, '@' + m.username) : null)),
+      h('div', { class: 'm-act' }, act),
+      m.suggestions.length ? h('div', { class: 'm-sugg' }, m.suggestions.map((s) => h('span', { class: 'sg ' + (s.strong ? 'sg-strong' : 'sg-weak') }, s.label_ko))) : null,
+      h('p', { class: 'm-facts' }, facts.map((f, i) => [i ? ' · ' : '', h('span', { class: 'nw' }, f)])),
+      m.excluded ? h('p', { class: 'm-exinfo' }, `${m.excluded_by ? m.excluded_by.name : '관리자'}님이 ${m.excluded_at ? fmtDate(m.excluded_at) : ''}에 뺐어요`, m.exclude_note ? ` · 메모: ${m.exclude_note}` : '') : null,
+      ui.open === m.id ? excludePanel(m) : null);
+  }
+  function excludePanel(m) {
+    const has = (c) => m.suggestions.some((s) => s.code === c);
+    const pre = has('stream') ? 'stream' : has('dormant') ? 'dormant' : 'other';
+    const gid = 'ex-' + m.id;
+    const radios = [['stream', '방송용 계정'], ['dormant', '휴면 계정'], ['other', '기타']].map(([v, t]) => {
+      const r = h('input', { type: 'radio', name: gid, value: v });
+      r.checked = v === pre;
+      return h('label', { class: 'check' }, r, t);
+    });
+    const note = h('input', { class: 'input', id: gid + '-note', maxlength: 100, autocomplete: 'off', placeholder: '예: 방송 시청용 부계정' });
+    const staffTarget = m.is_staff || m.is_admin;
+    const confirmCb = staffTarget ? h('input', { type: 'checkbox' }) : null;
+    const err = h('p', { class: 'alert form-err', role: 'alert' });
+    const submit = h('button', { class: 'btn btn-primary', type: 'submit' }, '제외하기');
+    const form = h('form', { class: 'm-panel', novalidate: true, 'aria-label': `${m.name} 집계에서 빼기` },
+      h('fieldset', { class: 'm-reasons' }, h('legend', null, '제외 사유'), radios),
+      h('div', { class: 'field' }, h('label', { for: note.id }, '메모 (선택, 100자까지)'), note, counter(note, 100)),
+      staffTarget ? h('label', { class: 'check warn' }, confirmCb, '운영진 계정이에요. 그래도 집계에서 뺄게요.') : null,
+      h('p', { class: 'hint' }, '공지 읽음 집계에서만 빠져요. 로그인과 글 읽기는 그대로예요. 언제든 다시 넣을 수 있어요.'),
+      err,
+      h('div', { class: 'actions' }, submit, h('button', { class: 'btn btn-ghost', type: 'button', onclick: () => { ui.open = null; paint(); } }, '취소')));
+    form.addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+      err.textContent = '';
+      const picked = form.querySelector(`input[name="${gid}"]:checked`);
+      if (!picked) { err.textContent = ADMIN_ERR.bad_reason; return; }
+      if (confirmCb && !confirmCb.checked) { err.textContent = ADMIN_ERR.confirm_staff; confirmCb.focus(); return; }
+      submit.disabled = true;
+      try {
+        await api(`/api/members/${m.id}`, { method: 'PATCH', body: { excluded: true, reason: picked.value, note: note.value.trim() || undefined, confirm_staff: confirmCb ? true : undefined } });
+        ui.open = null;
+        toast(`${m.name}님을 집계에서 뺐어요.`);
+        await reload();
+      } catch (e) { if (e.handled) return; err.textContent = adminErr(e); submit.disabled = false; }
+    });
+    return form;
+  }
+
+  paintSummary(); paintChips(); paint();
+  show(adminFrame('members', [
+    adminTitle('MEMBERS', '멤버 관리', [
+      '자동 추천은 표시만 해요. 실제로 빼는 건 관리자가 직접 눌러야 해요.',
+      '제외한 멤버는 공지 읽음 집계에서 빠지지만, 로그인해서 글을 읽을 수는 있어요.',
+    ]),
+    summary,
+    h('div', { class: 'm-tools' }, h('div', { class: 'field' }, h('label', { for: 'm-q' }, '멤버 찾기'), search), chips),
+    count, listEl]), { keepScroll: !!keep });
+}
+
+/* ---------- 게시판 설정 ---------- */
+async function renderAdminBoards(seq, keep) {
+  setTitle('게시판 설정');
+  if (!keep) show(adminFrame('boards', loadingEl()));
+  let boards, roles, rolesErr = null;
+  try {
+    [boards, roles] = await Promise.all([
+      api('/api/admin/boards'),
+      api('/api/admin/roles').catch((e) => { if (e.handled) throw e; rolesErr = e; return { roles: [] }; }),
+    ]);
+  } catch (e) {
+    if (e.handled || stale(seq)) return;
+    return adminFail('boards', '게시판 설정', e, () => renderAdminBoards(++state.seq));
+  }
+  if (stale(seq)) return;
+  const reload = () => renderAdminBoards(++state.seq, true);
+  show(adminFrame('boards', [
+    adminTitle('BOARDS', '게시판 설정', [
+      '게시판마다 누가 읽고, 쓰고, 댓글을 달 수 있는지 정해요. 저장하면 바로 적용돼요.',
+      '운영진과 관리자는 ‘특정 역할’ 게시판도 볼 수 있어요. 게시판은 지우지 않고 숨겨요. 숨겨도 글은 남아요.',
+    ]),
+    rolesErr ? h('p', { class: 'alert', role: 'alert' }, '디스코드 역할 목록을 불러오지 못했어요. 지금은 ‘특정 역할’을 고를 수 없어요.') : null,
+    h('div', { class: 'b-list' }, boards.boards.map((b) => boardEditor(b, roles.roles, false, reload))),
+    h('h2', { class: 'sub-h' }, '새 게시판'),
+    boardEditor(null, roles.roles, true, reload)]), { keepScroll: !!keep });
+}
+function policyField(k, d, roles, uid) {
+  const LABEL = { read: '읽기', write: '쓰기', comment: '댓글' };
+  const id = `bp-${k}-${uid}`;
+  const sel = h('select', { class: 'input select', id }, ['members', 'staff', 'admin', 'roles'].map((v) => h('option', { value: v }, POLICY_LABEL[v])));
+  sel.value = d[`${k}_policy`];
+  const picker = rolePicker(roles, d[`${k}_roles`], { compact: true, label: `${LABEL[k]}할 수 있는 역할` });
+  picker.el.hidden = sel.value !== 'roles';
+  sel.addEventListener('change', () => { picker.el.hidden = sel.value !== 'roles'; });
+  return {
+    el: h('div', { class: 'field b-pol' }, h('label', { for: id }, LABEL[k]), sel, picker.el),
+    get: () => ({ [`${k}_policy`]: sel.value, [`${k}_roles`]: sel.value === 'roles' ? picker.value() : [] }),
+  };
+}
+function toggle(cb, title, help) {
+  return h('label', { class: 'check tgl' }, cb, h('span', null, title, h('small', null, help)));
+}
+function boardEditor(b, roles, isNew, reload) {
+  const d = b || { slug: '', name: '', read_policy: 'members', read_roles: [], write_policy: 'members', write_roles: [], comment_policy: 'members', comment_roles: [], private_own: false, receipts_enabled: false, sort_order: '', hidden: false, post_count: 0 };
+  const uid = isNew ? 'new' : d.slug;
+  const slug = isNew ? h('input', { class: 'input', id: `bs-${uid}`, maxlength: 20, autocomplete: 'off', autocapitalize: 'off', spellcheck: 'false', placeholder: '예: league' }) : null;
+  const name = h('input', { class: 'input', id: `bn-${uid}`, maxlength: 20, autocomplete: 'off' });
+  name.value = d.name;
+  const order = h('input', { class: 'input', id: `bo-${uid}`, type: 'number', min: 0, max: 999, inputmode: 'numeric' });
+  order.value = d.sort_order === '' ? '' : String(d.sort_order);
+  const pols = ['read', 'write', 'comment'].map((k) => policyField(k, d, roles, uid));
+  const own = h('input', { type: 'checkbox' }); own.checked = !!d.private_own;
+  const rc = h('input', { type: 'checkbox' }); rc.checked = !!d.receipts_enabled;
+  const hid = isNew ? null : h('input', { type: 'checkbox' });
+  if (hid) hid.checked = !!d.hidden;
+  const err = h('p', { class: 'alert form-err', role: 'alert' });
+  const submit = h('button', { class: 'btn btn-primary', type: 'submit' }, isNew ? '게시판 만들기' : '저장');
+  const form = h('form', { class: 'panel b-edit' + (d.hidden ? ' is-hidden' : ''), novalidate: true, 'aria-labelledby': `bh-${uid}` },
+    h('div', { class: 'b-head' },
+      h('h3', { class: 'h3', id: `bh-${uid}` }, isNew ? '새 게시판 만들기' : d.name),
+      isNew ? null : h('span', { class: 'b-meta' }, `#/b/${d.slug} · 글 ${d.post_count}개`, d.hidden ? badge('숨김', 'hidden') : null)),
+    h('div', { class: 'b-grid' },
+      slug ? h('div', { class: 'field f-slug' }, h('label', { for: slug.id }, '주소 (영어 소문자·숫자·-, 2~20자)'), slug) : null,
+      h('div', { class: 'field' }, h('label', { for: name.id }, '이름'), name),
+      h('div', { class: 'field' }, h('label', { for: order.id }, '순서'), order)),
+    h('div', { class: 'b-pols' }, pols.map((p) => p.el)),
+    h('div', { class: 'b-toggles' },
+      toggle(own, '작성자 본인 글은 볼 수 있음', '읽기가 막혀 있어도 쓴 사람은 자기 글과 답을 봐요. 건의사항이 이렇게 돼 있어요.'),
+      toggle(rc, '읽음 확인 집계', '‘확인했어요’ 버튼과 읽음 현황을 써요. 공지사항이 이렇게 돼 있어요.'),
+      hid ? toggle(hid, '숨기기', '탭에서 빠져요. 글은 지우지 않아요.') : null),
+    err,
+    h('div', { class: 'actions' }, submit));
+  form.addEventListener('submit', async (ev) => {
+    ev.preventDefault();
+    err.textContent = '';
+    const body = { name: name.value.trim(), private_own: own.checked, receipts_enabled: rc.checked };
+    if (order.value !== '') body.sort_order = Number(order.value);
+    for (const p of pols) Object.assign(body, p.get());
+    if (hid) body.hidden = hid.checked;
+    if (isNew) body.slug = slug.value.trim();
+    if (isNew && !/^[a-z0-9-]{2,20}$/.test(body.slug)) { err.textContent = ADMIN_ERR.bad_slug; slug.focus(); return; }
+    if (!body.name) { err.textContent = ADMIN_ERR.name_required; name.focus(); return; }
+    submit.disabled = true;
+    try {
+      if (isNew) await api('/api/admin/boards', { method: 'POST', body });
+      else await api(`/api/admin/boards/${d.slug}`, { method: 'PATCH', body });
+      await loadBoards();
+      toast(isNew ? '게시판을 만들었어요.' : `${body.name} 설정을 저장했어요.`);
+      reload();
+    } catch (e) { if (e.handled) return; err.textContent = adminErr(e); submit.disabled = false; }
+  });
+  return form;
+}
+
+/* ---------- 권한 설정 ---------- */
+async function renderAdminRoles(seq, keep) {
+  setTitle('권한 설정');
+  if (!keep) show(adminFrame('roles', loadingEl()));
+  let st, rl;
+  try { [st, rl] = await Promise.all([api('/api/admin/settings'), api('/api/admin/roles')]); } catch (e) {
+    if (e.handled || stale(seq)) return;
+    return adminFail('roles', '권한 설정', e, () => renderAdminRoles(++state.seq));
+  }
+  if (stale(seq)) return;
+  const staffP = rolePicker(rl.roles, st.staff_role_ids, { label: '운영진 역할' });
+  const adminP = rolePicker(rl.roles, st.admin_role_ids, { label: '관리자 역할' });
+  const err = h('p', { class: 'alert form-err', role: 'alert' });
+  const submit = h('button', { class: 'btn btn-primary', type: 'submit' }, '권한 저장');
+  const owners = st.owners.map((o) => o.name || `아이디 ${o.id}`).join(', ');
+  const form = h('form', { class: 'form', novalidate: true },
+    h('section', { class: 'panel', 'aria-labelledby': 'r-staff' },
+      h('h2', { class: 'h2', id: 'r-staff' }, '운영진으로 인정할 디스코드 역할'),
+      h('p', { class: 'hint', style: 'margin-bottom:12px' }, '공지 쓰기, 글 숨기기와 지우기, 읽음 현황, 건의사항 읽기를 할 수 있어요.'),
+      staffP.el),
+    h('section', { class: 'panel', 'aria-labelledby': 'r-admin' },
+      h('h2', { class: 'h2', id: 'r-admin' }, '관리 페이지에 들어올 수 있는 디스코드 역할'),
+      h('p', { class: 'hint', style: 'margin-bottom:12px' }, '멤버 관리, 게시판 설정, 권한 설정을 할 수 있어요. 관리자는 운영진이 하는 일도 모두 할 수 있어요.'),
+      adminP.el),
+    err,
+    h('div', { class: 'actions' }, submit));
+  form.addEventListener('submit', async (ev) => {
+    ev.preventDefault();
+    err.textContent = '';
+    const staff = staffP.value();
+    if (!staff.length) { err.textContent = ADMIN_ERR.no_staff_roles; return; }
+    submit.disabled = true;
+    try {
+      const r = await api('/api/admin/settings', { method: 'PUT', body: { staff_role_ids: staff, admin_role_ids: adminP.value() } });
+      toast(`저장했어요. ${r.recomputed}명의 권한을 바로 바꿨어요.`);
+      state.me = (await api('/api/me')).me;
+      renderWho();
+      await loadBoards();
+      if (!state.me.is_admin) return route();
+      renderAdminRoles(++state.seq, true);
+    } catch (e) { if (e.handled) return; err.textContent = adminErr(e); submit.disabled = false; }
+  });
+  show(adminFrame('roles', [
+    adminTitle('ROLES', '권한 설정', [
+      '디스코드 역할로 운영진과 관리자를 정해요. 저장하면 사이트에 저장된 역할 정보로 바로 다시 계산해요.',
+      '역할 옆 숫자는 이 사이트 명단에 있는 사람 수예요.',
+    ]),
+    h('p', { class: 'owner-note' }, '소유자(사이트를 만든 사람)는 항상 관리자예요.', owners ? ` 지금 소유자: ${owners}` : ''),
+    form]), { keepScroll: !!keep });
 }
 
 /* ---------- 시작 ---------- */
@@ -1062,10 +1562,15 @@ async function boot() {
       else { renderWho(); return show([h('h1', { class: 'h1', tabindex: '-1', style: 'margin-bottom:16px' }, '클럽 공간'), errorBox(e, () => location.reload())]); }
     }
   }
+  if (state.me) {
+    try { await loadBoards(); } catch (e) {
+      if (!e.handled) { renderWho(); return show([h('h1', { class: 'h1', tabindex: '-1', style: 'margin-bottom:16px' }, '클럽 공간'), errorBox(e, () => location.reload())]); }
+    }
+  }
   renderWho();
   window.addEventListener('hashchange', async () => {
     state.navigated = true;
-    if (/^#(ticket|error)=/.test(location.hash)) { await consumeAuthFragment(); renderWho(); }
+    if (/^#(ticket|error)=/.test(location.hash)) { await consumeAuthFragment(); if (state.me) { try { await loadBoards(); } catch (e) {} } renderWho(); }
     route();
   });
   route();

@@ -300,8 +300,10 @@
   .btn-club .club-t { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; line-height: 1.1; }
   .btn-club small { font-size: 12px; font-weight: 500; letter-spacing: 0.02em; color: rgba(255, 225, 228, 0.82); }
   .motion .btn-club { animation: tapRing 2.6s ease-out 2.6s infinite; }
-  .nav li a.nav-club {
-    color: #fff; font-weight: 600; margin-left: 6px; min-height: 36px; padding: 0 14px; border-radius: 2px;
+  /* 누르는 영역은 44px, 빨간 알약은 그 안에 더 작게 */
+  .nav li a.nav-club { color: #fff; font-weight: 600; margin-left: 6px; min-height: 44px; padding: 0 14px; isolation: isolate; }
+  .nav li a.nav-club::before {
+    content: ''; position: absolute; left: 0; right: 0; top: 4px; bottom: 4px; z-index: -1; border-radius: 2px;
     background: linear-gradient(170deg, #b8142c 0%, #a0071e 55%, #c92d3f 100%);
     box-shadow: inset 0 0 0 1px rgba(255, 140, 150, 0.35), 0 6px 20px -8px rgba(230, 74, 88, 0.9);
   }
@@ -310,7 +312,8 @@
   @media (max-width: 700px) {
     .hero-cta .btn-club { flex: 1 1 100%; max-width: 360px; justify-content: center; }
     .btn-club .club-t { align-items: center; }
-    .nav li a.nav-club { margin-left: 2px; padding: 0 9px; min-height: 34px; }
+    .nav li a.nav-club { margin-left: 2px; padding: 0 9px; }
+    .nav li a.nav-club::before { top: 5px; bottom: 5px; }
   }
   .nav li a { white-space: nowrap; }
   @media (max-width: 370px) {
