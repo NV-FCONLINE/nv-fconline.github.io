@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>NV · NAME VALUE</title>
+    <meta name="description" content="FC Online 클럽 NV(NAME VALUE) 홈페이지" />
+    <meta name="theme-color" content="#000000" />
+    <meta name="color-scheme" content="dark" />
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png" />
+    <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+    <meta property="og:title" content="NV · NAME VALUE" />
+    <meta property="og:description" content="FC Online 클럽 NV 홈페이지" />
+    <meta property="og:image" content="https://nv-fconline.github.io/assets/nv-mark.png" />
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
+    />
+    <style>
+      /* 클럽마크에서 잰 색 */
+      :root {
+        --bg: #000;
+        --red-top: #a0071e;
+        --red-bottom: #e64a58;
+        --ink: #d8d8d6;
+        --muted: #8b8b89;
+        --sky: #44a0c0;
+        --line: rgba(255, 255, 255, 0.12);
+        --font: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo',
+          'Malgun Gothic', system-ui, sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        min-height: 100%;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: var(--font);
+        -webkit-font-smoothing: antialiased;
+      }
+
+      body {
+        min-height: 100svh;
+        display: grid;
+        place-items: center;
+        padding: 32px 16px calc(32px + env(safe-area-inset-bottom, 0px));
+        /* 마크 뒤로 은은한 빨간 빛 */
+        background: radial-gradient(60vmax 42vmax at 50% 38%, rgba(160, 7, 30, 0.22), transparent 70%), var(--bg);
+      }
+
+      main {
+        width: min(100%, 440px);
+        text-align: center;
+      }
+
+      .mark {
+        display: block;
+        width: 100%;
+        height: auto;
+        margin: 0 auto;
+      }
+
+      .status {
+        margin: 28px 0 0;
+        font-size: 17px;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+      }
+
+      .sub {
+        margin: 8px 0 0;
+        font-size: 14px;
+        color: var(--muted);
+      }
+
+      .links {
+        margin: 28px 0 0;
+        display: flex;
+        justify-content: center;
+      }
+
+      .links a {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        min-height: 44px;
+        padding: 0 20px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        color: var(--ink);
+        text-decoration: none;
+        font-size: 15px;
+        font-weight: 600;
+        transition: border-color 0.2s, background-color 0.2s;
+      }
+
+      .links a:hover,
+      .links a:focus-visible {
+        border-color: var(--red-bottom);
+        background: rgba(230, 74, 88, 0.1);
+        outline: none;
+      }
+
+      .links a span {
+        color: var(--red-bottom);
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <img
+        class="mark"
+        src="assets/nv-club-mark.png"
+        width="731"
+        height="584"
+        alt="NV NAME VALUE 클럽마크"
+      />
+      <p class="status">홈페이지 준비 중입니다</p>
+      <p class="sub">FC Online 클럽 NV</p>
+      <nav class="links" aria-label="바로가기">
+        <a href="https://dindoopark.github.io/nv-league/">내전 리그 순위 보기 <span aria-hidden="true">→</span></a>
+      </nav>
+    </main>
+  </body>
+</html>
