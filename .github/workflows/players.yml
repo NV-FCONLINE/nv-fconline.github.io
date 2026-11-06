@@ -1,0 +1,38 @@
+# Refresh FC Online player names (club/players/*.json) from the NEXON Open API metadata every week.
+# NEXON terms ask that data taken from the API be refreshed within 30 days.
+name: refresh player names
+
+on:
+  schedule:
+    - cron: "40 19 * * 0" # Monday 04:40 KST
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python tools/build_players.py
+      - name: commit if changed
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git add club/players
+          # meta.json always has a new time; only commit when a name file changed
+          if git diff --cached --quiet -- club/players ':!club/players/meta.json'; then
+            echo "no name changes"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "chore: refresh player names from NEXON metadata"
+          git push
+          # pushes made with the workflow token may not start a Pages build on their own
+          gh api -X POST "repos/${GITHUB_REPOSITORY}/pages/builds" || true
