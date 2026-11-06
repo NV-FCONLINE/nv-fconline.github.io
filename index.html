@@ -1,133 +1,1747 @@
 <!doctype html>
 <html lang="ko">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>NV · NAME VALUE</title>
-    <meta name="description" content="FC Online 클럽 NV(NAME VALUE) 홈페이지" />
-    <meta name="theme-color" content="#000000" />
-    <meta name="color-scheme" content="dark" />
-    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png" />
-    <link rel="apple-touch-icon" href="apple-touch-icon.png" />
-    <meta property="og:title" content="NV · NAME VALUE" />
-    <meta property="og:description" content="FC Online 클럽 NV 홈페이지" />
-    <meta property="og:image" content="https://nv-fconline.github.io/assets/nv-mark.png" />
-    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
-    />
-    <style>
-      /* 클럽마크에서 잰 색 */
-      :root {
-        --bg: #000;
-        --red-top: #a0071e;
-        --red-bottom: #e64a58;
-        --ink: #d8d8d6;
-        --muted: #8b8b89;
-        --sky: #44a0c0;
-        --line: rgba(255, 255, 255, 0.12);
-        --font: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo',
-          'Malgun Gothic', system-ui, sans-serif;
-      }
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>NV · NAME VALUE — FC Online 클럽</title>
+<meta name="description" content="FC Online 클럽 NV(NAME VALUE) 홈페이지 — 클럽 소개, 내전 리그, 운영진, 가입 안내">
+<meta name="theme-color" content="#000000">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="canonical" href="https://nv-fconline.github.io/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://nv-fconline.github.io/">
+<meta property="og:title" content="NV · NAME VALUE — FC Online 클럽">
+<meta property="og:description" content="FC Online 클럽 NV 홈페이지. 클럽 소개, 내전 리그, 운영진, 가입 안내">
+<meta property="og:image" content="https://nv-fconline.github.io/assets/og-image.png">
+<script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+    }
+  }
+</script>
+<script>
+  /* 첫 판단: WebGL 가능 여부 · 움직임 줄이기 — 클래스만 붙인다(글은 언제나 HTML에 있음). */
+  (function () {
+    var d = document.documentElement;
+    d.classList.add('js');
+    var reduce = false;
+    try { reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
+    var ok = false;
+    try {
+      var c = document.createElement('canvas');
+      ok = !!(c.getContext('webgl2') || c.getContext('webgl'));
+    } catch (e) { ok = false; }
+    d.classList.add(ok ? 'gl' : 'nogl');
+    d.classList.add(reduce ? 'reduce' : 'motion');
+    window.__NV_GL_OK = ok;
+    if (ok) {
+      /* three.js를 글꼴·브랜드 자산과 나란히 미리 받아 둔다 */
+      var base = 'https://cdn.jsdelivr.net/npm/three@0.160.0/';
+      var files = ['build/three.module.js'];
+      files.forEach(function (f) {
+        var l = document.createElement('link');
+        l.rel = 'modulepreload';
+        l.href = base + f;
+        document.head.appendChild(l);
+      });
+      /* three.js가 끝내 뜨지 않으면 정적 화면으로 */
+      window.__NV_GL_WATCH = setTimeout(function () {
+        d.classList.remove('gl');
+        d.classList.add('nogl');
+      }, 8000);
+    }
+  })();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=Michroma&display=swap">
+<script src="assets/nv-brand.js"></script>
+<style>
+  :root {
+    color-scheme: dark;
+    --bg: #000000;
+    --ink: #d8d8d6;
+    --ink-hi: #f3f3f1;
+    --ink-mid: #c4c4c1;
+    --ink-dim: #9a9a96;
+    --red-top: #a0071e;
+    --red-mid: #c92d3f;
+    --red-bot: #e64a58;
+    --sky: #44a0c0;
+    --sky-teal: #38c0c8;
+    --sky-blue: #5890c8;
+    --line: rgba(230, 74, 88, 0.34);
+    --line-soft: rgba(230, 74, 88, 0.16);
+    --glass: rgba(9, 5, 7, 0.62);
+    --glass-edge: rgba(216, 216, 214, 0.1);
+    --f-lat: 'Michroma', 'Eurostile', 'Segoe UI', 'Malgun Gothic', 'Apple SD Gothic Neo', system-ui, sans-serif;
+    --f-kr: 'IBM Plex Sans KR', 'Malgun Gothic', 'Apple SD Gothic Neo', 'Noto Sans KR', system-ui, sans-serif;
+    --gut-l: max(16px, env(safe-area-inset-left, 0px));
+    --gut-r: max(16px, env(safe-area-inset-right, 0px));
+    --nav-h: 64px;
+  }
+  @media (min-width: 900px) {
+    :root {
+      --gut-l: max(48px, env(safe-area-inset-left, 0px));
+      --gut-r: max(48px, env(safe-area-inset-right, 0px));
+      --nav-h: 76px;
+    }
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  html { background: var(--bg); -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+  html.motion { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--f-kr);
+    font-size: 16px;
+    line-height: 1.75;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    -webkit-font-smoothing: antialiased;
+  }
+  img { max-width: 100%; }
+  a { color: inherit; }
+  :focus-visible { outline: 2px solid var(--sky); outline-offset: 3px; border-radius: 2px; }
+  .sr-only {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+  }
 
-      * {
-        box-sizing: border-box;
-      }
+  /* ---------- 배경 캔버스 ---------- */
+  #gl {
+    position: fixed; inset: 0; width: 100%; height: 100%;
+    display: block; z-index: 0; pointer-events: none;
+    opacity: 0; transition: opacity 0.3s ease;
+  }
+  .gl-ready #gl { opacity: 1; }
+  .nogl #gl { display: none; }
+  .reduce #gl { position: absolute; top: 0; left: 0; height: 100vh; height: 100svh; transition: none; }
 
-      html,
-      body {
-        margin: 0;
-        min-height: 100%;
-        background: var(--bg);
-        color: var(--ink);
-        font-family: var(--font);
-        -webkit-font-smoothing: antialiased;
-      }
+  .fallback-bg { display: none; }
+  .nogl .fallback-bg {
+    display: block; position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(ellipse 46% 36% at 50% 36%, rgba(160, 7, 30, 0.42), rgba(160, 7, 30, 0) 70%),
+      radial-gradient(ellipse 80% 50% at 50% 40%, rgba(90, 4, 18, 0.35), rgba(0, 0, 0, 0) 70%),
+      radial-gradient(ellipse 30% 22% at 78% 74%, rgba(68, 160, 192, 0.08), rgba(0, 0, 0, 0) 70%),
+      #000;
+  }
+  .nogl .fallback-bg::before {
+    content: ''; position: absolute; inset: 0; opacity: 0.55;
+    background-image:
+      radial-gradient(circle at 20% 30%, rgba(230, 74, 88, 0.9) 0 1px, transparent 1.5px),
+      radial-gradient(circle at 70% 80%, rgba(216, 216, 214, 0.7) 0 1px, transparent 1.5px),
+      radial-gradient(circle at 45% 60%, rgba(230, 74, 88, 0.6) 0 0.8px, transparent 1.3px),
+      radial-gradient(circle at 85% 15%, rgba(68, 160, 192, 0.8) 0 0.8px, transparent 1.3px);
+    background-size: 173px 173px, 241px 241px, 97px 97px, 311px 311px;
+  }
 
-      body {
-        min-height: 100svh;
-        display: grid;
-        place-items: center;
-        padding: 32px 16px calc(32px + env(safe-area-inset-bottom, 0px));
-        /* 마크 뒤로 은은한 빨간 빛 */
-        background: radial-gradient(60vmax 42vmax at 50% 38%, rgba(160, 7, 30, 0.22), transparent 70%), var(--bg);
-      }
+  /* ---------- 상단 메뉴 ---------- */
+  .nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 30;
+    padding-top: env(safe-area-inset-top, 0px);
+    transition: background-color 0.4s ease, border-color 0.4s ease, backdrop-filter 0.4s ease;
+    border-bottom: 1px solid transparent;
+  }
+  .nav.scrolled {
+    background: rgba(0, 0, 0, 0.62);
+    border-bottom-color: rgba(230, 74, 88, 0.16);
+    -webkit-backdrop-filter: blur(14px) saturate(130%);
+    backdrop-filter: blur(14px) saturate(130%);
+  }
+  .nav-in {
+    height: var(--nav-h);
+    max-width: 1440px; margin: 0 auto;
+    padding-left: var(--gut-l); padding-right: var(--gut-r);
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  }
+  .brand {
+    display: inline-flex; align-items: center; gap: 10px;
+    min-height: 44px; text-decoration: none; color: var(--ink-hi);
+    font-family: var(--f-lat); font-size: 15px; letter-spacing: 0.14em;
+  }
+  .brand img { width: 30px; height: 30px; display: block; filter: drop-shadow(0 0 10px rgba(230, 74, 88, 0.45)); }
+  .nav ul { list-style: none; margin: 0; padding: 0; display: flex; align-items: center; gap: 4px; }
+  .nav li a {
+    position: relative; display: inline-flex; align-items: center; justify-content: center;
+    min-height: 44px; min-width: 44px; padding: 0 14px;
+    font-size: 15px; font-weight: 500; color: var(--ink-mid); text-decoration: none;
+    transition: color 0.25s ease;
+  }
+  .nav li a::after {
+    content: ''; position: absolute; left: 14px; right: 14px; bottom: 8px; height: 1px;
+    background: linear-gradient(90deg, var(--red-top), var(--red-bot));
+    transform: scaleX(0); transform-origin: left; transition: transform 0.35s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+  .nav li a:hover, .nav li a:focus-visible { color: var(--ink-hi); }
+  .nav li a:hover::after, .nav li a:focus-visible::after { transform: scaleX(1); }
+  @media (max-width: 700px) {
+    .brand { font-size: 14px; gap: 8px; }
+    .brand img { width: 26px; height: 26px; }
+    .nav ul { gap: 0; }
+    .nav li a { padding: 0 8px; font-size: 14px; }
+    .nav li a::after { left: 8px; right: 8px; }
+  }
+  @media (max-width: 370px) {
+    .nav li a { padding: 0 5px; font-size: 13px; }
+  }
 
-      main {
-        width: min(100%, 440px);
-        text-align: center;
-      }
+  main, .foot { position: relative; z-index: 1; }
 
-      .mark {
-        display: block;
-        width: 100%;
-        height: auto;
-        margin: 0 auto;
-        /* 원본의 검정 배경이 뒤쪽 빨간 빛 위에서 네모로 보이지 않게 */
-        mix-blend-mode: screen;
-      }
+  /* ---------- 히어로 ---------- */
+  .hero {
+    position: relative; min-height: 100vh; min-height: 100svh;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding-left: var(--gut-l); padding-right: var(--gut-r);
+    padding-block: calc(var(--nav-h) + 20px + env(safe-area-inset-top, 0px)) calc(84px + env(safe-area-inset-bottom, 0px));
+    text-align: center; overflow: clip;
+  }
+  .hero-in { display: flex; flex-direction: column; align-items: center; width: 100%; }
+  .hero-mark {
+    position: relative;
+    width: min(84vw, 42vh, 430px);
+    width: min(84vw, 42svh, 430px);
+    aspect-ratio: 1 / 1;
+  }
+  @media (min-width: 701px) {
+    .hero-mark { width: min(34vw, 44vh, 440px); width: min(34vw, 44svh, 440px); }
+  }
+  .hero-mark img { display: block; width: 100%; height: 100%; transition: opacity 0.6s ease; }
+  .gl .hero-mark img { opacity: 0; }
+  /* three.js가 늦게 오면(느린 회선) 2.6초 뒤 정적 마크를 먼저 보여 준다 — 첫 프레임이 그려지면 다시 숨김 */
+  .gl:not(.gl-ready) .hero-mark img { animation: markLate 0.8s ease 2.6s both; }
+  @keyframes markLate { from { opacity: 0; } to { opacity: 1; } }
+  .nogl .hero-mark img {
+    filter: drop-shadow(0 0 28px rgba(230, 74, 88, 0.45)) drop-shadow(0 0 90px rgba(160, 7, 30, 0.55));
+  }
+  .nogl .hero-mark::before, .nogl .hero-mark::after {
+    content: ''; position: absolute; left: -26%; right: -26%; top: 50%; height: 30%;
+    margin-top: -15%; border-radius: 50%;
+    border: 1px solid rgba(230, 74, 88, 0.42);
+    box-shadow: 0 0 24px rgba(230, 74, 88, 0.18);
+    transform: rotate(-11deg); pointer-events: none;
+  }
+  .nogl .hero-mark::after { left: -44%; right: -44%; height: 40%; margin-top: -20%; transform: rotate(18deg); border-color: rgba(230, 74, 88, 0.2); }
+  .hero-word { margin: 10px 0 0; line-height: 0; width: min(80vw, 470px); }
+  .hero-word img { display: block; width: 100%; height: auto; }
+  .hero-label {
+    margin: 28px 0 0; display: inline-flex; align-items: center; gap: 14px;
+    font-family: var(--f-lat); font-size: 12px; line-height: 1.4; letter-spacing: 0.42em;
+    color: var(--sky); padding-left: 0.42em;
+  }
+  .hero-label::before, .hero-label::after {
+    content: ''; width: 36px; height: 1px; flex: none;
+    background: linear-gradient(90deg, rgba(68, 160, 192, 0), rgba(68, 160, 192, 0.9));
+  }
+  .hero-label::after { transform: scaleX(-1); }
+  .hero-cta { margin-top: 30px; display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
+  @media (max-width: 700px) {
+    .hero-label { margin-top: 22px; font-size: 11px; letter-spacing: 0.34em; gap: 10px; padding-left: 0.34em; }
+    .hero-label::before, .hero-label::after { width: 24px; }
+    .hero-cta { margin-top: 24px; gap: 10px; }
+  }
 
-      .status {
-        margin: 28px 0 0;
-        font-size: 17px;
-        font-weight: 600;
-        letter-spacing: -0.01em;
-      }
+  .scroll-cue {
+    position: absolute; left: 50%; bottom: calc(22px + env(safe-area-inset-bottom, 0px));
+    width: 1px; height: 46px; margin-left: -0.5px; overflow: hidden;
+    background: linear-gradient(180deg, rgba(216, 216, 214, 0), rgba(216, 216, 214, 0.38));
+  }
+  .scroll-cue span {
+    position: absolute; left: -1px; top: 0; width: 3px; height: 12px; border-radius: 2px;
+    background: var(--red-bot); box-shadow: 0 0 10px var(--red-bot);
+  }
+  .motion .scroll-cue span { animation: cue 2.2s cubic-bezier(0.6, 0, 0.3, 1) infinite; }
+  @keyframes cue { 0% { transform: translateY(-14px); opacity: 0; } 30% { opacity: 1; } 100% { transform: translateY(48px); opacity: 0; } }
 
-      .sub {
-        margin: 8px 0 0;
-        font-size: 14px;
-        color: var(--muted);
-      }
+  /* 인트로 글 드러내기: 0.38 이상에서 시작, 2.3초 안에 끝 */
+  .motion .hero .reveal { animation: heroIn 0.9s cubic-bezier(0.16, 0.84, 0.24, 1) both; }
+  .motion .hero .hero-label { animation-delay: 0.95s; }
+  .motion .hero .hero-cta { animation-delay: 1.1s; }
+  .motion .hero-word img { animation: wordIn 0.9s ease both; animation-delay: 1.25s; }
+  .motion.nogl .hero-mark img { animation: markIn 1.2s cubic-bezier(0.16, 0.84, 0.24, 1) both; }
+  @keyframes heroIn { from { opacity: 0.38; transform: translateY(14px); filter: blur(5px); } to { opacity: 1; transform: none; filter: none; } }
+  @keyframes wordIn { from { opacity: 0.38; filter: blur(3px) brightness(0.8); } to { opacity: 1; filter: none; } }
+  @keyframes markIn { from { opacity: 0.4; transform: scale(0.96); } to { opacity: 1; transform: none; } }
+  .skip .hero .reveal, .skip .hero-word img, .skip.nogl .hero-mark img { animation: none !important; opacity: 1; transform: none; filter: none; }
+  .skip.nogl .hero-mark img { filter: drop-shadow(0 0 28px rgba(230, 74, 88, 0.45)) drop-shadow(0 0 90px rgba(160, 7, 30, 0.55)); }
 
-      .links {
-        margin: 28px 0 0;
-        display: flex;
-        justify-content: center;
-      }
+  /* ---------- 버튼 ---------- */
+  .btn {
+    position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+    min-height: 52px; padding: 0 28px; border-radius: 2px;
+    font-family: var(--f-kr); font-size: 16px; font-weight: 600; line-height: 1; letter-spacing: 0.01em;
+    text-decoration: none; color: #fff; cursor: pointer; border: 0;
+    transition: transform 0.25s ease, box-shadow 0.25s ease, background-color 0.25s ease, border-color 0.25s ease;
+  }
+  .btn-primary {
+    background: linear-gradient(170deg, #b8142c 0%, #a0071e 45%, #c92d3f 100%);
+    box-shadow: inset 0 0 0 1px rgba(255, 140, 150, 0.32), 0 12px 38px -12px rgba(230, 74, 88, 0.85);
+  }
+  .btn-primary::after {
+    content: ''; position: absolute; inset: -1px; border-radius: inherit; pointer-events: none;
+    box-shadow: 0 0 0 1px rgba(230, 74, 88, 0.0), 0 0 28px rgba(230, 74, 88, 0.0);
+    transition: box-shadow 0.3s ease;
+  }
+  .btn-primary:hover { transform: translateY(-1px); }
+  .btn-primary:hover::after { box-shadow: 0 0 0 1px rgba(255, 160, 170, 0.5), 0 0 34px rgba(230, 74, 88, 0.55); }
+  .btn-ghost {
+    color: var(--ink-hi); background: rgba(0, 0, 0, 0.35);
+    box-shadow: inset 0 0 0 1px rgba(216, 216, 214, 0.32);
+    -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+  }
+  .btn-ghost:hover { box-shadow: inset 0 0 0 1px rgba(230, 74, 88, 0.75); }
+  .btn .arr { font-family: var(--f-lat); font-size: 12px; opacity: 0.85; }
+  @media (max-width: 700px) { .btn { padding: 0 22px; min-height: 50px; font-size: 15px; } }
 
-      .links a {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        min-height: 44px;
-        padding: 0 20px;
-        border: 1px solid var(--line);
-        border-radius: 999px;
-        color: var(--ink);
-        text-decoration: none;
-        font-size: 15px;
-        font-weight: 600;
-        transition: border-color 0.2s, background-color 0.2s;
-      }
+  /* ---------- 섹션 공통 ---------- */
+  .sec {
+    position: relative; overflow: clip;
+    padding-block: clamp(96px, 15vh, 168px);
+    scroll-margin-top: 0;
+  }
+  .wrap {
+    position: relative; max-width: 1320px; margin: 0 auto;
+    padding-left: var(--gut-l); padding-right: var(--gut-r);
+  }
+  .sec::before {
+    content: ''; position: absolute; top: 0; height: 1px;
+    left: var(--gut-l); right: var(--gut-r);
+    background: linear-gradient(90deg, rgba(230, 74, 88, 0), rgba(230, 74, 88, 0.42) 18%, rgba(230, 74, 88, 0.08) 70%, rgba(230, 74, 88, 0));
+  }
+  .sec-head { display: flex; align-items: center; gap: 18px; margin: 0 0 28px; }
+  .idx {
+    font-family: var(--f-lat); font-size: 11px; letter-spacing: 0.34em; color: var(--red-bot);
+    display: inline-flex; align-items: center; gap: 12px; flex: none;
+  }
+  .idx::after { content: ''; width: 44px; height: 1px; background: linear-gradient(90deg, var(--red-bot), rgba(230, 74, 88, 0)); }
+  .sec h2 {
+    margin: 0; font-size: clamp(36px, 5.2vw, 76px); line-height: 1.12; font-weight: 700;
+    letter-spacing: -0.025em; color: var(--ink-hi);
+    text-shadow: 0 0 40px rgba(0, 0, 0, 0.85);
+  }
+  .sec-title { margin: 0 0 30px; }
+  .sec-title .idx { margin-bottom: 18px; }
+  .lead { margin: 0; font-size: clamp(16px, 1.25vw, 19px); line-height: 1.85; color: var(--ink-mid); max-width: 34em; }
+  /* 패널 밖(입자 위)에 놓인 글은 그림자로 받쳐 읽기 쉽게 */
+  .lead, .about-close, .cta-note, .prefer, .staff-foot p, .channels h3 { text-shadow: 0 0 14px rgba(0, 0, 0, 0.95), 0 0 3px rgba(0, 0, 0, 0.9); }
+  /* 마지막 줄에 한 낱말만 남지 않게 */
+  .lead, .about-close, .act p, .staff-foot p, .cond-d, .cond-note, .prefer, .cta-note { text-wrap: pretty; }
 
-      .links a:hover,
-      .links a:focus-visible {
-        border-color: var(--red-bottom);
-        background: rgba(230, 74, 88, 0.1);
-        outline: none;
-      }
+  .panel {
+    position: relative;
+    background: var(--glass);
+    border: 1px solid var(--glass-edge);
+    -webkit-backdrop-filter: blur(14px) saturate(120%);
+    backdrop-filter: blur(14px) saturate(120%);
+    padding: clamp(24px, 3vw, 40px);
+  }
+  .hud::before, .hud::after {
+    content: ''; position: absolute; width: 18px; height: 18px; pointer-events: none;
+  }
+  .hud::before { top: -1px; left: -1px; border-top: 1px solid var(--red-bot); border-left: 1px solid var(--red-bot); }
+  .hud::after { bottom: -1px; right: -1px; border-bottom: 1px solid var(--red-bot); border-right: 1px solid var(--red-bot); }
 
-      .links a span {
-        color: var(--red-bottom);
+  /* 스크롤 드러내기(움직임 허용일 때만, 0.4에서 시작) */
+  .motion .rv { transition: opacity 0.9s cubic-bezier(0.2, 0.7, 0.2, 1), transform 0.9s cubic-bezier(0.2, 0.7, 0.2, 1); }
+  .motion .rv:not(.in) { opacity: 0.4; transform: translate3d(0, 26px, 0); }
+  .motion .rv.d1 { transition-delay: 0.08s; }
+  .motion .rv.d2 { transition-delay: 0.16s; }
+  .motion .rv.d3 { transition-delay: 0.24s; }
+
+  /* 정적 화면(움직임 줄이기·WebGL 없음)용 섹션 분위기 */
+  .reduce .sec-about, .nogl .sec-about { background: radial-gradient(ellipse 50% 60% at 78% 50%, rgba(160, 7, 30, 0.16), transparent 70%); }
+  .reduce .sec-league, .nogl .sec-league { background: radial-gradient(ellipse 50% 60% at 70% 55%, rgba(160, 7, 30, 0.12), transparent 70%); }
+  .reduce .sec-staff, .nogl .sec-staff { background: radial-gradient(ellipse 45% 60% at 20% 50%, rgba(160, 7, 30, 0.13), transparent 70%); }
+  .reduce .sec-join, .nogl .sec-join { background: radial-gradient(ellipse 50% 60% at 65% 60%, rgba(160, 7, 30, 0.14), transparent 70%); }
+
+  /* ---------- 클럽 소개 ---------- */
+  .about-grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: 24px; row-gap: 64px; align-items: center; }
+  .about-text { grid-column: 1 / span 5; }
+  .about-text .panel { margin-top: 8px; }
+  .about-close { margin: 26px 0 0; display: flex; align-items: center; gap: 12px; font-size: 15px; line-height: 1.6; color: var(--ink-mid); }
+  .about-close::before { content: ''; width: 24px; height: 1px; flex: none; background: linear-gradient(90deg, var(--red-bot), rgba(230, 74, 88, 0.2)); }
+  .acts { grid-column: 7 / span 6; list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+  .act { display: grid; grid-template-columns: 56px minmax(0, 1fr); column-gap: 22px; align-items: center; padding: 24px 30px 24px 24px; }
+  .act::before {
+    content: ''; position: absolute; left: -1px; top: 18%; bottom: 18%; width: 2px;
+    background: linear-gradient(180deg, var(--red-top), var(--red-bot));
+  }
+  .act-ic {
+    position: relative; width: 56px; height: 56px; display: grid; place-items: center;
+    font-family: var(--f-lat); font-size: 12px; letter-spacing: 0.04em; color: var(--ink-hi);
+  }
+  .act-ic svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+  .act-ic polygon { fill: rgba(160, 7, 30, 0.3); stroke: rgba(230, 74, 88, 0.72); stroke-width: 1; vector-effect: non-scaling-stroke; }
+  .act-ic span { position: relative; }
+  .act h3 { margin: 0 0 2px; font-size: 20px; line-height: 1.45; font-weight: 700; color: var(--ink-hi); }
+  .act p { margin: 0; font-size: 16px; line-height: 1.7; color: var(--ink-mid); }
+  .channels {
+    grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 14px 28px;
+    padding-top: 30px; border-top: 1px solid rgba(216, 216, 214, 0.1);
+  }
+  .channels h3 { margin: 0; font-size: 14px; font-weight: 600; letter-spacing: 0.04em; color: var(--sky); }
+  .ch-list { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 10px; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 18px; border-radius: 2px;
+    font-size: 15px; font-weight: 600; line-height: 1.2; color: var(--ink-hi); text-decoration: none;
+    background: rgba(0, 0, 0, 0.42); box-shadow: inset 0 0 0 1px rgba(216, 216, 214, 0.24);
+    -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+    transition: box-shadow 0.25s ease, color 0.25s ease;
+  }
+  .chip:hover { box-shadow: inset 0 0 0 1px rgba(230, 74, 88, 0.75); }
+  .chip svg { width: 18px; height: 18px; flex: none; display: block; }
+  .chip .arr { font-family: var(--f-lat); font-size: 11px; opacity: 0.7; }
+
+  /* ---------- 내전 리그 ---------- */
+  .league-grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: 24px; align-items: center; }
+  .league-text { grid-column: 1 / span 4; }
+  .league-text .lead { margin-bottom: 34px; }
+  .teams {
+    grid-column: 6 / span 7;
+    list-style: none; margin: 0; padding: 0;
+    display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 46px 20px;
+  }
+  .team { display: flex; flex-direction: column; align-items: center; gap: 14px; text-align: center; }
+  .team-logo { position: relative; width: 112px; height: 112px; display: grid; place-items: center; }
+  .team-logo svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+  .team-logo polygon { fill: rgba(10, 4, 6, 0.72); stroke: rgba(230, 74, 88, 0.38); stroke-width: 1; vector-effect: non-scaling-stroke; transition: stroke 0.3s ease, fill 0.3s ease; }
+  .team-logo img { position: relative; width: 76%; height: 76%; object-fit: contain; display: block; transition: transform 0.35s cubic-bezier(0.2, 0.7, 0.2, 1); }
+  .team:hover .team-logo polygon { stroke: rgba(230, 74, 88, 0.85); fill: rgba(40, 4, 10, 0.75); }
+  .team:hover .team-logo img { transform: scale(1.06); }
+  .team-name { font-size: 15px; font-weight: 600; line-height: 1.35; color: var(--ink-hi); text-shadow: 0 0 14px rgba(0, 0, 0, 0.95); }
+
+  /* ---------- 운영진 ---------- */
+  .staff-head { display: flex; justify-content: flex-end; text-align: right; }
+  .staff-head .sec-title { max-width: 560px; }
+  .staff-head .idx { justify-content: flex-end; }
+  .staff-head .idx::after { order: -1; background: linear-gradient(270deg, var(--red-bot), rgba(230, 74, 88, 0)); }
+  .staff { list-style: none; margin: 18px 0 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px; }
+  .card { display: flex; flex-direction: column; align-items: flex-start; gap: 22px; min-height: 196px; padding: 28px 24px 26px; }
+  .card.lead-card {
+    grid-column: span 2; flex-direction: row; align-items: center; gap: 28px; min-height: 0; padding: 34px 36px;
+    background: linear-gradient(115deg, rgba(160, 7, 30, 0.26), rgba(9, 5, 7, 0.62) 58%);
+  }
+  .who { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .avatar {
+    width: 64px; height: 64px; border-radius: 50%; flex: none;
+    display: grid; place-items: center;
+    background: radial-gradient(circle at 50% 38%, rgba(160, 7, 30, 0.38), rgba(0, 0, 0, 0.7) 72%);
+    box-shadow: inset 0 0 0 1px rgba(230, 74, 88, 0.5), 0 0 26px rgba(230, 74, 88, 0.18);
+    font-size: 24px; font-weight: 700; line-height: 1; color: var(--ink-hi);
+  }
+  .avatar img { width: 64%; height: 64%; display: block; }
+  .lead-card .avatar {
+    width: 104px; height: 104px;
+    box-shadow: inset 0 0 0 1px rgba(230, 74, 88, 0.7), 0 0 0 6px rgba(230, 74, 88, 0.07), 0 0 42px rgba(230, 74, 88, 0.3);
+  }
+  /* 운영진 티어 배지: data-division = 넥슨 디비전 id(800 슈퍼 챔피언스, 900 챔피언스). 나중에 넥슨 API 최고 티어로 바꿔 끼운다 */
+  .avatar.tier-ava { background: none; box-shadow: none; border-radius: 0; overflow: visible; }
+  .avatar.tier-ava svg { display: block; width: 116%; height: 116%; overflow: visible; filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.55)); }
+  .tier-tag { margin-top: 4px; font-size: 13px; font-weight: 600; letter-spacing: 0.02em; }
+  .tier-tag.t800 { color: #e6cf8f; }
+  .tier-tag.t900 { color: #d7a2f2; }
+  .role { font-size: 13px; font-weight: 600; letter-spacing: 0.06em; color: var(--sky); }
+  .nick { font-size: 22px; font-weight: 700; line-height: 1.3; color: var(--ink-hi); letter-spacing: -0.01em; }
+  .lead-card .role { font-size: 14px; }
+  .lead-card .nick { font-size: clamp(28px, 2.6vw, 38px); }
+  .staff-foot {
+    margin-top: 56px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 18px 32px;
+    padding-top: 26px; border-top: 1px solid rgba(216, 216, 214, 0.1);
+  }
+  .staff-foot p { margin: 0; max-width: 40em; font-size: 15px; line-height: 1.75; color: var(--ink-mid); }
+
+  /* ---------- 가입 안내 ---------- */
+  .join-grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: 24px; align-items: start; }
+  .join-side { grid-column: 1 / span 5; position: sticky; top: calc(var(--nav-h) + 40px); }
+  .join-side .lead { margin-bottom: 34px; max-width: 26em; }
+  .join-cta { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
+  .cta-note { margin: 0; font-size: 14px; line-height: 1.6; color: var(--ink-dim); }
+  .prefer {
+    margin: 40px 0 0; padding-top: 18px; max-width: 26em;
+    border-top: 1px solid rgba(216, 216, 214, 0.12);
+    font-size: 14.5px; line-height: 1.7; color: var(--ink-mid);
+  }
+  .join-main { grid-column: 6 / span 7; }
+  .conds { list-style: none; margin: 0; padding: 0; counter-reset: cond; }
+  .cond {
+    counter-increment: cond; position: relative;
+    display: grid; grid-template-columns: 48px minmax(0, 1fr) auto; column-gap: 6px; align-items: start;
+    padding: 18px 0; border-top: 1px solid rgba(216, 216, 214, 0.1);
+  }
+  .cond:first-child { border-top: 0; padding-top: 6px; }
+  .cond::before {
+    content: counter(cond, decimal-leading-zero);
+    font-family: var(--f-lat); font-size: 12px; line-height: 29px; letter-spacing: 0.08em; color: var(--red-bot);
+  }
+  .cond-b { display: flex; flex-direction: column; min-width: 0; }
+  .cond-t { font-size: 18px; line-height: 1.6; font-weight: 600; color: var(--ink-hi); }
+  .cond-t .sub { display: inline-block; font-weight: 400; color: var(--ink-mid); }
+  .cond-d { margin-top: 4px; font-size: 16px; line-height: 1.7; color: var(--ink); }
+  .cond-note { margin-top: 6px; font-size: 14px; line-height: 1.65; color: var(--ink-dim); }
+  .cond.key {
+    margin: 6px -16px; padding: 20px 20px 22px 16px; border-top-color: transparent;
+    background: linear-gradient(100deg, rgba(160, 7, 30, 0.42), rgba(160, 7, 30, 0.12) 70%, rgba(160, 7, 30, 0.05));
+    box-shadow: inset 3px 0 0 var(--red-bot), inset 0 0 0 1px rgba(230, 74, 88, 0.28);
+  }
+  .cond.key + .cond { border-top-color: transparent; }
+  .cond.key::before { color: #fff; line-height: 32px; }
+  .cond.key .cond-t { font-size: 21px; font-weight: 700; line-height: 1.5; }
+  .cond-aside { align-self: center; padding-left: 12px; }
+  .mini-badge { display: block; width: 56px; height: 56px; overflow: visible; }
+
+  /* 티어 배지 카드 — 티어 색은 여기서만 쓴다 */
+  .tiers {
+    grid-column: 1 / -1; list-style: none; margin: 18px 0 2px; padding: 0;
+    display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px;
+  }
+  .tier {
+    position: relative; display: flex; flex-direction: column; align-items: center; text-align: center;
+    padding: 20px 10px 20px; background: linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.01));
+    box-shadow: inset 0 0 0 1px rgba(216, 216, 214, 0.1);
+  }
+  .tier::before {
+    content: ''; position: absolute; left: 16%; right: 16%; top: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--tc), transparent); opacity: 0.85;
+  }
+  .tier-cr { --tc: #c4cfdc; }
+  .tier-sch { --tc: #2fd8cf; }
+  .tier-chp { --tc: #c656f5; }
+  .tier-badge { display: block; width: clamp(88px, 8vw, 116px); aspect-ratio: 1 / 1; margin-bottom: 10px; transition: transform 0.4s cubic-bezier(0.2, 0.7, 0.2, 1); }
+  .tier-badge svg { display: block; width: 100%; height: 100%; overflow: visible; }
+  .tier-badge { position: relative; }
+  .tier-badge .tb-fx { position: absolute; inset: 0; pointer-events: none; }
+  .tier-pair .tb-sub { position: absolute; width: 50%; height: 50%; right: -16%; bottom: -10%; }
+  .tier-incl { margin-top: 3px; font-size: 12px; line-height: 1.4; color: var(--ink-dim); word-break: keep-all; }
+  .motion .tier:hover .tier-badge { transform: translateY(-5px); }
+  .tier-name { font-size: 17px; font-weight: 700; line-height: 1.4; color: var(--ink-hi); }
+  .tier-cond { margin-top: 2px; font-size: 14px; line-height: 1.5; color: var(--ink-mid); }
+  .tier-cond .nw { display: inline-block; }
+  .tb-defs { position: absolute; width: 0; height: 0; overflow: hidden; }
+  .tb-shine { opacity: 0; }
+  .tb-spark { opacity: 0.75; transform-box: fill-box; transform-origin: center; }
+  .motion .tb-shine { animation: tbShine 6.5s cubic-bezier(0.45, 0, 0.3, 1) infinite; }
+  .motion .tier-sch .tb-shine { animation-delay: 0.9s; }
+  .motion .tier-chp .tb-shine { animation-delay: 1.8s; }
+  .motion .tb-spark { animation: tbTw 3.4s ease-in-out infinite; }
+  .motion .tb-spark:nth-child(2) { animation-delay: -0.6s; }
+  .motion .tb-spark:nth-child(3) { animation-delay: -1.3s; }
+  .motion .tb-spark:nth-child(4) { animation-delay: -2.1s; }
+  .motion .tb-spark:nth-child(5) { animation-delay: -2.7s; }
+  .motion .tb-spark:nth-child(6) { animation-delay: -0.9s; }
+  .motion .tb-spark:nth-child(7) { animation-delay: -1.8s; }
+  @keyframes tbShine {
+    0%, 58% { transform: translateX(-34px); opacity: 0; }
+    62% { opacity: 1; }
+    84% { transform: translateX(74px); opacity: 1; }
+    88%, 100% { transform: translateX(74px); opacity: 0; }
+  }
+  @keyframes tbTw {
+    0%, 100% { opacity: 0.2; transform: translateY(1.5px) scale(0.7); }
+    50% { opacity: 1; transform: translateY(-1.5px) scale(1.15); }
+  }
+
+  /* ---------- 푸터 ---------- */
+  .foot {
+    padding-block: 52px calc(72px + env(safe-area-inset-bottom, 0px));
+    border-top: 1px solid rgba(230, 74, 88, 0.18);
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.9));
+  }
+  .foot-main { margin: 0; display: flex; align-items: center; gap: 12px; font-size: 15px; font-weight: 600; color: var(--ink-hi); }
+  .foot-main img { width: 24px; height: 24px; display: block; }
+  .foot-small { margin: 10px 0 0; font-size: 12.5px; color: var(--ink-dim); }
+
+  /* ---------- 휴대폰 ---------- */
+  @media (max-width: 900px) {
+    .about-grid { row-gap: 40px; }
+    .about-text, .acts, .channels { grid-column: 1 / -1; }
+    .league-text, .teams { grid-column: 1 / -1; }
+    .league-text { margin-bottom: 52px; }
+    .join-side, .join-main { grid-column: 1 / -1; }
+    .join-side { position: static; margin-bottom: 44px; }
+    .staff { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+    .card.lead-card { grid-column: 1 / -1; }
+  }
+  @media (min-width: 701px) and (max-width: 900px) {
+    /* 태블릿: 클럽장·부클럽장 카드를 나란히 */
+    .card.lead-card { grid-column: span 1; gap: 20px; padding: 26px 24px; }
+    .lead-card .avatar { width: 84px; height: 84px; }
+  }
+  @media (max-width: 700px) {
+    .sec { padding-block: 92px; }
+    .sec-head { margin-bottom: 22px; }
+    .lead { font-size: 16px; }
+    .teams { gap: 30px 8px; }
+    .team { gap: 10px; }
+    .team-logo { width: 78px; height: 78px; }
+    .team-name { font-size: 13px; }
+    .act { grid-template-columns: 44px minmax(0, 1fr); column-gap: 16px; padding: 18px 18px 18px 16px; }
+    .act-ic { width: 44px; height: 44px; font-size: 10px; }
+    .act h3 { font-size: 18px; }
+    .act p { font-size: 15px; line-height: 1.65; }
+    .channels { padding-top: 24px; gap: 12px; }
+    .channels h3 { flex-basis: 100%; }
+    .card { min-height: 0; gap: 16px; padding: 22px 16px 20px; }
+    .avatar { width: 52px; height: 52px; font-size: 21px; }
+    .nick { font-size: 19px; }
+    .card.lead-card { gap: 18px; padding: 20px 18px; }
+    .lead-card .avatar { width: 68px; height: 68px; }
+    .lead-card .nick { font-size: 25px; }
+    .staff-foot { margin-top: 40px; }
+    .staff-foot .btn { width: 100%; }
+    .join-main { padding: 22px 16px 18px; }
+    .cond { grid-template-columns: 34px minmax(0, 1fr) auto; column-gap: 4px; padding: 16px 0; }
+    .cond-t { font-size: 16.5px; }
+    .cond::before { font-size: 11px; line-height: 26px; }
+    .cond-d { font-size: 15px; }
+    .cond-note { font-size: 13.5px; }
+    .cond.key { margin: 6px -10px; padding: 18px 14px 18px 10px; }
+    .cond.key .cond-t { font-size: 18.5px; }
+    .cond.key::before { line-height: 28px; }
+    .cond-aside { padding-left: 8px; }
+    .mini-badge { width: 46px; height: 46px; }
+    .tiers { gap: 8px; margin-top: 14px; }
+    .tier { padding: 14px 4px 14px; }
+    .tier-badge { width: 80px; margin-bottom: 8px; }
+    .tier-pair { width: 72px; margin-bottom: 12px; }
+    .tier-pair .tb-sub { right: -12%; bottom: -12%; }
+    .tier-incl { font-size: 11px; }
+    .tier-name { font-size: 15px; }
+    .tier-cond { font-size: 12.5px; line-height: 1.45; }
+    .staff-head { justify-content: flex-start; text-align: left; }
+    .staff-head .idx { justify-content: flex-start; }
+    .staff-head .idx::after { order: 0; background: linear-gradient(90deg, var(--red-bot), rgba(230, 74, 88, 0)); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
+  }
+</style>
+</head>
+<body>
+<canvas id="gl" aria-hidden="true"></canvas>
+<div class="fallback-bg" aria-hidden="true"></div>
+<!-- 티어 배지 그림: 사진(공식 디비전 마크)을 보고 손으로 다시 그린 SVG — 사진 파일을 넣지 않음. 챌린저는 사진이 없어 임시 그림 -->
+<svg class="tb-defs" width="0" height="0" aria-hidden="true" focusable="false"><defs><linearGradient id="tb-shine" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".5" stop-color="#fff" stop-opacity=".5"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient><radialGradient id="tbk-glow" cx="47.59" cy="47.04" r="68" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#fff3d6" stop-opacity="0.34"/><stop offset="0.6" stop-color="#f0ddb0" stop-opacity="0.13"/><stop offset="0.8" stop-color="#e6cf98" stop-opacity="0.035"/><stop offset="1" stop-color="#e6cf98" stop-opacity="0"/></radialGradient><linearGradient id="tbk-band" x1="0" y1="0" x2=".5" y2="1"><stop offset="0" stop-color="#5a4d52"/><stop offset="0.4" stop-color="#3d3337"/><stop offset="0.75" stop-color="#2d2629"/><stop offset="1" stop-color="#463b40"/></linearGradient><pattern id="tbk-streak" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(-28)"><rect width="1.1" height="8" fill="#fff" fill-opacity="0.12"/><rect x="4.6" width=".6" height="8" fill="#fff" fill-opacity="0.072"/></pattern><linearGradient id="tbk-panel" gradientUnits="userSpaceOnUse" x1="34.63" y1="13.7" x2="88.33" y2="100.74"><stop offset="0" stop-color="#f6f4f0"/><stop offset="0.5" stop-color="#e6e3dd"/><stop offset="0.8" stop-color="#c4c0b9"/><stop offset="1" stop-color="#a29e96"/></linearGradient><pattern id="tbk-pstr" width="6.5" height="6.5" patternUnits="userSpaceOnUse" patternTransform="rotate(-28)"><rect width="2.4" height="6.5" fill="#8f8a82" fill-opacity="0.13"/></pattern><filter id="tbk-glowf" x="-25%" y="-25%" width="150%" height="150%"><feGaussianBlur stdDeviation="2.4"/></filter><filter id="tbk-blur" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="1.6"/></filter><linearGradient id="tbk-dk" gradientUnits="userSpaceOnUse" x1="53.15" y1="16.48" x2="66.11" y2="97.04"><stop offset="0" stop-color="#4e483d"/><stop offset="0.15" stop-color="#46413a"/><stop offset="0.31" stop-color="#36332d"/><stop offset="0.4" stop-color="#2c2a24"/><stop offset="0.49" stop-color="#1c1b19"/><stop offset="0.67" stop-color="#111214"/><stop offset="0.86" stop-color="#121316"/><stop offset="1" stop-color="#141518"/></linearGradient><linearGradient id="tbk-lt" gradientUnits="userSpaceOnUse" x1="53.15" y1="16.48" x2="66.11" y2="97.04"><stop offset="0" stop-color="#b8aa8e"/><stop offset="0.15" stop-color="#a49678"/><stop offset="0.31" stop-color="#8a7d62"/><stop offset="0.4" stop-color="#7b6f55"/><stop offset="0.49" stop-color="#4e493e"/><stop offset="0.67" stop-color="#2a2a2a"/><stop offset="0.86" stop-color="#3a3833"/><stop offset="1" stop-color="#34322e"/></linearGradient><pattern id="tbk-sm-p" width="9.7" height="9.7" patternUnits="userSpaceOnUse" patternTransform="rotate(-28) translate(7.73 0)"><rect width="5.4" height="9.7" fill="#fff"/></pattern><mask id="tbk-sm" maskUnits="userSpaceOnUse" x="-30" y="-30" width="180" height="180"><rect x="-30" y="-30" width="180" height="180" fill="url(#tbk-sm-p)"/></mask><linearGradient id="tbk-body" x1="35.74" y1="0" x2="86.48" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#f8f4d2"/><stop offset="0.198" stop-color="#fffede"/><stop offset="0.397" stop-color="#fefdf6"/><stop offset="0.496" stop-color="#fbf8ee"/><stop offset="0.496" stop-color="#e6d7b6"/><stop offset="0.748" stop-color="#e3d3ae"/><stop offset="0.96" stop-color="#e8dab6"/><stop offset="1" stop-color="#f6efcf"/></linearGradient><linearGradient id="tbk-gap" x1="35.74" y1="0" x2="86.48" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#5c5954"/><stop offset="0.496" stop-color="#69665f"/><stop offset="0.496" stop-color="#2a251b"/><stop offset="1" stop-color="#221d15"/></linearGradient><linearGradient id="tbk-refl" gradientUnits="userSpaceOnUse" x1="-7.96" y1="60" x2="-7.96" y2="69.81"><stop offset="0" stop-color="#f2e2a2" stop-opacity="0"/><stop offset="0.25" stop-color="#f2e2a2" stop-opacity="0.55"/><stop offset="1" stop-color="#ead39a" stop-opacity="0.85"/></linearGradient><linearGradient id="tbk-bar" x1="0" y1="72.41" x2="0" y2="77.04" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#a5966a"/><stop offset="0.3" stop-color="#d9cca0"/><stop offset="0.5" stop-color="#b49b5c"/><stop offset="0.8" stop-color="#8f7c42"/><stop offset="1" stop-color="#5d5232"/></linearGradient><radialGradient id="tbk-barhl"><stop offset="0" stop-color="#fffffd" stop-opacity="1"/><stop offset="0.55" stop-color="#fff8de" stop-opacity="0.75"/><stop offset="1" stop-color="#fff3cc" stop-opacity="0"/></radialGradient><radialGradient id="tbs-glow" cx="45.74" cy="41.48" r="70" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#e04cff" stop-opacity="0.46"/><stop offset="0.55" stop-color="#c43ce6" stop-opacity="0.2"/><stop offset="0.8" stop-color="#a92fd0" stop-opacity="0.06"/><stop offset="1" stop-color="#a92fd0" stop-opacity="0"/></radialGradient><linearGradient id="tbs-band" x1="0" y1="0" x2=".5" y2="1"><stop offset="0" stop-color="#a1309f"/><stop offset="0.35" stop-color="#7a1d7e"/><stop offset="0.7" stop-color="#5c1566"/><stop offset="1" stop-color="#8a3aa6"/></linearGradient><pattern id="tbs-streak" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(-28)"><rect width="1.1" height="8" fill="#fff" fill-opacity="0.1"/><rect x="4.6" width=".6" height="8" fill="#fff" fill-opacity="0.060"/></pattern><linearGradient id="tbs-panel" gradientUnits="userSpaceOnUse" x1="34.63" y1="13.7" x2="88.33" y2="100.74"><stop offset="0" stop-color="#fdf0ee"/><stop offset="0.25" stop-color="#f5c9c7"/><stop offset="0.45" stop-color="#ef8f8a"/><stop offset="1" stop-color="#d9625f"/></linearGradient><pattern id="tbs-pstr" width="6.5" height="6.5" patternUnits="userSpaceOnUse" patternTransform="rotate(-28)"><rect width="2.4" height="6.5" fill="#ffffff" fill-opacity="0.14"/></pattern><filter id="tbs-glowf" x="-25%" y="-25%" width="150%" height="150%"><feGaussianBlur stdDeviation="2.8"/></filter><filter id="tbs-blur" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="1.6"/></filter><radialGradient id="tbs-flare"><stop offset="0" stop-color="#ffe2ff" stop-opacity="0.95"/><stop offset="0.15" stop-color="#ff8cff" stop-opacity="0.8"/><stop offset="0.45" stop-color="#f53cf8" stop-opacity="0.38"/><stop offset="1" stop-color="#e030f0" stop-opacity="0"/></radialGradient><linearGradient id="tbs-dk" gradientUnits="userSpaceOnUse" x1="47.59" y1="18.89" x2="62.41" y2="89.26"><stop offset="0" stop-color="#e214e4"/><stop offset="0.11" stop-color="#d50fd8"/><stop offset="0.33" stop-color="#8a1a9a"/><stop offset="0.54" stop-color="#5c106e"/><stop offset="0.69" stop-color="#3c0c47"/><stop offset="1" stop-color="#3a0b44"/></linearGradient><linearGradient id="tbs-lt" gradientUnits="userSpaceOnUse" x1="47.59" y1="18.89" x2="62.41" y2="89.26"><stop offset="0" stop-color="#ee9cf3"/><stop offset="0.11" stop-color="#e68bee"/><stop offset="0.33" stop-color="#a656ba"/><stop offset="0.54" stop-color="#8e48ae"/><stop offset="0.69" stop-color="#6c2f98"/><stop offset="1" stop-color="#682ea2"/></linearGradient><pattern id="tbs-sm-p" width="9.8" height="9.8" patternUnits="userSpaceOnUse" patternTransform="rotate(-28) translate(8.79 0)"><rect width="4.3" height="9.8" fill="#fff"/></pattern><mask id="tbs-sm" maskUnits="userSpaceOnUse" x="-30" y="-30" width="180" height="180"><rect x="-30" y="-30" width="180" height="180" fill="url(#tbs-sm-p)"/></mask><radialGradient id="tbs-lit" gradientUnits="userSpaceOnUse" cx="38.33" cy="27.22" r="24.07"><stop offset="0" stop-color="#ff3cf6" stop-opacity="0.55"/><stop offset="0.5" stop-color="#f02cf0" stop-opacity="0.22"/><stop offset="1" stop-color="#f02cf0" stop-opacity="0"/></radialGradient><linearGradient id="tbs-rim" gradientUnits="userSpaceOnUse" x1="38.33" y1="28.15" x2="82.78" y2="80"><stop offset="0" stop-color="#c62ccb"/><stop offset="0.35" stop-color="#9c1eaa"/><stop offset="0.62" stop-color="#651676"/><stop offset="1" stop-color="#4a0e5a"/></linearGradient><linearGradient id="tbs-edge" gradientUnits="userSpaceOnUse" x1="38.33" y1="30" x2="80.93" y2="80"><stop offset="0" stop-color="#ffffff"/><stop offset="0.5" stop-color="#f1ebf5"/><stop offset="1" stop-color="#b3a8c2"/></linearGradient><linearGradient id="tbs-lo" gradientUnits="userSpaceOnUse" x1="60.93" y1="48.52" x2="79.07" y2="78.15"><stop offset="0" stop-color="#dcd6ea"/><stop offset="0.6" stop-color="#d6cbdf"/><stop offset="1" stop-color="#dfc6dc"/></linearGradient><linearGradient id="tbs-hi" gradientUnits="userSpaceOnUse" x1="47.59" y1="30" x2="62.41" y2="61.48"><stop offset="0" stop-color="#fbf1f9"/><stop offset="0.5" stop-color="#f1ebf5"/><stop offset="1" stop-color="#ece7f3"/></linearGradient><filter id="tbs-soft" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation=".9"/></filter><clipPath id="tb-clip-champ"><path d="M53.74,17.77Q57.59,15.56 61.62,17.43L89.82,30.51Q93.52,32.22 93.71,36.29L94.99,62.97Q95.19,67.04 92.05,69.63L65.46,91.61Q62.04,94.44 57.95,92.71L30.05,80.85Q26.3,79.26 26.18,75.19L25.12,38.33Q25,34.26 28.53,32.23Z"/></clipPath><clipPath id="tbs-half"><polygon points="25.1,100.95 95.64,3.87 47.1,-31.4 -23.44,65.68"/></clipPath><radialGradient id="tbt-glow" gradientUnits="userSpaceOnUse" cx="59.02" cy="60.39" r="64"><stop offset="0" stop-color="#2ee6cf" stop-opacity="0.3"/><stop offset="0.66" stop-color="#20c8b0" stop-opacity="0.14"/><stop offset="0.84" stop-color="#14a890" stop-opacity="0.04"/><stop offset="1" stop-color="#14a890" stop-opacity="0"/></radialGradient><linearGradient id="tbt-out" gradientUnits="userSpaceOnUse" x1="54.7" y1="9.36" x2="72.37" y2="111.43"><stop offset="0" stop-color="#62fdf8"/><stop offset="0.3" stop-color="#17f5ec"/><stop offset="0.55" stop-color="#14e2d8"/><stop offset="0.8" stop-color="#0ea29a"/><stop offset="1" stop-color="#08746e"/></linearGradient><radialGradient id="tbt-outsh" gradientUnits="userSpaceOnUse" cx="11.91" cy="99.65" r="29.44"><stop offset="0" stop-color="#0d2e2a" stop-opacity="0.95"/><stop offset="0.55" stop-color="#0f3a35" stop-opacity="0.8"/><stop offset="1" stop-color="#0f3a35" stop-opacity="0"/></radialGradient><linearGradient id="tbt-side" gradientUnits="userSpaceOnUse" x1="-10.08" y1="46.65" x2="-10.08" y2="97.69"><stop offset="0" stop-color="#0f8584"/><stop offset="0.5" stop-color="#0b6461"/><stop offset="1" stop-color="#0a4a46"/></linearGradient><linearGradient id="tbt-sand" gradientUnits="userSpaceOnUse" x1="40.96" y1="13.28" x2="99.85" y2="99.65"><stop offset="0" stop-color="#fdefd9"/><stop offset="0.3" stop-color="#e6d8b0"/><stop offset="0.6" stop-color="#b9a974"/><stop offset="0.8" stop-color="#8f8352"/><stop offset="1" stop-color="#6f6438"/></linearGradient><linearGradient id="tbt-dk" gradientUnits="userSpaceOnUse" x1="48.81" y1="27.02" x2="82.18" y2="97.69"><stop offset="0" stop-color="#48f2f6"/><stop offset="0.08" stop-color="#4ee6ea"/><stop offset="0.17" stop-color="#2cd4dc"/><stop offset="0.36" stop-color="#12939a"/><stop offset="0.49" stop-color="#0a7e84"/><stop offset="0.65" stop-color="#06686b"/><stop offset="0.8" stop-color="#045a5a"/><stop offset="1" stop-color="#004e4d"/></linearGradient><linearGradient id="tbt-lt" gradientUnits="userSpaceOnUse" x1="48.81" y1="27.02" x2="82.18" y2="97.69"><stop offset="0" stop-color="#8cfcfc"/><stop offset="0.1" stop-color="#80f8fa"/><stop offset="0.38" stop-color="#20d8d6"/><stop offset="0.48" stop-color="#14ccc8"/><stop offset="0.7" stop-color="#0bb0a6"/><stop offset="0.77" stop-color="#08a89b"/><stop offset="0.86" stop-color="#00988c"/><stop offset="1" stop-color="#008678"/></linearGradient><pattern id="tbt-sm-p" width="11" height="11" patternUnits="userSpaceOnUse" patternTransform="rotate(-27) translate(5.14 0)"><rect width="4.2" height="11" fill="#fff"/></pattern><mask id="tbt-sm" maskUnits="userSpaceOnUse" x="-30" y="-30" width="180" height="180"><rect x="-30" y="-30" width="180" height="180" fill="url(#tbt-sm-p)"/></mask><linearGradient id="tbt-fdk" gradientUnits="userSpaceOnUse" x1="-10.08" y1="27.02" x2="-10.08" y2="99.65"><stop offset="0" stop-color="#4ae8ee"/><stop offset="0.3" stop-color="#26cdd5"/><stop offset="0.6" stop-color="#13aab2"/><stop offset="0.85" stop-color="#0b7a80"/><stop offset="1" stop-color="#086a6e"/></linearGradient><linearGradient id="tbt-flt" gradientUnits="userSpaceOnUse" x1="-10.08" y1="27.02" x2="-10.08" y2="99.65"><stop offset="0" stop-color="#86fafc"/><stop offset="0.3" stop-color="#3ae2e8"/><stop offset="0.6" stop-color="#1ec6c9"/><stop offset="0.85" stop-color="#12a0a4"/><stop offset="1" stop-color="#0e8a8e"/></linearGradient><pattern id="tbt-fm-p" width="7.46" height="7.46" patternUnits="userSpaceOnUse" patternTransform="rotate(-6) translate(1.68 0)"><rect width="4.91" height="7.46" fill="#fff"/></pattern><mask id="tbt-fm" maskUnits="userSpaceOnUse" x="-30" y="-30" width="180" height="180"><rect x="-30" y="-30" width="180" height="180" fill="url(#tbt-fm-p)"/></mask><filter id="tbt-blur" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="1.4"/></filter><filter id="tbt-glowf" x="-25%" y="-25%" width="150%" height="150%"><feGaussianBlur stdDeviation="2.2"/></filter><linearGradient id="tbt-b1" gradientUnits="userSpaceOnUse" x1="40.96" y1="34.87" x2="60.59" y2="60.39"><stop offset="0" stop-color="#fbfffe"/><stop offset="0.65" stop-color="#f2fbf9"/><stop offset="1" stop-color="#dff3ee"/></linearGradient><linearGradient id="tbt-b2" gradientUnits="userSpaceOnUse" x1="48.81" y1="46.65" x2="66.48" y2="70.21"><stop offset="0" stop-color="#f6fdfb"/><stop offset="0.4" stop-color="#c4eee6"/><stop offset="1" stop-color="#6fd4c2"/></linearGradient><linearGradient id="tbt-b3" gradientUnits="userSpaceOnUse" x1="54.7" y1="68.24" x2="72.37" y2="83.95"><stop offset="0" stop-color="#93e8de"/><stop offset="0.3" stop-color="#4cdcbb"/><stop offset="0.7" stop-color="#27e6ae"/><stop offset="1" stop-color="#20eaab"/></linearGradient><clipPath id="tb-clip-superchal"><path d="M32.88,24.62Q36.25,21.92 40.57,21.92L82.18,21.92Q86.89,21.92 88.61,26.3L101.95,60.27Q103.38,63.93 101.81,67.52L90.12,94.19Q88.07,98.87 82.97,98.87L37.82,98.87Q33.5,98.87 30.4,95.86L23.59,89.27Q21.33,87.09 21.3,83.95L20.97,50.58Q20.94,47.44 22.07,44.51L26.84,32.23Q28.4,28.2 31.77,25.5Z"/></clipPath><radialGradient id="tbc-glow" cx="47.59" cy="47.04" r="68" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#dfe7f2" stop-opacity="0.38"/><stop offset="0.6" stop-color="#b9c4d2" stop-opacity="0.16"/><stop offset="0.82" stop-color="#a3afbf" stop-opacity="0.05"/><stop offset="1" stop-color="#a3afbf" stop-opacity="0"/></radialGradient><linearGradient id="tbc-band" x1="0" y1="0" x2=".5" y2="1"><stop offset="0" stop-color="#717a87"/><stop offset="0.4" stop-color="#4a515c"/><stop offset="0.75" stop-color="#353a43"/><stop offset="1" stop-color="#5d6571"/></linearGradient><pattern id="tbc-streak" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(-28)"><rect width="1.1" height="8" fill="#fff" fill-opacity="0.12"/><rect x="4.6" width=".6" height="8" fill="#fff" fill-opacity="0.072"/></pattern><linearGradient id="tbc-panel" gradientUnits="userSpaceOnUse" x1="34.63" y1="13.7" x2="88.33" y2="100.74"><stop offset="0" stop-color="#f3f5f8"/><stop offset="0.55" stop-color="#e2e6ec"/><stop offset="1" stop-color="#bcc3cd"/></linearGradient><pattern id="tbc-pstr" width="6.5" height="6.5" patternUnits="userSpaceOnUse" patternTransform="rotate(-28)"><rect width="2.4" height="6.5" fill="#8f8a82" fill-opacity="0.13"/></pattern><filter id="tbc-glowf" x="-25%" y="-25%" width="150%" height="150%"><feGaussianBlur stdDeviation="2.4"/></filter><filter id="tbc-blur" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="1.6"/></filter><pattern id="tbc-str" width="9.7" height="9.7" patternUnits="userSpaceOnUse" patternTransform="rotate(-28) translate(7.49 0)"><rect width="9.7" height="9.7" fill="#3f4651"/><rect width="6.1" height="9.7" fill="#8f99a7"/></pattern><linearGradient id="tbc-pshade" gradientUnits="userSpaceOnUse" x1="47.59" y1="22.96" x2="69.81" y2="95.19"><stop offset="0" stop-color="#fff" stop-opacity="0.16"/><stop offset="0.2" stop-color="#000" stop-opacity="0"/><stop offset="0.5" stop-color="#07090d" stop-opacity="0.42"/><stop offset="0.75" stop-color="#07090d" stop-opacity="0.7"/><stop offset="1" stop-color="#07090d" stop-opacity="0.8"/></linearGradient><linearGradient id="tbc-icon" gradientUnits="userSpaceOnUse" x1="0" y1="37.78" x2="0" y2="78.52"><stop offset="0" stop-color="#ffffff"/><stop offset="0.55" stop-color="#e3e8ef"/><stop offset="1" stop-color="#a9b3c1"/></linearGradient><clipPath id="tb-clip-cr"><path d="M56.18,17.87Q59.44,16.11 62.77,17.74L88.3,30.2Q91.3,31.67 91.6,34.99L94.66,68.53Q95,72.22 92.13,74.57L67.78,94.46Q64.63,97.04 60.96,95.27L30.93,80.86Q27.59,79.26 27.47,75.56L26.22,37.41Q26.11,34.07 29.05,32.49Z"/></clipPath></defs><symbol id="tb-superchamp" viewBox="0 0 120 120" overflow="visible"><circle cx="47.59" cy="47.04" r="68" fill="url(#tbk-glow)"/><path d="M30.02,6.65Q35.57,-0.76 44.78,0.21L84.91,4.43Q94.12,5.39 98.04,13.78L115.09,50.19Q119.02,58.58 112.48,65.14L58.4,119.42Q51.86,125.98 46.69,118.31L4.38,55.53Q-0.8,47.85 4.75,40.43Z" pathLength="100" fill="none" stroke="#cdb987" stroke-width="0.8" stroke-dasharray="44 4 10 6 32 4" stroke-linejoin="round"/><path d="M32.43,7.87Q36.33,2.46 42.97,3.05L85.41,6.76Q92.05,7.34 94.98,13.33L113.5,51.15Q116.43,57.14 111.81,61.94L58.53,117.32Q53.91,122.13 50.09,116.66L6.58,54.47Q2.75,49.01 6.65,43.61Z" pathLength="100" fill="none" stroke="#b49b62" stroke-width="0.5" stroke-dasharray="20 6 18 10 14 8 24" stroke-linejoin="round"/><path d="M34.17,9.37Q36.44,5.98 40.51,6.2L85.29,8.54Q89.36,8.76 91.28,12.35L112.01,51.18Q113.93,54.78 111.2,57.81L59.75,115.18Q57.03,118.21 54.57,114.96L8.8,54.17Q6.35,50.92 8.62,47.53Z" pathLength="100" fill="none" stroke="#8e7646" stroke-width="0.5" stroke-dasharray="30 8 22 6 30 4" stroke-linejoin="round"/><line x1="2.04" y1="56.67" x2="15" y2="76.3" stroke="#cdbf98" stroke-opacity="0.9" stroke-width="1.48" stroke-linecap="square"/><line x1="97.22" y1="15.93" x2="108.7" y2="35.93" stroke="#d2c49e" stroke-opacity="0.85" stroke-width="1.3" stroke-linecap="square"/><path d="M32.8,12.34Q35.07,8.52 39.52,8.52L81.58,8.52Q86.39,8.52 88.88,12.64L109.49,46.83Q112.36,51.59 108.87,55.91L63.9,111.67Q60.64,115.7 57.31,111.73L10.97,56.46Q8.35,53.34 10.44,49.84Z" fill="none" stroke="#fff1cc" stroke-opacity="0.5" stroke-width="3.2" filter="url(#tbk-glowf)"/><path d="M32.8,12.34Q35.07,8.52 39.52,8.52L81.58,8.52Q86.39,8.52 88.88,12.64L109.49,46.83Q112.36,51.59 108.87,55.91L63.9,111.67Q60.64,115.7 57.31,111.73L10.97,56.46Q8.35,53.34 10.44,49.84Z" fill="url(#tbk-band)"/><path d="M32.8,12.34Q35.07,8.52 39.52,8.52L81.58,8.52Q86.39,8.52 88.88,12.64L109.49,46.83Q112.36,51.59 108.87,55.91L63.9,111.67Q60.64,115.7 57.31,111.73L10.97,56.46Q8.35,53.34 10.44,49.84Z" fill="url(#tbk-streak)"/><path d="M32.8,12.34Q35.07,8.52 39.52,8.52L81.58,8.52Q86.39,8.52 88.88,12.64L109.49,46.83Q112.36,51.59 108.87,55.91L63.9,111.67Q60.64,115.7 57.31,111.73L10.97,56.46Q8.35,53.34 10.44,49.84Z" fill="none" stroke="#000" stroke-opacity="0.5" stroke-width=".5"/><path d="M35.68,15.46Q37.39,12.59 40.72,12.59L80.48,12.59Q84.09,12.59 85.95,15.68L105.25,47.68Q107.4,51.25 104.78,54.49L63.02,106.26Q60.58,109.29 58.08,106.31L15.3,55.28Q13.33,52.94 14.9,50.32Z" fill="#77726e"/><path d="M36.11,15.82Q37.7,13.15 40.81,13.15L80.41,13.15Q83.78,13.15 85.52,16.03L104.72,47.87Q106.72,51.2 104.28,54.23L62.85,105.59Q60.57,108.42 58.24,105.63L15.84,55.07Q14.01,52.89 15.47,50.44Z" fill="#221c1f"/><path d="M36.82,16.8Q38.33,14.26 41.3,14.26L79.81,14.26Q83.15,14.26 84.87,17.11L103.08,47.31Q105.37,51.11 102.58,54.57L62.65,104.07Q60.56,106.67 58.41,104.11L18.46,56.47Q15.37,52.78 17.84,48.64Z" fill="url(#tbk-panel)"/><path d="M36.82,16.8Q38.33,14.26 41.3,14.26L79.81,14.26Q83.15,14.26 84.87,17.11L103.08,47.31Q105.37,51.11 102.58,54.57L62.65,104.07Q60.56,106.67 58.41,104.11L18.46,56.47Q15.37,52.78 17.84,48.64Z" fill="url(#tbk-pstr)"/><path d="M57.43,22.1Q61.67,19.81 65.99,21.93L89.19,33.26Q93.52,35.37 93.96,40.17L96.78,71.13Q97.22,75.93 93.49,78.97L70.58,97.69Q66.85,100.74 62.51,98.66L34.16,85.05Q29.81,82.96 29.66,78.15L28.49,42.59Q28.33,37.78 32.57,35.49Z" fill="#0b0b0c" fill-opacity=".75" filter="url(#tbk-blur)"/><path d="M56.18,17.87Q59.44,16.11 62.77,17.74L88.3,30.2Q91.3,31.67 91.6,34.99L94.66,68.53Q95,72.22 92.13,74.57L67.78,94.46Q64.63,97.04 60.96,95.27L30.93,80.86Q27.59,79.26 27.47,75.56L26.22,37.41Q26.11,34.07 29.05,32.49Z" fill="url(#tbk-dk)"/><path d="M56.18,17.87Q59.44,16.11 62.77,17.74L88.3,30.2Q91.3,31.67 91.6,34.99L94.66,68.53Q95,72.22 92.13,74.57L67.78,94.46Q64.63,97.04 60.96,95.27L30.93,80.86Q27.59,79.26 27.47,75.56L26.22,37.41Q26.11,34.07 29.05,32.49Z" fill="url(#tbk-lt)" mask="url(#tbk-sm)"/><path d="M56.18,17.87Q59.44,16.11 62.77,17.74L88.3,30.2Q91.3,31.67 91.6,34.99L94.66,68.53Q95,72.22 92.13,74.57L67.78,94.46Q64.63,97.04 60.96,95.27L30.93,80.86Q27.59,79.26 27.47,75.56L26.22,37.41Q26.11,34.07 29.05,32.49Z" fill="none" stroke="#000" stroke-opacity=".45" stroke-width=".5"/><polygon points="60.93,6.48 66.3,12.59 55.56,12.59" fill="#fbfaf6"/><polygon points="60.93,6.48 66.3,12.59 62.78,12.59" fill="#c9b897" fill-opacity=".85"/><polygon points="17.59,22.96 28.7,21.11 17.59,35.56" fill="#fbfaf6"/><polygon points="20.93,22.41 28.7,21.11 24.26,24.63" fill="#c9b897" fill-opacity=".85"/><polygon points="93.15,23.7 103.89,26.67 103.33,41.11" fill="#fbfaf6"/><polygon points="99.81,28.52 103.89,26.67 103.33,35.93" fill="#c9b897" fill-opacity=".85"/><polygon points="18.7,75.19 30.19,87.96 22.04,87.96" fill="#fbfaf6"/><polygon points="102.04,74.26 101.48,86.3 90.19,90.93" fill="#fbfaf6"/><polygon points="102.04,74.26 101.67,81.85 98.89,80.74" fill="#c9b897" fill-opacity=".85"/><polygon points="54.63,101.11 65.74,100.37 60.37,108.15" fill="#fbfaf6"/><path d="M31.85,38.89 L48.15,47.41 L62.04,31.67 L76.11,47.04 L92.78,37.04 L90.56,63.52 L82.78,80.56 L40.93,80.56 L34.26,62.59Z" fill="#050506" fill-opacity=".7" filter="url(#tbk-blur)"/><path d="M30.37,36.3 L46.67,44.81 L60.56,29.07 L74.63,44.44 L91.3,34.44 L89.07,60.93 L81.3,77.96 L39.44,77.96 L32.78,60Z" fill="#1b1a17" stroke="#1b1a17" stroke-width=".6" stroke-linejoin="round"/><path d="M30.37,36.3 L46.67,44.81 L60.56,29.07 L74.63,44.44 L91.3,34.44 L89.07,60.93 L81.3,77.96 L39.44,77.96 L32.78,60Z" fill="none" stroke="#8b8068" stroke-opacity=".7" stroke-width=".3" stroke-linejoin="round"/><path d="M31.14,37.43 L46.82,45.62 L60.56,30.04 L74.51,45.27 L90.54,35.65 L88.44,60.76 L80.88,77.31 L39.9,77.31 L33.41,59.85Z" fill="none" stroke="#a09270" stroke-width=".55" stroke-dasharray=".55 .55" stroke-dashoffset="0" stroke-linejoin="round"/><path d="M31.9,38.56 L46.97,46.43 L60.57,31.01 L74.39,46.1 L89.79,36.86 L87.8,60.59 L80.46,76.67 L40.35,76.67 L34.05,59.7Z" fill="none" stroke="#a09270" stroke-width=".55" stroke-dasharray=".55 .55" stroke-dashoffset="0.55" stroke-linejoin="round"/><path d="M32.56,39.53 L47.1,47.13 L60.58,31.84 L74.29,46.81 L89.15,37.89 L87.26,60.45 L80.11,76.11 L40.73,76.11 L34.6,59.58Z" fill="url(#tbk-gap)"/><path d="M35,42.22 L47.96,52.04 L60.93,33.7 L72.22,52.22 L85.93,42.22 L84.63,50.74 L81.3,62.22 L79.07,70 L42.04,69.81 L38.89,62.22 L36.3,50.74Z" fill="url(#tbk-body)"/><polygon points="40.56,66.3 60.93,60.93 60.93,69.81 42.04,69.81" fill="url(#tbk-refl)"/><circle cx="49.07" cy="50.93" r="5.93" fill="#696660"/><circle cx="72.04" cy="51.11" r="5.93" fill="#292419"/><polygon points="40.56,69.63 81.3,69.63 82.41,72.59 39.81,72.59" fill="#15130e"/><polygon points="40.19,72.41 83.15,72.41 81.67,77.04 41.3,77.04" fill="url(#tbk-bar)" stroke="#120f08" stroke-width=".35"/><ellipse cx="62.04" cy="73.89" rx="17.04" ry="0.56" fill="url(#tbk-barhl)"/></symbol><symbol id="tb-champ" viewBox="0 0 120 120" overflow="visible"><circle cx="45.74" cy="41.48" r="70" fill="url(#tbs-glow)"/><path d="M31.09,8.37Q34.87,3.33 41.15,3.66L83.89,5.9Q90.18,6.23 93.14,11.79L113.11,49.19Q116.07,54.75 111.84,59.41L60.68,115.79Q56.45,120.46 52.48,115.57L3.56,55.3Q-0.41,50.42 3.36,45.38Z" pathLength="100" fill="none" stroke="#f04cff" stroke-width="0.75" stroke-dasharray="50 14 32 4" stroke-linejoin="round"/><path d="M32.39,9.32Q35.1,5.57 39.73,5.73L84,7.28Q88.62,7.44 90.87,11.48L112.08,49.6Q114.33,53.65 111.28,57.13L60.97,114.56Q57.92,118.04 54.94,114.5L4.91,55.03Q1.93,51.48 4.64,47.73Z" pathLength="100" fill="none" stroke="#b55ae0" stroke-width="0.5" stroke-dasharray="22 8 18 16 30 6" stroke-linejoin="round"/><path d="M33.3,10.15Q35.21,7.42 38.54,7.48L84,8.27Q87.33,8.33 89,11.21L111.35,49.77Q113.02,52.66 110.87,55.2L61.46,113.63Q59.31,116.18 57.12,113.66L6.01,55.02Q3.82,52.51 5.72,49.77Z" pathLength="100" fill="none" stroke="#e02ad8" stroke-width="0.6" stroke-dasharray="48 16 30 6" stroke-linejoin="round"/><line x1="2.04" y1="56.67" x2="15" y2="76.3" stroke="#d27ff0" stroke-opacity="0.9" stroke-width="1.67" stroke-linecap="square"/><line x1="97.22" y1="15.93" x2="108.7" y2="35.93" stroke="#e08af5" stroke-opacity="0.8" stroke-width="1.3" stroke-linecap="square"/><path d="M32.6,12.21Q35.07,8.52 39.52,8.52L81.58,8.52Q86.39,8.52 88.88,12.64L109.49,46.83Q112.36,51.59 108.85,55.89L63.92,110.95Q60.64,114.96 57.17,111.11L7.75,56.37Q5.02,53.34 7.29,49.96Z" fill="none" stroke="#ff4cf2" stroke-opacity="0.6" stroke-width="3.6" filter="url(#tbs-glowf)"/><path d="M32.6,12.21Q35.07,8.52 39.52,8.52L81.58,8.52Q86.39,8.52 88.88,12.64L109.49,46.83Q112.36,51.59 108.85,55.89L63.92,110.95Q60.64,114.96 57.17,111.11L7.75,56.37Q5.02,53.34 7.29,49.96Z" fill="url(#tbs-band)"/><path d="M32.6,12.21Q35.07,8.52 39.52,8.52L81.58,8.52Q86.39,8.52 88.88,12.64L109.49,46.83Q112.36,51.59 108.85,55.89L63.92,110.95Q60.64,114.96 57.17,111.11L7.75,56.37Q5.02,53.34 7.29,49.96Z" fill="url(#tbs-streak)"/><path d="M32.6,12.21Q35.07,8.52 39.52,8.52L81.58,8.52Q86.39,8.52 88.88,12.64L109.49,46.83Q112.36,51.59 108.85,55.89L63.92,110.95Q60.64,114.96 57.17,111.11L7.75,56.37Q5.02,53.34 7.29,49.96Z" fill="none" stroke="#000" stroke-opacity="0.5" stroke-width=".5"/><path d="M33.39,12.03Q35.37,9.07 38.92,9.07L82.22,9.07Q86.08,9.07 88.07,12.37L109.39,47.73Q111.68,51.54 108.87,54.98L63.24,110.9Q60.62,114.11 57.84,111.03L7.9,55.71Q5.72,53.29 7.54,50.58Z" fill="none" stroke="#c933cf" stroke-width="0.55"/><path d="M34.97,14.99Q36.95,12.04 40.5,12.04L80.55,12.04Q84.4,12.04 86.39,15.34L105.77,47.48Q108.07,51.28 105.26,54.73L63.13,106.35Q60.51,109.56 57.73,106.48L11.65,55.44Q9.47,53.02 11.28,50.31Z" fill="none" stroke="#e07f73" stroke-width="0.35"/><path d="M35.39,15.36Q37.25,12.59 40.58,12.59L80.48,12.59Q84.09,12.59 85.95,15.68L105.24,47.67Q107.39,51.23 104.76,54.46L62.94,105.7Q60.49,108.71 57.88,105.82L12.22,55.24Q10.17,52.97 11.87,50.43Z" fill="#c9706d"/><path d="M35.81,15.73Q37.54,13.15 40.65,13.15L80.41,13.15Q83.78,13.15 85.52,16.03L104.71,47.86Q106.71,51.19 104.25,54.2L62.76,105.05Q60.46,107.86 58.03,105.16L12.79,55.04Q10.87,52.92 12.46,50.55Z" fill="#3c0b45"/><path d="M36.82,16.8Q38.33,14.26 41.3,14.26L79.81,14.26Q83.15,14.26 84.87,17.11L103.08,47.31Q105.37,51.11 102.58,54.57L62.65,104.07Q60.56,106.67 58.41,104.11L18.46,56.47Q15.37,52.78 17.84,48.64Z" fill="url(#tbs-panel)"/><path d="M36.82,16.8Q38.33,14.26 41.3,14.26L79.81,14.26Q83.15,14.26 84.87,17.11L103.08,47.31Q105.37,51.11 102.58,54.57L62.65,104.07Q60.56,106.67 58.41,104.11L18.46,56.47Q15.37,52.78 17.84,48.64Z" fill="url(#tbs-pstr)"/><path d="M56.75,20.17Q60.93,17.78 65.29,19.8L92.48,32.42Q96.85,34.44 97.08,39.25L98.29,64.45Q98.52,69.26 94.81,72.33L69.08,93.6Q65.37,96.67 60.94,94.78L34.06,83.36Q29.63,81.48 29.49,76.67L28.47,41.29Q28.33,36.48 32.51,34.09Z" fill="#14031c" fill-opacity=".8" filter="url(#tbs-blur)"/><path d="M55.03,18.69Q58.89,16.48 62.92,18.35L91.12,31.43Q94.81,33.15 95.01,37.22L96.29,63.89Q96.48,67.96 93.34,70.56L66.76,92.54Q63.33,95.37 59.24,93.63L31.34,81.78Q27.59,80.19 27.48,76.11L26.41,39.26Q26.3,35.19 29.83,33.16Z" fill="#2c0a38"/><path d="M53.74,17.77Q57.59,15.56 61.62,17.43L89.82,30.51Q93.52,32.22 93.71,36.29L94.99,62.97Q95.19,67.04 92.05,69.63L65.46,91.61Q62.04,94.44 57.95,92.71L30.05,80.85Q26.3,79.26 26.18,75.19L25.12,38.33Q25,34.26 28.53,32.23Z" fill="url(#tbs-dk)"/><path d="M53.74,17.77Q57.59,15.56 61.62,17.43L89.82,30.51Q93.52,32.22 93.71,36.29L94.99,62.97Q95.19,67.04 92.05,69.63L65.46,91.61Q62.04,94.44 57.95,92.71L30.05,80.85Q26.3,79.26 26.18,75.19L25.12,38.33Q25,34.26 28.53,32.23Z" fill="url(#tbs-lt)" mask="url(#tbs-sm)"/><g clip-path="url(#tb-clip-champ)"><circle cx="38.33" cy="27.22" r="24.07" fill="url(#tbs-lit)"/></g><path d="M53.74,17.77Q57.59,15.56 61.62,17.43L89.82,30.51Q93.52,32.22 93.71,36.29L94.99,62.97Q95.19,67.04 92.05,69.63L65.46,91.61Q62.04,94.44 57.95,92.71L30.05,80.85Q26.3,79.26 26.18,75.19L25.12,38.33Q25,34.26 28.53,32.23Z" fill="none" stroke="#2a0636" stroke-opacity=".6" stroke-width=".5"/><polygon points="60.93,6.48 66.3,12.59 55.56,12.59" fill="#fbfaf6"/><polygon points="17.59,22.96 28.7,21.11 17.59,35.56" fill="#fbfaf6"/><polygon points="93.15,23.7 103.89,26.67 103.33,41.11" fill="#fbfaf6"/><polygon points="18.7,75.19 30.19,87.96 22.04,87.96" fill="#fbfaf6"/><polygon points="102.04,74.26 101.48,86.3 90.19,90.93" fill="#fbfaf6"/><polygon points="54.63,101.11 65.74,100.37 60.37,108.15" fill="#fbfaf6"/><ellipse cx="22.78" cy="21.11" rx="17" ry="11" transform="rotate(-40 22.78 21.11)" fill="url(#tbs-flare)"/><polygon points="62.78,25.56 72.51,44.01 93.07,47.56 78.53,62.53 81.5,83.18 62.78,73.97 44.06,83.18 47.03,62.53 32.48,47.56 53.04,44.01" fill="#12031a" fill-opacity=".7" stroke="#12031a" stroke-opacity=".7" stroke-width="1.2" stroke-linejoin="round" filter="url(#tbs-blur)"/><polygon points="61.48,23.7 71.22,42.16 91.77,45.71 77.23,60.67 80.2,81.32 61.48,72.12 42.76,81.32 45.73,60.67 31.19,45.71 51.75,42.16" fill="#8d7c9c" stroke="#8d7c9c" stroke-width="1.1" stroke-linejoin="round"/><polygon points="60.93,22.22 70.66,40.67 91.22,44.23 76.68,59.19 79.65,79.84 60.93,70.64 42.2,79.84 45.17,59.19 30.63,44.23 51.19,40.67" fill="url(#tbs-edge)" stroke="url(#tbs-edge)" stroke-width="1.1" stroke-linejoin="round"/><polygon points="60.93,23.33 70.32,41.14 90.16,44.57 76.13,59.01 78.99,78.94 60.93,70.06 42.86,78.94 45.72,59.01 31.69,44.57 51.53,41.14" fill="url(#tbs-rim)" stroke="#9c8fb0" stroke-width=".3" stroke-linejoin="round"/><polygon points="60.37,27.78 67.61,42.44 83.79,44.8 72.08,56.21 74.85,72.33 60.37,64.72 45.89,72.33 48.66,56.21 36.95,44.8 53.13,42.44" fill="#3b0a55" stroke="#3b0a55" stroke-width="1.2" stroke-linejoin="round"/><polygon points="60.37,27.78 67.61,42.44 83.79,44.8 72.08,56.21 74.85,72.33 60.37,64.72 45.89,72.33 48.66,56.21 36.95,44.8 53.13,42.44" fill="url(#tbs-lo)"/><polygon points="60.37,27.78 67.61,42.44 83.79,44.8 72.08,56.21 74.85,72.33 60.37,64.72 45.89,72.33 48.66,56.21 36.95,44.8 53.13,42.44" fill="url(#tbs-hi)" clip-path="url(#tbs-half)"/><polyline points="36.95,44.8 53.13,42.44 60.37,27.78" fill="none" stroke="#ffe4fd" stroke-opacity=".95" stroke-width="1.6" stroke-linejoin="round" filter="url(#tbs-soft)"/><polygon points="60.37,27.78 67.61,42.44 83.79,44.8 72.08,56.21 74.85,72.33 60.37,64.72 45.89,72.33 48.66,56.21 36.95,44.8 53.13,42.44" fill="none" stroke="#fff" stroke-opacity=".5" stroke-width=".3" stroke-linejoin="round"/></symbol><symbol id="tb-superchal" viewBox="0 0 120 120" overflow="visible"><circle cx="59.02" cy="60.39" r="64" fill="url(#tbt-glow)"/><path d="M15.8,23.5Q18.3,15.65 26.47,14.54L78.88,7.41Q87.05,6.3 92.32,12.64L109.31,33.12Q114.57,39.47 115.41,47.67L116.52,58.42Q117.37,66.63 114.16,74.22L107.36,90.34Q104.15,97.94 96.18,100.05L54.94,110.95Q46.97,113.06 39.1,110.61L34.55,109.19Q26.67,106.74 22.81,99.46L7.17,69.97Q3.3,62.69 5.81,54.84Z" pathLength="100" fill="none" stroke="#3cf2e4" stroke-width="0.7" stroke-dasharray="0 6 9 9 14 14 16 12 12 8"/><path d="M16.85,24.19Q18.76,17.79 25.36,16.78L78.9,8.54Q85.5,7.53 89.85,12.59L108.36,34.13Q112.71,39.19 113.51,45.82L115.08,58.8Q115.88,65.42 113.39,71.62L106.13,89.68Q103.65,95.87 97.22,97.69L54.33,109.84Q47.91,111.66 41.51,109.78L34.97,107.87Q28.57,106 25.34,100.16L8.29,69.35Q5.06,63.51 6.98,57.12Z" pathLength="100" fill="none" stroke="#22c9bb" stroke-width="0.45" stroke-dasharray="4 12 16 14 10 22 8 14"/><path d="M17.38,25.23Q18.97,19.56 24.78,18.57L78.34,9.37Q84.14,8.37 88.06,12.77L107.32,34.4Q111.23,38.8 112.04,44.63L113.96,58.49Q114.77,64.32 112.67,69.82L105.48,88.65Q103.38,94.16 97.74,95.86L54.45,108.94Q48.81,110.64 43.13,109.09L35.84,107.1Q30.16,105.54 27.22,100.44L9.35,69.42Q6.41,64.32 8,58.65Z" fill="none" stroke="#4ffff0" stroke-opacity=".38" stroke-width="2.2" filter="url(#tbt-glowf)"/><path d="M17.38,25.23Q18.97,19.56 24.78,18.57L78.34,9.37Q84.14,8.37 88.06,12.77L107.32,34.4Q111.23,38.8 112.04,44.63L113.96,58.49Q114.77,64.32 112.67,69.82L105.48,88.65Q103.38,94.16 97.74,95.86L54.45,108.94Q48.81,110.64 43.13,109.09L35.84,107.1Q30.16,105.54 27.22,100.44L9.35,69.42Q6.41,64.32 8,58.65Z" fill="url(#tbt-out)"/><path d="M17.38,25.23Q18.97,19.56 24.78,18.57L78.34,9.37Q84.14,8.37 88.06,12.77L107.32,34.4Q111.23,38.8 112.04,44.63L113.96,58.49Q114.77,64.32 112.67,69.82L105.48,88.65Q103.38,94.16 97.74,95.86L54.45,108.94Q48.81,110.64 43.13,109.09L35.84,107.1Q30.16,105.54 27.22,100.44L9.35,69.42Q6.41,64.32 8,58.65Z" fill="url(#tbt-outsh)"/><path d="M18.16,25.36Q19.6,20.25 24.82,19.36L78.62,10.12Q83.85,9.22 87.37,13.18L106.96,35.19Q110.49,39.14 111.22,44.39L113.23,58.98Q113.96,64.23 112.07,69.18L104.67,88.56Q102.79,93.52 97.71,95.05L53.87,108.29Q48.8,109.83 43.69,108.43L35.79,106.27Q30.68,104.87 28.04,100.28L9.9,68.8Q7.26,64.21 8.69,59.11Z" fill="none" stroke="#c8fffa" stroke-opacity=".55" stroke-width=".45"/><path d="M29.6,24.38Q31.14,20.35 35.44,19.91L81.03,15.29Q85.32,14.85 87.45,18.61L107.92,54.67Q110.06,58.43 108.6,62.5L94.63,101.48Q93.17,105.54 88.86,105.63L41.35,106.63Q37.03,106.72 34.89,102.97L15.82,69.64Q13.67,65.89 15.22,61.86Z" fill="#043a35" fill-opacity=".6" filter="url(#tbt-blur)"/><path d="M28.95,22.05Q30.36,18.39 34.27,17.99L80.63,13.29Q84.54,12.89 86.47,16.3L107.33,53.05Q109.27,56.47 107.95,60.16L93.71,99.88Q92.39,103.58 88.46,103.66L40.17,104.67Q36.25,104.76 34.3,101.35L14.84,67.33Q12.89,63.93 14.3,60.26Z" fill="url(#tbt-sand)"/><path d="M28.95,22.05Q30.36,18.39 34.27,17.99L80.63,13.29Q84.54,12.89 86.47,16.3L107.33,53.05Q109.27,56.47 107.95,60.16L93.71,99.88Q92.39,103.58 88.46,103.66L40.17,104.67Q36.25,104.76 34.3,101.35L14.84,67.33Q12.89,63.93 14.3,60.26Z" fill="none" stroke="#6d5a2c" stroke-opacity=".5" stroke-width=".4"/><path d="M34.25,26.97Q37.62,24.27 41.94,24.27L83.56,24.27Q88.27,24.27 89.99,28.66L103.32,62.63Q104.76,66.28 103.18,69.88L91.49,96.55Q89.44,101.22 84.34,101.22L39.19,101.22Q34.87,101.22 31.77,98.22L24.96,91.63Q22.7,89.44 22.67,86.3L22.34,52.93Q22.31,49.79 23.45,46.86L28.21,34.58Q29.77,30.56 33.14,27.86Z" fill="#012624" fill-opacity=".8" filter="url(#tbt-blur)"/><path d="M21.33,46.26Q21.33,44.3 20.08,45.81L17.08,49.46Q15.83,50.97 15.7,52.93L14.4,72.17Q14.26,74.13 14.95,75.97L18.68,86.03Q19.37,87.87 20.73,89.29L27.43,96.27Q28.79,97.69 30.67,98.24L31.62,98.51Q33.5,99.06 32.1,97.69L22.73,88.47Q21.33,87.09 21.33,85.13Z" fill="url(#tbt-side)"/><path d="M32.88,24.62Q36.25,21.92 40.57,21.92L82.18,21.92Q86.89,21.92 88.61,26.3L101.95,60.27Q103.38,63.93 101.81,67.52L90.12,94.19Q88.07,98.87 82.97,98.87L37.82,98.87Q33.5,98.87 30.4,95.86L23.59,89.27Q21.33,87.09 21.3,83.95L20.97,50.58Q20.94,47.44 22.07,44.51L26.84,32.23Q28.4,28.2 31.77,25.5Z" fill="url(#tbt-dk)"/><path d="M32.88,24.62Q36.25,21.92 40.57,21.92L82.18,21.92Q86.89,21.92 88.61,26.3L101.95,60.27Q103.38,63.93 101.81,67.52L90.12,94.19Q88.07,98.87 82.97,98.87L37.82,98.87Q33.5,98.87 30.4,95.86L23.59,89.27Q21.33,87.09 21.3,83.95L20.97,50.58Q20.94,47.44 22.07,44.51L26.84,32.23Q28.4,28.2 31.77,25.5Z" fill="url(#tbt-lt)" mask="url(#tbt-sm)"/><g clip-path="url(#tb-clip-superchal)"><polygon points="19.37,44.69 29.97,25.45 37.03,23.49 39.78,100.44 32.13,100.44 19.37,87.87" fill="url(#tbt-fdk)"/><polygon points="19.37,44.69 29.97,25.45 37.03,23.49 39.78,100.44 32.13,100.44 19.37,87.87" fill="url(#tbt-flt)" mask="url(#tbt-fm)"/><line x1="37.03" y1="23.49" x2="39.78" y2="100.44" stroke="#04484b" stroke-opacity=".55" stroke-width=".7"/></g><path d="M32.88,24.62Q36.25,21.92 40.57,21.92L82.18,21.92Q86.89,21.92 88.61,26.3L101.95,60.27Q103.38,63.93 101.81,67.52L90.12,94.19Q88.07,98.87 82.97,98.87L37.82,98.87Q33.5,98.87 30.4,95.86L23.59,89.27Q21.33,87.09 21.3,83.95L20.97,50.58Q20.94,47.44 22.07,44.51L26.84,32.23Q28.4,28.2 31.77,25.5Z" fill="none" stroke="#003b3c" stroke-opacity=".55" stroke-width=".5"/><path d="M33.39,24.84Q36.42,22.41 40.31,22.41L82.32,22.41Q86.56,22.41 88.11,26.36L101.56,60.63Q102.85,63.92 101.43,67.15L89.59,94.17Q87.75,98.38 83.16,98.38L37.59,98.38Q33.7,98.38 30.91,95.67L23.85,88.84Q21.82,86.88 21.79,84.05L21.46,50.35Q21.43,47.53 22.45,44.89L27.4,32.12Q28.81,28.5 31.84,26.07Z" fill="none" stroke="#b9ffff" stroke-opacity=".35" stroke-width=".35"/><polygon points="21.53,40.96 26.43,39.98 21.53,47.44" fill="#7a5b3c" fill-opacity=".5"/><polygon points="16.62,39.59 28.79,37.03 28.79,39.39 21.53,40.96 21.53,62.36 16.62,62.75" fill="#f7fbfb"/><polygon points="86.5,21.33 93.96,20.54 93.96,33.3" fill="#7a5b3c" fill-opacity=".5"/><polygon points="83.75,18.58 97.1,17.01 97.1,40.76 93.96,40.76 93.96,20.35 83.75,21.33" fill="#f7fbfb"/><polygon points="92.59,68.24 95.92,67.66 95.92,96.51 84.93,97.49 84.93,94.74 92.59,94.16" fill="#f7fbfb"/><polygon points="22.7,80.02 26.24,80.02 26.24,90.23 31.54,89.84 31.54,93.17 22.7,93.57" fill="#f7fbfb"/><polygon points="42.53,12.1 40.57,21.13 34.68,22.31" fill="#f4fefe"/><polygon points="2.09,69.03 19.76,68.24 15.83,74.92" fill="#d9fbfb"/><polygon points="80.61,94.35 65.3,107.5 68.05,99.26" fill="#fbfcfc"/><polygon points="101.03,34.87 109.66,38.8 103.38,54.9" fill="#8afcfb"/><line x1="93.57" y1="70.6" x2="97.1" y2="67.46" stroke="#f4fbfb" stroke-width="0.98" stroke-linecap="round"/><line x1="93.57" y1="73.35" x2="97.1" y2="70.21" stroke="#f4fbfb" stroke-width="0.98" stroke-linecap="round"/><path d="M34.09,36.44 L75.11,28.99 L81.79,27.22 L82.57,38.8 C82.97,54.9 76.29,74.13 58.63,89.25 L38.01,60.79Z" transform="translate(1.96 2.75)" fill="#012624" fill-opacity=".7" filter="url(#tbt-blur)"/><path d="M34.09,36.44 L75.11,28.99 Q60.59,53.13 38.01,60.79Z" transform="translate(0.59 1.77)" fill="#0a4c4a" fill-opacity=".7"/><path d="M34.09,36.44 L75.11,28.99 Q60.59,53.13 38.01,60.79Z" transform="translate(0.39 1.37)" fill="#d8c48e"/><path d="M34.09,36.44 L75.11,28.99 Q60.59,53.13 38.01,60.79Z" fill="url(#tbt-b1)" stroke="#0d5a57" stroke-opacity=".45" stroke-width=".3" stroke-linejoin="round"/><path d="M39.39,62.55 Q60.59,56.27 81.79,27.22 L81,37.23 Q60,75.51 46.26,77.27Z" transform="translate(0.59 1.77)" fill="#0a4c4a" fill-opacity=".7"/><path d="M39.39,62.55 Q60.59,56.27 81.79,27.22 L81,37.23 Q60,75.51 46.26,77.27Z" transform="translate(0.39 1.37)" fill="#d8c48e"/><path d="M39.39,62.55 Q60.59,56.27 81.79,27.22 L81,37.23 Q60,75.51 46.26,77.27Z" fill="url(#tbt-b2)" stroke="#0d5a57" stroke-opacity=".45" stroke-width=".3" stroke-linejoin="round"/><path d="M48.22,78.65 Q61.77,76.88 82.57,38.8 C82.97,54.9 76.29,74.13 58.63,89.25 Q51.17,85.52 48.22,78.65Z" transform="translate(0.59 1.77)" fill="#0a4c4a" fill-opacity=".7"/><path d="M48.22,78.65 Q61.77,76.88 82.57,38.8 C82.97,54.9 76.29,74.13 58.63,89.25 Q51.17,85.52 48.22,78.65Z" transform="translate(0.39 1.37)" fill="#d8c48e"/><path d="M48.22,78.65 Q61.77,76.88 82.57,38.8 C82.97,54.9 76.29,74.13 58.63,89.25 Q51.17,85.52 48.22,78.65Z" fill="url(#tbt-b3)" stroke="#0d5a57" stroke-opacity=".45" stroke-width=".3" stroke-linejoin="round"/><path d="M34.68,37.23 L74.33,29.77" fill="none" stroke="#fff" stroke-opacity=".9" stroke-width=".45"/><path d="M39.98,63.14 Q60.98,57.06 81.2,28.59" fill="none" stroke="#fff" stroke-opacity=".8" stroke-width=".4"/></symbol><symbol id="tb-cr" viewBox="0 0 120 120" overflow="visible"><circle cx="47.59" cy="47.04" r="68" fill="url(#tbc-glow)"/><path d="M32.03,7.6Q36.15,1.89 43.16,2.51L85.28,6.19Q92.29,6.8 95.38,13.12L113.78,50.7Q116.88,57.02 112,62.09L58.74,117.45Q53.86,122.52 49.83,116.76L6.33,54.59Q2.3,48.82 6.42,43.12Z" pathLength="100" fill="none" stroke="#c3ccd8" stroke-width="0.7" stroke-dasharray="44 4 10 6 32 4" stroke-linejoin="round"/><path d="M33.69,8.62Q36.54,4.52 41.53,4.87L85.47,7.94Q90.45,8.29 92.73,12.74L112.47,51.32Q114.74,55.77 111.34,59.44L58.94,115.84Q55.54,119.51 52.6,115.46L7.94,53.94Q5,49.9 7.85,45.79Z" pathLength="100" fill="none" stroke="#9aa5b4" stroke-width="0.45" stroke-dasharray="20 6 18 10 14 8 24" stroke-linejoin="round"/><path d="M34.33,9.66Q36.26,6.72 39.78,6.87L85.07,8.85Q88.58,9 90.27,12.09L111.53,51.1Q113.21,54.19 110.88,56.83L59.9,114.68Q57.57,117.32 55.43,114.53L9.1,54.11Q6.96,51.32 8.9,48.38Z" pathLength="100" fill="none" stroke="#7d8796" stroke-width="0.45" stroke-dasharray="30 8 22 6 30 4" stroke-linejoin="round"/><line x1="2.04" y1="56.67" x2="15" y2="76.3" stroke="#c6ced8" stroke-opacity="0.75" stroke-width="1.3" stroke-linecap="square"/><line x1="97.22" y1="15.93" x2="108.7" y2="35.93" stroke="#c6ced8" stroke-opacity="0.7" stroke-width="1.11" stroke-linecap="square"/><path d="M32.8,12.34Q35.07,8.52 39.52,8.52L81.58,8.52Q86.39,8.52 88.88,12.64L109.49,46.83Q112.36,51.59 108.87,55.91L63.9,111.67Q60.64,115.7 57.31,111.73L10.97,56.46Q8.35,53.34 10.44,49.84Z" fill="none" stroke="#e6eef8" stroke-opacity="0.35" stroke-width="3.2" filter="url(#tbc-glowf)"/><path d="M32.8,12.34Q35.07,8.52 39.52,8.52L81.58,8.52Q86.39,8.52 88.88,12.64L109.49,46.83Q112.36,51.59 108.87,55.91L63.9,111.67Q60.64,115.7 57.31,111.73L10.97,56.46Q8.35,53.34 10.44,49.84Z" fill="url(#tbc-band)"/><path d="M32.8,12.34Q35.07,8.52 39.52,8.52L81.58,8.52Q86.39,8.52 88.88,12.64L109.49,46.83Q112.36,51.59 108.87,55.91L63.9,111.67Q60.64,115.7 57.31,111.73L10.97,56.46Q8.35,53.34 10.44,49.84Z" fill="url(#tbc-streak)"/><path d="M32.8,12.34Q35.07,8.52 39.52,8.52L81.58,8.52Q86.39,8.52 88.88,12.64L109.49,46.83Q112.36,51.59 108.87,55.91L63.9,111.67Q60.64,115.7 57.31,111.73L10.97,56.46Q8.35,53.34 10.44,49.84Z" fill="none" stroke="#000" stroke-opacity="0.5" stroke-width=".5"/><path d="M35.68,15.46Q37.39,12.59 40.72,12.59L80.48,12.59Q84.09,12.59 85.95,15.68L105.25,47.68Q107.4,51.25 104.78,54.49L63.02,106.26Q60.58,109.29 58.08,106.31L15.3,55.28Q13.33,52.94 14.9,50.32Z" fill="#8b929c"/><path d="M36.11,15.82Q37.7,13.15 40.81,13.15L80.41,13.15Q83.78,13.15 85.52,16.03L104.72,47.87Q106.72,51.2 104.28,54.23L62.85,105.59Q60.57,108.42 58.24,105.63L15.84,55.07Q14.01,52.89 15.47,50.44Z" fill="#262a31"/><path d="M36.82,16.8Q38.33,14.26 41.3,14.26L79.81,14.26Q83.15,14.26 84.87,17.11L103.08,47.31Q105.37,51.11 102.58,54.57L62.65,104.07Q60.56,106.67 58.41,104.11L18.46,56.47Q15.37,52.78 17.84,48.64Z" fill="url(#tbc-panel)"/><path d="M36.82,16.8Q38.33,14.26 41.3,14.26L79.81,14.26Q83.15,14.26 84.87,17.11L103.08,47.31Q105.37,51.11 102.58,54.57L62.65,104.07Q60.56,106.67 58.41,104.11L18.46,56.47Q15.37,52.78 17.84,48.64Z" fill="url(#tbc-pstr)"/><path d="M59.37,26.52Q64.26,23.89 69.25,26.33L91.12,37.01Q96.11,39.44 96.62,44.98L99.31,74.47Q99.81,80 95.51,83.52L73.75,101.3Q69.44,104.81 64.44,102.41L37.42,89.44Q32.41,87.04 32.23,81.48L31.11,47.4Q30.93,41.85 35.82,39.22Z" fill="#06070a" fill-opacity=".85" filter="url(#tbc-blur)"/><path d="M56.18,17.87Q59.44,16.11 62.77,17.74L88.3,30.2Q91.3,31.67 91.6,34.99L94.66,68.53Q95,72.22 92.13,74.57L67.78,94.46Q64.63,97.04 60.96,95.27L30.93,80.86Q27.59,79.26 27.47,75.56L26.22,37.41Q26.11,34.07 29.05,32.49Z" fill="url(#tbc-str)"/><path d="M56.18,17.87Q59.44,16.11 62.77,17.74L88.3,30.2Q91.3,31.67 91.6,34.99L94.66,68.53Q95,72.22 92.13,74.57L67.78,94.46Q64.63,97.04 60.96,95.27L30.93,80.86Q27.59,79.26 27.47,75.56L26.22,37.41Q26.11,34.07 29.05,32.49Z" fill="url(#tbc-pshade)"/><path d="M56.18,17.87Q59.44,16.11 62.77,17.74L88.3,30.2Q91.3,31.67 91.6,34.99L94.66,68.53Q95,72.22 92.13,74.57L67.78,94.46Q64.63,97.04 60.96,95.27L30.93,80.86Q27.59,79.26 27.47,75.56L26.22,37.41Q26.11,34.07 29.05,32.49Z" fill="none" stroke="#000" stroke-opacity=".45" stroke-width=".5"/><polygon points="60.93,6.48 66.3,12.59 55.56,12.59" fill="#fbfaf6"/><polygon points="60.93,6.48 66.3,12.59 62.78,12.59" fill="#c3c9d2" fill-opacity=".85"/><polygon points="17.59,22.96 28.7,21.11 17.59,35.56" fill="#fbfaf6"/><polygon points="20.93,22.41 28.7,21.11 24.26,24.63" fill="#c3c9d2" fill-opacity=".85"/><polygon points="93.15,23.7 103.89,26.67 103.33,41.11" fill="#fbfaf6"/><polygon points="99.81,28.52 103.89,26.67 103.33,35.93" fill="#c3c9d2" fill-opacity=".85"/><polygon points="18.7,75.19 30.19,87.96 22.04,87.96" fill="#fbfaf6"/><polygon points="102.04,74.26 101.48,86.3 90.19,90.93" fill="#fbfaf6"/><polygon points="102.04,74.26 101.67,81.85 98.89,80.74" fill="#c3c9d2" fill-opacity=".85"/><polygon points="54.63,101.11 65.74,100.37 60.37,108.15" fill="#fbfaf6"/><polygon points="39.44,56.67 61.67,38.52 83.89,56.67 83.89,65.93 61.67,47.78 39.44,65.93" fill="#05070b" fill-opacity=".6" filter="url(#tbc-blur)"/><polygon points="38.33,54.44 60.56,36.3 82.78,54.44 82.78,63.7 60.56,45.56 38.33,63.7" fill="url(#tbc-icon)" stroke="#1a1f27" stroke-width="1.1" stroke-linejoin="round"/><polyline points="38.33,54.44 60.56,36.3 82.78,54.44" fill="none" stroke="#fff" stroke-opacity=".9" stroke-width=".45" stroke-linejoin="round" transform="translate(0 .45)"/><polygon points="60.56,36.3 82.78,54.44 82.78,63.7 60.56,45.56" fill="#7f8a99" fill-opacity=".28"/><polygon points="39.44,73.33 61.67,55.19 83.89,73.33 83.89,82.59 61.67,64.44 39.44,82.59" fill="#05070b" fill-opacity=".6" filter="url(#tbc-blur)"/><polygon points="38.33,71.11 60.56,52.96 82.78,71.11 82.78,80.37 60.56,62.22 38.33,80.37" fill="url(#tbc-icon)" stroke="#1a1f27" stroke-width="1.1" stroke-linejoin="round"/><polyline points="38.33,71.11 60.56,52.96 82.78,71.11" fill="none" stroke="#fff" stroke-opacity=".9" stroke-width=".45" stroke-linejoin="round" transform="translate(0 .45)"/><polygon points="60.56,52.96 82.78,71.11 82.78,80.37 60.56,62.22" fill="#7f8a99" fill-opacity=".28"/></symbol></svg>
+
+<header class="nav" id="nav">
+  <div class="nav-in">
+    <a class="brand" href="#top"><img src="assets/nv-mark.png" alt="NV 마크" width="30" height="30"><span>NV</span></a>
+    <nav aria-label="주요 메뉴">
+      <ul>
+        <li><a href="#about">소개</a></li>
+        <li><a href="#league">내전 리그</a></li>
+        <li><a href="#staff">운영진</a></li>
+        <li><a href="#join">가입 안내</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="hero" id="top" aria-label="NV 첫 화면">
+    <div class="hero-in">
+      <div class="hero-mark" id="heroMark">
+        <img src="assets/nv-mark.png" alt="NV 클럽 마크: 빨간 육각형 안의 N" width="512" height="512">
+      </div>
+      <h1 class="hero-word" id="heroWord"><span class="sr-only">NV </span><img src="assets/nv-wordmark.png" alt="NAME VALUE" width="900" height="136"></h1>
+      <p class="hero-label reveal">FC ONLINE CLUB</p>
+      <div class="hero-cta reveal">
+        <a class="btn btn-primary" href="https://dindoopark.github.io/nv-league/" target="_blank" rel="noopener">내전 리그 보기</a>
+        <a class="btn btn-ghost" href="#join">가입 안내</a>
+      </div>
+    </div>
+    <div class="scroll-cue" aria-hidden="true"><span></span></div>
+  </section>
+
+  <section class="sec sec-about" id="about" aria-labelledby="about-h">
+    <div class="wrap about-grid">
+      <div class="about-text">
+        <div class="sec-title rv">
+          <div class="idx" aria-hidden="true">ABOUT</div>
+          <h2 id="about-h">클럽 소개</h2>
+        </div>
+        <div class="panel hud rv d1">
+          <p class="lead">NV는 FC Online에서 함께 뛰는 클럽입니다. 50명 안팎의 소수정예로 운영하고, 게임할 때는 디스코드에 같이 접속합니다.</p>
+        </div>
+        <p class="about-close rv d2">혼자 게임하다 재미를 잃었다면, 같이 놀아요.</p>
+      </div>
+      <ul class="acts" aria-label="클럽 활동">
+        <li class="act panel rv"><span class="act-ic" aria-hidden="true"><svg viewBox="0 0 100 100"><polygon points="50,3 90.7,26.5 90.7,73.5 50,97 9.3,73.5 9.3,26.5"></polygon></svg><span>01</span></span><div><h3>클럽 친선전</h3><p>일주일에 3회 이상 다른 클럽과 겨룹니다.</p></div></li>
+        <li class="act panel rv d1"><span class="act-ic" aria-hidden="true"><svg viewBox="0 0 100 100"><polygon points="50,3 90.7,26.5 90.7,73.5 50,97 9.3,73.5 9.3,26.5"></polygon></svg><span>02</span></span><div><h3>클럽 내전</h3><p>3~4개월마다 상품을 걸고 엽니다.</p></div></li>
+        <li class="act panel rv d2"><span class="act-ic" aria-hidden="true"><svg viewBox="0 0 100 100"><polygon points="50,3 90.7,26.5 90.7,73.5 50,97 9.3,73.5 9.3,26.5"></polygon></svg><span>03</span></span><div><h3>디스코드</h3><p>내전 때는 평균 15명 안팎, 평소에도 5~10명 이상 접속해 있습니다.</p></div></li>
+      </ul>
+      <div class="channels rv">
+        <h3 id="ch-h">클럽원 채널</h3>
+        <ul class="ch-list" aria-labelledby="ch-h">
+          <li><a class="chip" href="https://www.youtube.com/@NVchang" target="_blank" rel="noopener"><svg viewBox="0 0 18 18" aria-hidden="true"><circle cx="9" cy="9" r="7.6" fill="none" stroke="currentColor" stroke-opacity="0.55"></circle><path d="M7.3 5.9v6.2L12.2 9z" fill="#e64a58"></path></svg>NV창희 · YouTube <span class="arr" aria-hidden="true">&#8599;</span></a></li>
+          <li><a class="chip" href="https://www.youtube.com/@%ED%81%AC%EC%B9%B4%EB%AA%A8-FCO" target="_blank" rel="noopener"><svg viewBox="0 0 18 18" aria-hidden="true"><circle cx="9" cy="9" r="7.6" fill="none" stroke="currentColor" stroke-opacity="0.55"></circle><path d="M7.3 5.9v6.2L12.2 9z" fill="#e64a58"></path></svg>NV크카모 · YouTube <span class="arr" aria-hidden="true">&#8599;</span></a></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec sec-league" id="league" aria-labelledby="league-h">
+    <div class="wrap league-grid">
+      <div class="league-text">
+        <div class="sec-title rv">
+          <div class="idx" aria-hidden="true">LEAGUE</div>
+          <h2 id="league-h">내전 리그</h2>
+        </div>
+        <p class="lead rv d1">9팀이 9주 동안 겨루는 팀 리그입니다. 순위, 일정, 경기표, 개인 기록을 리그 페이지에서 볼 수 있습니다.</p>
+        <a class="btn btn-primary rv d2" href="https://dindoopark.github.io/nv-league/" target="_blank" rel="noopener">리그 페이지로 <span class="arr" aria-hidden="true">&#8599;</span></a>
+      </div>
+      <ul class="teams" id="teams" aria-label="내전 리그 9팀">
+        <li class="team rv"><span class="team-logo"><svg viewBox="0 0 100 100" aria-hidden="true"><polygon points="50,1 92.4,25.5 92.4,74.5 50,99 7.6,74.5 7.6,25.5"></polygon></svg><img src="assets/teams/9697s.webp" alt="" width="256" height="256"></span><span class="team-name">구육칠즈</span></li>
+        <li class="team rv d1"><span class="team-logo"><svg viewBox="0 0 100 100" aria-hidden="true"><polygon points="50,1 92.4,25.5 92.4,74.5 50,99 7.6,74.5 7.6,25.5"></polygon></svg><img src="assets/teams/noinjeong.webp" alt="" width="256" height="256"></span><span class="team-name">노인정</span></li>
+        <li class="team rv d2"><span class="team-logo"><svg viewBox="0 0 100 100" aria-hidden="true"><polygon points="50,1 92.4,25.5 92.4,74.5 50,99 7.6,74.5 7.6,25.5"></polygon></svg><img src="assets/teams/kol-yeosa.webp" alt="" width="256" height="256"></span><span class="team-name">달려라콜여사</span></li>
+        <li class="team rv"><span class="team-logo"><svg viewBox="0 0 100 100" aria-hidden="true"><polygon points="50,1 92.4,25.5 92.4,74.5 50,99 7.6,74.5 7.6,25.5"></polygon></svg><img src="assets/teams/daegal-janggun.webp" alt="" width="256" height="256"></span><span class="team-name">대갈장군</span></li>
+        <li class="team rv d1"><span class="team-logo"><svg viewBox="0 0 100 100" aria-hidden="true"><polygon points="50,1 92.4,25.5 92.4,74.5 50,99 7.6,74.5 7.6,25.5"></polygon></svg><img src="assets/teams/saja-eoheung.webp" alt="" width="256" height="256"></span><span class="team-name">사자는어흥</span></li>
+        <li class="team rv d2"><span class="team-logo"><svg viewBox="0 0 100 100" aria-hidden="true"><polygon points="50,1 92.4,25.5 92.4,74.5 50,99 7.6,74.5 7.6,25.5"></polygon></svg><img src="assets/teams/signiel.webp" alt="" width="256" height="256"></span><span class="team-name">시그니엘</span></li>
+        <li class="team rv"><span class="team-logo"><svg viewBox="0 0 100 100" aria-hidden="true"><polygon points="50,1 92.4,25.5 92.4,74.5 50,99 7.6,74.5 7.6,25.5"></polygon></svg><img src="assets/teams/eosaekz.webp" alt="" width="256" height="256"></span><span class="team-name">어색즈</span></li>
+        <li class="team rv d1"><span class="team-logo"><svg viewBox="0 0 100 100" aria-hidden="true"><polygon points="50,1 92.4,25.5 92.4,74.5 50,99 7.6,74.5 7.6,25.5"></polygon></svg><img src="assets/teams/jeomkk.webp" alt="" width="256" height="256"></span><span class="team-name">젊크크</span></li>
+        <li class="team rv d2"><span class="team-logo"><svg viewBox="0 0 100 100" aria-hidden="true"><polygon points="50,1 92.4,25.5 92.4,74.5 50,99 7.6,74.5 7.6,25.5"></polygon></svg><img src="assets/teams/kkamo-wonjeongdae.webp" alt="" width="256" height="256"></span><span class="team-name">크카모원정대</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="sec sec-staff" id="staff" aria-labelledby="staff-h">
+    <div class="wrap">
+      <div class="staff-head">
+        <div class="sec-title rv">
+          <div class="idx" aria-hidden="true">STAFF</div>
+          <h2 id="staff-h">운영진</h2>
+        </div>
+      </div>
+      <ul class="staff">
+        <li class="card lead-card panel hud rv"><span class="avatar tier-ava" data-division="900"><svg viewBox="0 0 120 120" aria-hidden="true" focusable="false"><use href="#tb-champ" width="120" height="120"/></svg></span><span class="who"><span class="role">클럽장</span><span class="nick">NV조이</span><span class="tier-tag t900">챔피언스</span></span></li>
+        <li class="card lead-card panel hud rv d1"><span class="avatar tier-ava" data-division="900"><svg viewBox="0 0 120 120" aria-hidden="true" focusable="false"><use href="#tb-champ" width="120" height="120"/></svg></span><span class="who"><span class="role">부클럽장</span><span class="nick">NV병희</span><span class="tier-tag t900">챔피언스</span></span></li>
+        <li class="card panel hud rv"><span class="avatar tier-ava" data-division="900"><svg viewBox="0 0 120 120" aria-hidden="true" focusable="false"><use href="#tb-champ" width="120" height="120"/></svg></span><span class="who"><span class="role">운영진</span><span class="nick">NV정민</span><span class="tier-tag t900">챔피언스</span></span></li>
+        <li class="card panel hud rv d1"><span class="avatar tier-ava" data-division="800"><svg viewBox="0 0 120 120" aria-hidden="true" focusable="false"><use href="#tb-superchamp" width="120" height="120"/></svg></span><span class="who"><span class="role">운영진</span><span class="nick">NV뚝배기</span><span class="tier-tag t800">슈퍼 챔피언스</span></span></li>
+        <li class="card panel hud rv d2"><span class="avatar tier-ava" data-division="900"><svg viewBox="0 0 120 120" aria-hidden="true" focusable="false"><use href="#tb-champ" width="120" height="120"/></svg></span><span class="who"><span class="role">운영진</span><span class="nick">NV치노</span><span class="tier-tag t900">챔피언스</span></span></li>
+        <li class="card panel hud rv d3"><span class="avatar tier-ava" data-division="800"><svg viewBox="0 0 120 120" aria-hidden="true" focusable="false"><use href="#tb-superchamp" width="120" height="120"/></svg></span><span class="who"><span class="role">운영진</span><span class="nick">하지</span><span class="tier-tag t800">슈퍼 챔피언스</span></span></li>
+      </ul>
+      <div class="staff-foot rv">
+        <p>가입 외 문의와 클럽원 제보는 운영진에게 말해 주세요. 비매너 제보는 상황을 검토해 조치합니다.</p>
+        <a class="btn btn-ghost" href="https://open.kakao.com/o/grTEKoki" target="_blank" rel="noopener">비매너 제보 오픈채팅 <span class="arr" aria-hidden="true">&#8599;</span></a>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec sec-join" id="join" aria-labelledby="join-h">
+    <div class="wrap join-grid">
+      <div class="join-side">
+        <div class="sec-title rv">
+          <div class="idx" aria-hidden="true">JOIN</div>
+          <h2 id="join-h">가입 안내</h2>
+        </div>
+        <p class="lead rv d1">가입 문의를 주신 날 디스코드에 들어와 주세요. 1~2판 테스트를 하고, 클럽 규정을 안내해 드립니다.</p>
+        <div class="join-cta rv d2">
+          <a class="btn btn-primary" href="https://open.kakao.com/o/gEeV1aBc" target="_blank" rel="noopener">가입 문의 오픈채팅 <span class="arr" aria-hidden="true">&#8599;</span></a>
+          <p class="cta-note">클럽전 신청도 같은 방에서 받습니다.</p>
+        </div>
+        <p class="prefer rv d3">활발하고 접속률이 좋으며 예의 바른 분을 우대합니다.</p>
+      </div>
+      <div class="join-main panel hud rv">
+        <ol class="conds">
+          <li class="cond"><div class="cond-b"><span class="cond-t">20세 이상</span></div></li>
+          <li class="cond key"><div class="cond-b"><span class="cond-t">디스코드·단톡방 활동 필수</span><span class="cond-d">게임에 접속하면 디스코드도 같이 접속해 주세요. 활동이 없으면 방출됩니다.</span></div></li>
+          <li class="cond">
+            <div class="cond-b"><span class="cond-t">1:1 공식경기 티어 <span class="sub">— 아래 중 하나</span></span></div>
+            <ul class="tiers" aria-label="1:1 공식경기 티어 조건">
+              <li class="tier tier-cr"><span class="tier-badge"><svg viewBox="0 0 120 120" aria-hidden="true" focusable="false"><use href="#tb-cr" width="120" height="120"/></svg><svg class="tb-fx" viewBox="0 0 120 120" aria-hidden="true" focusable="false"><g clip-path="url(#tb-clip-cr)"><g transform="rotate(24 60 60)"><rect class="tb-shine" x="20" y="0" width="13" height="120" fill="url(#tb-shine)"/></g></g><g class="tb-sparks"><circle class="tb-spark" cx="14" cy="30" r="1.5" fill="#eef3fa"/><circle class="tb-spark" cx="104" cy="22" r="1.1" fill="#eef3fa"/><circle class="tb-spark" cx="110" cy="70" r="1.6" fill="#eef3fa"/><circle class="tb-spark" cx="88" cy="108" r="1.2" fill="#eef3fa"/><circle class="tb-spark" cx="20" cy="92" r="1.3" fill="#eef3fa"/><circle class="tb-spark" cx="60" cy="4" r="1.0" fill="#eef3fa"/><circle class="tb-spark" cx="6" cy="60" r="0.9" fill="#eef3fa"/></g></svg></span><span class="tier-name">챌린저1</span><span class="tier-cond">전 시즌 · <span class="nw">100판 이상</span></span></li>
+              <li class="tier tier-sch"><span class="tier-badge"><svg viewBox="0 0 120 120" aria-hidden="true" focusable="false"><use href="#tb-superchal" width="120" height="120"/></svg><svg class="tb-fx" viewBox="0 0 120 120" aria-hidden="true" focusable="false"><g clip-path="url(#tb-clip-superchal)"><g transform="rotate(24 60 60)"><rect class="tb-shine" x="20" y="0" width="13" height="120" fill="url(#tb-shine)"/></g></g><g class="tb-sparks"><circle class="tb-spark" cx="14" cy="30" r="1.5" fill="#b6faf5"/><circle class="tb-spark" cx="104" cy="22" r="1.1" fill="#b6faf5"/><circle class="tb-spark" cx="110" cy="70" r="1.6" fill="#b6faf5"/><circle class="tb-spark" cx="88" cy="108" r="1.2" fill="#b6faf5"/><circle class="tb-spark" cx="20" cy="92" r="1.3" fill="#b6faf5"/><circle class="tb-spark" cx="60" cy="4" r="1.0" fill="#b6faf5"/><circle class="tb-spark" cx="6" cy="60" r="0.9" fill="#b6faf5"/></g></svg></span><span class="tier-name">슈퍼 챌린지</span><span class="tier-cond">최근 3시즌 안</span></li>
+              <li class="tier tier-chp"><span class="tier-badge tier-pair"><svg viewBox="0 0 120 120" aria-hidden="true" focusable="false"><use href="#tb-champ" width="120" height="120"/></svg><svg class="tb-fx" viewBox="0 0 120 120" aria-hidden="true" focusable="false"><g clip-path="url(#tb-clip-champ)"><g transform="rotate(24 60 60)"><rect class="tb-shine" x="20" y="0" width="13" height="120" fill="url(#tb-shine)"/></g></g><g class="tb-sparks"><circle class="tb-spark" cx="14" cy="30" r="1.5" fill="#f4c6ff"/><circle class="tb-spark" cx="104" cy="22" r="1.1" fill="#f4c6ff"/><circle class="tb-spark" cx="110" cy="70" r="1.6" fill="#f4c6ff"/><circle class="tb-spark" cx="88" cy="108" r="1.2" fill="#f4c6ff"/><circle class="tb-spark" cx="20" cy="92" r="1.3" fill="#f4c6ff"/><circle class="tb-spark" cx="60" cy="4" r="1.0" fill="#f4c6ff"/><circle class="tb-spark" cx="6" cy="60" r="0.9" fill="#f4c6ff"/></g></svg><svg class="tb-sub" viewBox="0 0 120 120" aria-hidden="true" focusable="false"><use href="#tb-superchamp" width="120" height="120"/></svg></span><span class="tier-name">챔피언스</span><span class="tier-cond">챔피언스 이상</span><span class="tier-incl">슈퍼 챔피언스 포함</span></li>
+            </ul>
+          </li>
+          <li class="cond"><div class="cond-b"><span class="cond-t">2:2 공식경기로 가입할 때 <span class="sub">— 전 시즌 챔피언스부터</span></span><span class="cond-note">2:2를 같이 하실 분, 2:2 티어를 올리고 싶은 분도 문의해 주세요.</span></div><span class="cond-aside"><svg class="mini-badge" viewBox="0 0 120 120" aria-hidden="true" focusable="false"><use href="#tb-champ" width="120" height="120"/></svg></span></li>
+          <li class="cond"><div class="cond-b"><span class="cond-t">구단가치 10억 이상</span></div></li>
+          <li class="cond"><div class="cond-b"><span class="cond-t">가입 후 닉네임 변경 필수</span></div></li>
+        </ol>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <p class="foot-main"><img src="assets/nv-mark.png" alt="" width="24" height="24">NV · NAME VALUE — FC Online 클럽</p>
+  </div>
+</footer>
+
+
+<script>
+  /* 화면 장치: 메뉴 배경, 인트로 건너뛰기, 스크롤 드러내기 — three.js와 따로 동작 */
+  (function () {
+    var root = document.documentElement;
+    var nav = document.getElementById('nav');
+    function onScroll() { nav.classList.toggle('scrolled', window.scrollY > 24); }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+
+    function skip() {
+      if (window.__NV_SKIP) return;
+      window.__NV_SKIP = true;
+      root.classList.add('skip');
+    }
+    ['pointerdown', 'wheel', 'keydown', 'touchstart'].forEach(function (ev) {
+      window.addEventListener(ev, skip, { passive: true });
+    });
+    window.addEventListener('scroll', function () { if (window.scrollY > 8) skip(); }, { passive: true });
+
+    var els = [].slice.call(document.querySelectorAll('.rv'));
+    if (root.classList.contains('motion') && 'IntersectionObserver' in window) {
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (en) {
+          if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); }
+        });
+      }, { rootMargin: '0px 0px -6% 0px', threshold: 0.06 });
+      els.forEach(function (el) { io.observe(el); });
+    } else {
+      els.forEach(function (el) { el.classList.add('in'); });
+    }
+  })();
+</script>
+
+<script type="module">
+  /* ===== 입자 집결: three.js 입자 연출 ===== */
+  const root = document.documentElement;
+  const NVD = window.NV;
+  const canvas = document.getElementById('gl');
+
+  function toStatic() {
+    clearTimeout(window.__NV_GL_WATCH);
+    root.classList.remove('gl', 'gl-ready');
+    root.classList.add('nogl');
+  }
+
+  if (!window.__NV_GL_OK || !NVD || !NVD.markPoints || !NVD.wordmarkPoints) {
+    toStatic();
+  } else {
+    boot().catch(() => toStatic());
+  }
+
+  async function boot() {
+    const THREE = await import('three');
+    const reduce = root.classList.contains('reduce');
+    const small = matchMedia('(max-width: 700px)').matches;
+    const coarse = matchMedia('(pointer: coarse)').matches;
+    const mobile = small || coarse;
+
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: false, alpha: false, stencil: false, powerPreference: 'high-performance' });
+    const PR = Math.min(window.devicePixelRatio || 1, mobile ? 1.5 : 2);
+    renderer.setPixelRatio(PR);
+    renderer.setClearColor(0x000000, 1);
+    canvas.addEventListener('webglcontextlost', (e) => { e.preventDefault(); running = false; toStatic(); }, false);
+
+    const scene = new THREE.Scene();
+    const FOV = 35, CAMZ = 10;
+    const camera = new THREE.PerspectiveCamera(FOV, 1, 0.1, 80);
+    camera.position.set(0, 0, CAMZ);
+    const tanH = Math.tan(THREE.MathUtils.degToRad(FOV / 2));
+
+    /* ---------- 난수 · 색 ---------- */
+    let seed = 20261106;
+    const rnd = () => {
+      seed |= 0; seed = (seed + 0x6d2b79f5) | 0;
+      let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+    const gauss = () => {
+      let u = 0, v = 0;
+      while (u === 0) u = rnd();
+      while (v === 0) v = rnd();
+      return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+    };
+    const lin = (c) => (c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4));
+    const hexLin = (h) => {
+      const n = parseInt(h.slice(1), 16);
+      return [lin(((n >> 16) & 255) / 255), lin(((n >> 8) & 255) / 255), lin((n & 255) / 255)];
+    };
+    const C = NVD.colors;
+    const cTop = hexLin(C.redTop), cMid = hexLin(C.redMid), cBot = hexLin(C.redBottom);
+    const cInk = hexLin(C.ink), cSky = hexLin(C.sky), cTeal = hexLin(C.skyTeal), cBlue = hexLin(C.skyBlue);
+    const mixc = (a, b, t) => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t];
+    const skyPick = () => { const r = rnd(); return r < 0.4 ? cSky : r < 0.7 ? cTeal : cBlue; };
+
+    /* ---------- 입자 만들기 ---------- */
+    const MP = NVD.markPoints, WP = NVD.wordmarkPoints;
+    const nMP = MP.length / 5, nWP = WP.length / 5;
+    const N = mobile ? 5000 : 12000;
+    const nMark = mobile ? 3000 : 6400;
+    const nWord = mobile ? 650 : 1800;
+    const nRing = mobile ? 700 : 1900;
+    const nDust = N - nMark - nWord - nRing;
+    const nI = nMark + nWord; // 마우스에 반응하는 입자(마크·워드마크)
+
+    const shuffled = (n) => {
+      const a = Array.from({ length: n }, (_, i) => i);
+      for (let i = n - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+      return a;
+    };
+    const mOrder = shuffled(nMP), wOrder = shuffled(nWP);
+
+    const aNeb = new Float32Array(N * 3);
+    const aTarget = new Float32Array(N * 3);
+    const aColor = new Float32Array(N * 3);
+    const aRand = new Float32Array(N * 4);
+    const aInfo = new Float32Array(N * 4);
+    const aOffset = new Float32Array(N * 3);
+    const tx = new Float32Array(nI), ty = new Float32Array(nI);
+
+    const clusterShare = mobile ? 0.42 : 0.34;
+    let clusterCount = 0;
+    for (let i = 0; i < N; i++) {
+      const i3 = i * 3, i4 = i * 4;
+      // 성운(시작) — 반지름, 각도, 두께: 팔 3개의 소용돌이, 가운데가 진함
+      const nr = 0.04 + Math.pow(rnd(), 1.05) * 1.0;
+      const arm = Math.floor(rnd() * 3);
+      aNeb[i3] = nr;
+      aNeb[i3 + 1] = arm * 2.0944 + nr * 4.2 + gauss() * (0.16 + 0.22 * nr);
+      aNeb[i3 + 2] = gauss() * 0.06 * (1.2 - nr * 0.6);
+
+      aRand[i4] = rnd(); aRand[i4 + 1] = rnd(); aRand[i4 + 2] = rnd(); aRand[i4 + 3] = rnd();
+
+      // 은하 — 반지름(중심에 몰리게), 각도(2개 팔)
+      const gr = Math.min(1, 0.015 + Math.pow(rnd(), 1.45) * 0.985);
+      const garm = rnd() < 0.5 ? 0 : Math.PI;
+      const ga = garm + gr * 5.2 + gauss() * (0.2 + 0.32 * gr);
+      let cl = -1;
+      if (rnd() < clusterShare) { cl = clusterCount % 9; clusterCount++; }
+
+      let kind, col;
+      if (i < nMark) {
+        kind = 0;
+        const k = mOrder[i % nMP];
+        const dup = i >= nMP;
+        const x = MP[k * 5] + (dup ? (rnd() - 0.5) * 0.007 : 0);
+        const y = MP[k * 5 + 1] + (dup ? (rnd() - 0.5) * 0.007 : 0);
+        aTarget[i3] = x; aTarget[i3 + 1] = y; aTarget[i3 + 2] = (rnd() - 0.5) * 0.02;
+        tx[i] = x; ty[i] = y;
+        col = [lin(MP[k * 5 + 2]), lin(MP[k * 5 + 3]), lin(MP[k * 5 + 4])];
+      } else if (i < nMark + nWord) {
+        kind = 1;
+        const k = wOrder[(i - nMark) % nWP];
+        const x = WP[k * 5], y = WP[k * 5 + 1];
+        aTarget[i3] = x; aTarget[i3 + 1] = y; aTarget[i3 + 2] = (rnd() - 0.5) * 0.01;
+        tx[i] = x; ty[i] = y;
+        col = rnd() < 0.07 ? skyPick() : mixc(cInk, [1, 1, 1], rnd() * 0.25);
+      } else if (i < nMark + nWord + nRing) {
+        kind = 2;
+        const ringId = rnd() < 0.7 ? 0 : 1;
+        const rr = ringId === 0
+          ? 0.6 + gauss() * 0.016 + (rnd() < 0.22 ? rnd() * 0.1 : 0)
+          : 0.84 + rnd() * 0.16 + gauss() * 0.01;
+        aTarget[i3] = rr; aTarget[i3 + 1] = rnd() * Math.PI * 2; aTarget[i3 + 2] = ringId;
+        const r = rnd();
+        col = r < 0.1 ? skyPick() : r < 0.16 ? [1.0, 0.62, 0.64] : mixc(cMid, cBot, rnd());
+      } else {
+        kind = 3;
+        // 먼지 — 납작한 구 안에 흩뿌림(일부는 먼 별)
+        const far = rnd() < 0.4;
+        const u = rnd() * Math.PI * 2, v = Math.acos(2 * rnd() - 1);
+        const rad = far ? 0.9 + rnd() * 0.7 : 0.25 + Math.pow(rnd(), 0.7) * 0.95;
+        aTarget[i3] = Math.sin(v) * Math.cos(u) * rad * 1.25;
+        aTarget[i3 + 1] = Math.sin(v) * Math.sin(u) * rad * 0.75;
+        aTarget[i3 + 2] = far ? -0.6 - rnd() * 1.6 : Math.cos(v) * rad * 0.6;
+        const r = rnd();
+        col = r < 0.1 ? skyPick() : r < 0.3 ? mixc(cInk, cMid, 0.4) : mixc(cTop, cBot, rnd());
       }
-    </style>
-  </head>
-  <body>
-    <main>
-      <img
-        class="mark"
-        src="assets/nv-club-mark.png"
-        width="731"
-        height="584"
-        alt="NV NAME VALUE 클럽마크"
-      />
-      <p class="status">홈페이지 준비 중입니다</p>
-      <p class="sub">FC Online 클럽 NV</p>
-      <nav class="links" aria-label="바로가기">
-        <a href="https://dindoopark.github.io/nv-league/">내전 리그 순위 보기 <span aria-hidden="true">→</span></a>
-      </nav>
-    </main>
-  </body>
+      aInfo[i4] = kind; aInfo[i4 + 1] = cl; aInfo[i4 + 2] = gr; aInfo[i4 + 3] = ga;
+      aColor[i3] = col[0]; aColor[i3 + 1] = col[1]; aColor[i3 + 2] = col[2];
+    }
+
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(aNeb, 3));
+    geo.setAttribute('aTarget', new THREE.BufferAttribute(aTarget, 3));
+    geo.setAttribute('aColor', new THREE.BufferAttribute(aColor, 3));
+    geo.setAttribute('aRand', new THREE.BufferAttribute(aRand, 4));
+    geo.setAttribute('aInfo', new THREE.BufferAttribute(aInfo, 4));
+    const offAttr = new THREE.BufferAttribute(aOffset, 3);
+    offAttr.setUsage(THREE.DynamicDrawUsage);
+    geo.setAttribute('aOffset', offAttr);
+
+    const galRot = new THREE.Matrix3().setFromMatrix4(
+      new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(mobile ? 0.95 : 0.98, 0, mobile ? -0.62 : -0.3, 'ZXY'))
+    );
+
+    const U = {
+      uTime: { value: 0 }, uT: { value: 0 }, uFade: { value: 0 }, uSpin: { value: 0 },
+      uScatter: { value: 0 }, uCluster: { value: 0 }, uDim: { value: 1 },
+      uPR: { value: PR }, uCamZ: { value: CAMZ },
+      uMarkC: { value: new THREE.Vector3() }, uMarkS: { value: 1 },
+      uWordC: { value: new THREE.Vector3() }, uWordS: { value: 1 },
+      uNebC: { value: new THREE.Vector3() }, uNebS: { value: 4 }, uDustS: { value: 5 }, uNebTilt: { value: 0.82 },
+      uNebA: { value: mobile ? 0.62 : 0.62 },
+      uGalC: { value: new THREE.Vector3() }, uGalS: { value: 5 }, uGalRot: { value: galRot },
+      uRingK: { value: mobile ? 0.86 : 1 },
+      uSz: { value: new THREE.Vector4(2.6, 1.8, 2.3, 1.6) },
+      uAl: { value: mobile ? new THREE.Vector4(0.6, 0.95, 0.75, 0.5) : new THREE.Vector4(0.3, 0.7, 0.78, 0.42) },
+      uPar: { value: new THREE.Vector2() },
+      uCl: { value: Array.from({ length: 9 }, () => new THREE.Vector4(0, 0, 0, 0.3)) },
+    };
+
+    const common = /* glsl */ `
+      uniform float uTime, uT, uFade, uSpin, uScatter, uCluster, uDim, uPR, uCamZ, uNebS, uDustS, uNebTilt, uRingK, uGalS, uMarkS, uWordS, uNebA;
+      uniform vec3 uMarkC, uWordC, uNebC, uGalC;
+      uniform mat3 uGalRot;
+      uniform vec4 uSz, uAl;
+      uniform vec2 uPar;
+      uniform vec4 uCl[9];
+      attribute vec3 aTarget;
+      attribute vec3 aColor;
+      attribute vec4 aRand;
+      attribute vec4 aInfo;
+      varying vec3 vColor;
+      varying float vAlpha;
+      varying float vHot;
+
+      mat2 rot(float a) { float c = cos(a), s = sin(a); return mat2(c, s, -s, c); }
+      vec3 rotX(vec3 p, float a) { float c = cos(a), s = sin(a); return vec3(p.x, p.y * c - p.z * s, p.y * s + p.z * c); }
+      vec3 rotZ(vec3 p, float a) { float c = cos(a), s = sin(a); return vec3(p.x * c - p.y * s, p.x * s + p.y * c, p.z); }
+      float easeIO(float t) { return t < 0.5 ? 4.0 * t * t * t : 1.0 - pow(-2.0 * t + 2.0, 3.0) * 0.5; }
+
+      // 인트로 시각 T, 소용돌이 각 spin, 시계 time 에서의 입자 자리
+      vec3 particle(float T, float spin, float time, vec3 offs, out float alpha, out float size, out float hot, out float e) {
+        float kind = aInfo.x;
+        float r0 = aRand.x, r1 = aRand.y, r2 = aRand.z, r3 = aRand.w;
+
+        // 1) 소용돌이 성운
+        float nr = position.x;
+        float na = position.y + spin * (0.3 + 0.7 / (nr * 3.2 + 0.45));
+        vec3 neb = vec3(cos(na) * nr, sin(na) * nr, position.z) * uNebS;
+        neb.xy += vec2(sin(time * 0.9 + r1 * 31.0), cos(time * 0.7 + r2 * 27.0)) * 0.02 * uNebS;
+        neb = rotX(neb, uNebTilt);
+        neb.z *= 0.5;
+        neb.z = min(neb.z, uCamZ * 0.42);
+        neb += uNebC;
+
+        // 2) 모인 자리
+        vec3 form; float delay; float dur;
+        if (kind < 0.5) {
+          vec2 q = aTarget.xy;
+          float rq = length(q);
+          float w = sin(time * 1.3 - rq * 10.0 + r1 * 0.5);
+          form = uMarkC + vec3(q * uMarkS * (1.0 + 0.007 * w), (aTarget.z + 0.014 * w) * uMarkS);
+          form.xy += vec2(sin(time * 1.7 + r2 * 40.0), cos(time * 1.3 + r3 * 40.0)) * 0.0022 * uMarkS;
+          delay = 0.18 + 0.78 * (0.5 * clamp(nr, 0.0, 1.0) + 0.5 * r0);
+          dur = 0.95;
+          alpha = uAl.x * (0.82 + 0.3 * w);
+          size = uSz.x * (0.7 + 0.6 * r3);
+        } else if (kind < 1.5) {
+          vec2 q = aTarget.xy;
+          form = uWordC + vec3(q * uWordS, aTarget.z * uWordS);
+          form.xy += vec2(sin(time * 2.1 + r2 * 40.0), cos(time * 1.9 + r3 * 40.0)) * 0.0011 * uWordS;
+          delay = 0.95 + 0.55 * (q.x + 0.5) + 0.1 * r0;
+          dur = 0.7;
+          alpha = uAl.y * mix(1.0, 0.22, smoothstep(delay + dur, delay + dur + 0.9, T));
+          size = uSz.y * (0.7 + 0.6 * r3);
+        } else if (kind < 2.5) {
+          bool ringA = aTarget.z < 0.5;
+          float ra = aTarget.y + time * (ringA ? 0.2 : -0.11) * (0.8 + 0.4 * r2);
+          float rr = aTarget.x * uMarkS * uRingK;
+          vec3 lc = vec3(cos(ra) * rr, (r3 - 0.5) * 0.018 * uMarkS, sin(ra) * rr);
+          lc = ringA ? rotZ(rotX(lc, 0.26), -0.19) : rotZ(rotX(lc, 0.4), 0.34);
+          float inside = 1.0 - smoothstep(0.34, 0.46, max(abs(lc.x) * 1.08, abs(lc.y)) / uMarkS);
+          float behind = step(lc.z, 0.0) * inside;
+          form = uMarkC + lc;
+          delay = 0.75 + 0.7 * r0;
+          dur = 1.05;
+          alpha = uAl.z * (1.0 - 0.75 * behind) * (ringA ? 1.0 : 0.6);
+          size = uSz.z * (0.6 + 0.8 * r3);
+        } else {
+          vec3 d = aTarget;
+          d.xz = rot(time * 0.035 * (0.5 + r2)) * d.xz;
+          form = uNebC + d * uDustS;
+          delay = 0.45 + 0.9 * r0;
+          dur = 1.2;
+          alpha = uAl.w * (0.35 + 0.65 * r1);
+          size = uSz.w * (0.6 + 2.6 * pow(r3, 6.0));
+        }
+
+        // 3) 성운 → 마크: 마크 중심을 축으로 같은 방향으로 감기며 들어옴(하나의 소용돌이)
+        e = clamp((T - delay) / dur, 0.0, 1.0);
+        float ee = easeIO(e);
+        vec3 rel = mix(neb - uNebC, form - uNebC, ee);
+        float sw = ee * (1.0 - ee) * 4.0 * (1.1 + 0.9 * r1);
+        rel.xy = rot(sw) * rel.xy;
+        vec3 p = uNebC + rel;
+        // 성운일 때는 더 밝고 크게(가운데일수록 진하게)
+        float nebA = uNebA * (0.55 + 0.75 * pow(1.0 - clamp(nr, 0.0, 1.0), 2.0));
+        float ea = smoothstep(0.0, 0.65, e);
+        alpha = mix(nebA, alpha, ea);
+        size = mix(size * 1.15 + 0.4, size, ea);
+        float fl = sin(3.14159 * e);
+        p.z += fl * (r2 - 0.35) * uMarkS * 0.9;
+        hot = fl * 0.3;
+        float push = length(offs) / uMarkS;
+        hot += min(push * 24.0, 2.0);
+        alpha += min(push * 10.0, 0.9);
+        p += offs;
+
+        // 4) 스크롤: 흩어져 은하로
+        float gr = aInfo.z;
+        // 거의 한 몸으로 돌려 나선 팔이 감겨 뭉개지지 않게
+        float ga = aInfo.w + time * (0.048 + 0.004 / (0.3 + gr));
+        vec3 g = vec3(cos(ga) * gr, (r3 - 0.5) * 0.07 * (1.15 - gr), sin(ga) * gr);
+        vec3 pg = uGalC + (uGalRot * g) * uGalS;
+        float es = smoothstep(r0 * 0.3, r0 * 0.3 + 0.7, uScatter);
+        float bs = sin(3.14159 * es);
+        vec3 bdir = normalize(p - uMarkC + vec3(0.0001, 0.00013, 0.0));
+        p = mix(p, pg, es) + bdir * bs * uMarkS * (0.25 + 0.7 * r1) + vec3(0.0, 0.0, bs * (r2 - 0.25) * uMarkS * 1.1);
+        float galA = 0.3 + 0.95 * pow(1.0 - gr, 3.0);
+        alpha = mix(alpha, galA * 0.8, es);
+        size = mix(size, size * (0.75 + 0.6 * r2), es);
+        hot += bs * 0.5;
+
+        // 5) 내전 리그: 9개 무리(팀 로고 둘레를 도는 고리)
+        float ci = aInfo.y;
+        float inCl = step(-0.5, ci);
+        if (ci > -0.5 && uCluster > 0.001) {
+          vec4 cl = uCl[int(ci + 0.5)];
+          float ca = r1 * 6.2832 + time * (0.4 + 0.45 * r2);
+          float cr = cl.w * (1.06 + 0.42 * pow(r0, 1.6));
+          vec3 lc = vec3(cos(ca) * cr, sin(ca) * cr * 0.3, sin(ca) * cr * 0.7);
+          lc = rotZ(lc, -0.16);
+          float ec = smoothstep(r0 * 0.35, r0 * 0.35 + 0.65, uCluster);
+          p = mix(p, cl.xyz + lc, ec);
+          alpha = mix(alpha, 0.85 + 0.5 * step(0.0, lc.z), ec);
+          hot += sin(3.14159 * ec) * 0.4;
+        }
+        alpha *= mix(1.0, mix(0.32, 1.0, inCl), uCluster);
+
+        // 시차(깊이에 따라 살짝 밀림) — z=0 평면(마크)은 그대로
+        p.xy -= uPar * p.z * 0.05;
+        return p;
+      }
+    `;
+    const vert = common + /* glsl */ `
+      attribute vec3 aOffset;
+      void main() {
+        float alpha, size, hot, e;
+        vec3 p = particle(uT, uSpin, uTime, aOffset, alpha, size, hot, e);
+        float r1 = aRand.y, r2 = aRand.z;
+        float tw = 0.78 + 0.22 * sin(uTime * (1.6 + r1 * 3.0) + r2 * 40.0);
+        float glint = pow(max(0.0, sin(uTime * (0.45 + r2 * 1.1) + r1 * 80.0)), 48.0);
+        hot += glint * 1.3;
+        size *= 1.0 + glint * 1.4 + sin(3.14159 * e) * 0.35;
+        vec4 mv = modelViewMatrix * vec4(p, 1.0);
+        gl_Position = projectionMatrix * mv;
+        gl_PointSize = clamp(size * uPR * uCamZ / max(-mv.z, 0.6), 0.0, 48.0 * uPR);
+        vColor = aColor;
+        vAlpha = alpha * tw * uDim * uFade;
+        vHot = hot;
+      }
+    `;
+    const frag = /* glsl */ `
+      varying vec3 vColor;
+      varying float vAlpha;
+      varying float vHot;
+      void main() {
+        vec2 c = gl_PointCoord - 0.5;
+        float d2 = dot(c, c) * 4.0;
+        if (d2 > 1.0) discard;
+        float g = exp(-d2 * 4.2) - 0.015;
+        float core = exp(-d2 * 20.0);
+        vec3 col = vColor * g + vec3(1.0, 0.7, 0.72) * core * vHot * 0.8;
+        gl_FragColor = vec4(col * vAlpha, 1.0);
+        #include <colorspace_fragment>
+      }
+    `;
+    const pMat = new THREE.ShaderMaterial({
+      uniforms: U, vertexShader: vert, fragmentShader: frag,
+      transparent: true, depthWrite: false, depthTest: false, blending: THREE.AdditiveBlending,
+    });
+    const points = new THREE.Points(geo, pMat);
+    points.frustumCulled = false;
+    points.renderOrder = 3;
+    scene.add(points);
+
+    /* 인트로 동안만: 입자마다 짧은 빛꼬리(지금 자리와 조금 전 자리)를 선으로 그려 소용돌이 흐름을 보이게 */
+    const lineGeo = new THREE.BufferGeometry();
+    const dup = (src, k) => {
+      const out = new Float32Array(src.length * 2);
+      for (let i = 0; i < src.length / k; i++) {
+        for (let c = 0; c < k; c++) { out[i * 2 * k + c] = src[i * k + c]; out[i * 2 * k + k + c] = src[i * k + c]; }
+      }
+      return out;
+    };
+    lineGeo.setAttribute('position', new THREE.BufferAttribute(dup(aNeb, 3), 3));
+    lineGeo.setAttribute('aTarget', new THREE.BufferAttribute(dup(aTarget, 3), 3));
+    lineGeo.setAttribute('aColor', new THREE.BufferAttribute(dup(aColor, 3), 3));
+    lineGeo.setAttribute('aRand', new THREE.BufferAttribute(dup(aRand, 4), 4));
+    lineGeo.setAttribute('aInfo', new THREE.BufferAttribute(dup(aInfo, 4), 4));
+    const ends = new Float32Array(N * 2);
+    for (let i = 0; i < N; i++) ends[i * 2 + 1] = 1;
+    lineGeo.setAttribute('aEnd', new THREE.BufferAttribute(ends, 1));
+    const LU = Object.assign({}, U, { uLag: { value: mobile ? 0.075 : 0.12 }, uSpinRate: { value: 0 }, uTrail: { value: 0 } });
+    const lMat = new THREE.ShaderMaterial({
+      uniforms: LU,
+      vertexShader: common + /* glsl */ `
+        uniform float uLag, uSpinRate, uTrail;
+        attribute float aEnd;
+        void main() {
+          float alpha, size, hot, e;
+          vec3 p = particle(uT, uSpin, uTime, vec3(0.0), alpha, size, hot, e);
+          if (aEnd > 0.5) {
+            // 꼬리: 조금 전 자리. 너무 길어지지 않게 길이를 묶는다
+            float a2, s2, h2, e2;
+            vec3 q = particle(uT - uLag, uSpin - uLag * uSpinRate, uTime - uLag, vec3(0.0), a2, s2, h2, e2);
+            vec3 d = q - p;
+            float len = length(d);
+            float maxLen = uMarkS * uLag * 0.8;
+            if (len > maxLen) d *= maxLen / len;
+            p += d;
+          }
+          vec4 mv = modelViewMatrix * vec4(p, 1.0);
+          gl_Position = projectionMatrix * mv;
+          vColor = aColor;
+          vAlpha = (1.0 - aEnd) * alpha * uTrail * uFade * uDim * (1.0 - smoothstep(0.5, 0.92, e)) * 0.6;
+          vHot = 0.0;
+        }`,
+      fragmentShader: /* glsl */ `
+        varying vec3 vColor;
+        varying float vAlpha;
+        void main() {
+          gl_FragColor = vec4(vColor * vAlpha, 1.0);
+          #include <colorspace_fragment>
+        }`,
+      transparent: true, depthWrite: false, depthTest: false, blending: THREE.AdditiveBlending,
+    });
+    const trails = new THREE.LineSegments(lineGeo, lMat);
+    trails.frustumCulled = false;
+    trails.renderOrder = 3;
+    trails.visible = false;
+    scene.add(trails);
+
+    /* ---------- 빛 판들 ---------- */
+    const quad = new THREE.PlaneGeometry(1, 1);
+    const planeVert = /* glsl */ `varying vec2 vUv; void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`;
+    const addMat = (frag, uniforms) => new THREE.ShaderMaterial({
+      uniforms, vertexShader: planeVert, fragmentShader: frag,
+      transparent: true, depthWrite: false, depthTest: false, blending: THREE.AdditiveBlending,
+    });
+
+    // 성운 안개: 타원 네 덩이를 화면 한 장(한 번 그리기)에 모아 계산
+    const fogDefs = [
+      { o: [-0.22, 0.06], sx: 1.55, sy: 0.5, r: 0.32, w: 0.018, col: [0.2, 0.004, 0.022] },
+      { o: [0.28, -0.08], sx: 1.25, sy: 0.55, r: -0.48, w: -0.014, col: [0.15, 0.003, 0.018] },
+      { o: [0.02, 0.12], sx: 1.9, sy: 0.85, r: 0.1, w: 0.008, col: [0.09, 0.002, 0.012] },
+      { o: [0.5, 0.3], sx: 0.85, sy: 0.45, r: 0.8, w: -0.01, col: [0.0, 0.03, 0.045] },
+    ];
+    const fogU = {
+      uI: { value: 1 }, uView: { value: new THREE.Vector2(1, 1) },
+      uFc: { value: fogDefs.map(() => new THREE.Vector4()) },
+      uFa: { value: fogDefs.map(() => new THREE.Vector2(1, 1)) },
+      uFcol: { value: fogDefs.map((f) => new THREE.Vector3(...f.col)) },
+    };
+    const fogMat = new THREE.ShaderMaterial({
+      uniforms: fogU,
+      vertexShader: /* glsl */ `varying vec2 vUv; void main() { vUv = uv; gl_Position = vec4(position.xy * 2.0, 0.0, 1.0); }`,
+      fragmentShader: /* glsl */ `
+        uniform float uI; uniform vec2 uView; uniform vec4 uFc[4]; uniform vec2 uFa[4]; uniform vec3 uFcol[4]; varying vec2 vUv;
+        void main() {
+          vec2 w = (vUv - 0.5) * uView;
+          vec3 col = vec3(0.0);
+          for (int i = 0; i < 4; i++) {
+            vec4 f = uFc[i];           // 중심 x, y, cos, sin
+            vec2 d = w - f.xy;
+            d = vec2(f.z * d.x + f.w * d.y, -f.w * d.x + f.z * d.y) * uFa[i];
+            float q = dot(d, d);
+            if (q < 1.0) col += uFcol[i] * exp(-q * 3.4) * (1.0 - smoothstep(0.75, 1.0, q));
+          }
+          gl_FragColor = vec4(col * uI, 1.0);
+          #include <colorspace_fragment>
+        }`,
+      transparent: true, depthWrite: false, depthTest: false, blending: THREE.AdditiveBlending,
+    });
+    const fogMesh = new THREE.Mesh(quad, fogMat);
+    fogMesh.frustumCulled = false;
+    fogMesh.renderOrder = 0;
+    scene.add(fogMesh);
+
+    // 마크 뒤 후광 + 빛살 (판 크기 = 마크 2.6배)
+    const haloMat = addMat(/* glsl */ `
+      uniform float uHalo, uRays, uTime; varying vec2 vUv;
+      void main() {
+        vec2 p = (vUv - 0.5) * 2.0;
+        float r = length(p);
+        if (r > 1.0) discard;
+        // 마크 테두리 바깥에 고리 모양으로 번지는 빛(안쪽 빈칸은 어둡게 남김)
+        float rim = exp(-pow((r - 0.374) / 0.125, 2.0));
+        float wide = exp(-r * r * 2.6) * 0.13 * smoothstep(1.0, 0.75, r);
+        float halo = (rim * 0.55 + wide) * uHalo;
+        // 짧고 옅은 코로나(빛살은 마크 둘레에서 금방 사그라듦)
+        float rays = 0.0;
+        if (r > 0.3 && uRays > 0.001) {
+          float a = atan(p.y, p.x);
+          float s = 0.5 + 0.5 * sin(a * 29.0 + uTime * 0.07 + sin(a * 4.0 + uTime * 0.05) * 2.4);
+          float m = 0.25 + 0.75 * pow(0.5 + 0.5 * sin(a * 6.0 - uTime * 0.05), 2.0);
+          rays = pow(s, 5.0) * m * exp(-pow((r - 0.415) / 0.18, 2.0)) * smoothstep(0.3, 0.415, r) * smoothstep(1.0, 0.82, r) * uRays;
+        }
+        vec3 col = vec3(0.5, 0.02, 0.055) * halo + vec3(0.42, 0.035, 0.07) * rays;
+        gl_FragColor = vec4(col, 1.0);
+        #include <colorspace_fragment>
+      }`, { uHalo: { value: 0 }, uRays: { value: 0 }, uTime: U.uTime });
+    const halo = new THREE.Mesh(quad, haloMat);
+    halo.renderOrder = 1; scene.add(halo);
+
+    // 실제 마크 그림(입자 밑에 깔아 원래 모양·그라데이션을 지킴)
+    const tex = await new THREE.TextureLoader().loadAsync(NVD.markPng);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    tex.anisotropy = 4;
+    const markMat = new THREE.ShaderMaterial({
+      uniforms: { uTex: { value: tex }, uOp: { value: 0 }, uTime: U.uTime, uSweep: { value: -1 }, uHole: { value: new THREE.Vector3(0, 0, 0) } },
+      vertexShader: planeVert,
+      fragmentShader: /* glsl */ `
+        uniform sampler2D uTex; uniform float uOp; uniform float uTime; uniform float uSweep; uniform vec3 uHole; varying vec2 vUv;
+        void main() {
+          vec4 t = texture2D(uTex, vUv);
+          // 커서가 닿은 자리는 그림이 옅어져 밀려난 입자가 드러남(uHole: 마크 좌표 x, y, 세기)
+          float hole = uHole.z * (1.0 - smoothstep(0.04, 0.2, distance(vUv - 0.5, uHole.xy)));
+          t.a *= 1.0 - 0.88 * hole;
+          float band = vUv.x * 0.8 + (1.0 - vUv.y) * 0.6;
+          float sw = exp(-pow((band - uSweep) * 9.0, 2.0)) * 0.55;
+          vec3 col = t.rgb + vec3(1.0, 0.55, 0.58) * sw * t.a;
+          gl_FragColor = vec4(col, t.a * uOp);
+          #include <colorspace_fragment>
+        }`,
+      transparent: true, depthWrite: false, depthTest: false,
+    });
+    const markPlane = new THREE.Mesh(quad, markMat);
+    markPlane.renderOrder = 2; scene.add(markPlane);
+
+    // 육각 충격파
+    const shockMat = addMat(/* glsl */ `
+      uniform float uP; uniform float uSpan; varying vec2 vUv;
+      float sdHex(vec2 p, float r) {
+        const vec3 k = vec3(-0.866025404, 0.5, 0.577350269);
+        p = abs(p.yx);
+        p -= 2.0 * min(dot(k.xy, p), 0.0) * k.xy;
+        p -= vec2(clamp(p.x, -k.z * r, k.z * r), r);
+        return length(p) * sign(p.y);
+      }
+      void main() {
+        vec2 p = (vUv - 0.5) * uSpan;
+        float e = 1.0 - pow(1.0 - uP, 3.0);
+        // 부드러운 에너지 파동: 앞쪽은 또렷, 뒤로 번짐
+        float R = mix(0.42, 2.3, e);
+        float w = mix(0.01, 0.09, e);
+        float d1 = sdHex(p, R);
+        float fade = pow(1.0 - uP, 3.0);
+        float front = exp(-d1 * d1 / (w * w * 0.08)) * fade;
+        float wake = exp(-max(-d1, 0.0) / w) * step(d1, 0.0) * fade;
+        vec3 col = vec3(1.0, 0.3, 0.36) * front * 0.36 + vec3(0.55, 0.03, 0.08) * wake * 0.18;
+        gl_FragColor = vec4(col, 1.0);
+        #include <colorspace_fragment>
+      }`, { uP: { value: 1 }, uSpan: { value: 5.4 } });
+    const shock = new THREE.Mesh(quad, shockMat);
+    shock.renderOrder = 4; shock.visible = false; scene.add(shock);
+
+    // 가로 빛줄기(완성 순간)
+    const flashMat = addMat(/* glsl */ `
+      uniform float uF; varying vec2 vUv;
+      void main() {
+        float y = (vUv.y - 0.5) * 2.0, x = (vUv.x - 0.5) * 2.0;
+        float s = exp(-y * y * 220.0) * exp(-x * x * 2.4);
+        float s2 = exp(-y * y * 30.0) * exp(-x * x * 9.0) * 0.35;
+        vec3 col = vec3(1.0, 0.3, 0.36) * s * 1.1 + vec3(1.0, 0.55, 0.6) * s2 * 0.7;
+        gl_FragColor = vec4(col * uF, 1.0);
+        #include <colorspace_fragment>
+      }`, { uF: { value: 0 } });
+    const flash = new THREE.Mesh(quad, flashMat);
+    flash.renderOrder = 5; flash.visible = false; scene.add(flash);
+
+    /* ---------- 후처리(데스크톱만): 가벼운 블룸 ----------
+       장면(전체 해상도) → 밝은 곳만 1/4 해상도 → 가우시안 번짐 2단(1/4, 1/8) → 마지막 한 장에서
+       장면 + 번짐 + 성운 안개를 합쳐 화면에 쓴다. 전체 해상도로 그리는 횟수는 2번뿐. */
+    let post = null;
+    if (!mobile) {
+      try {
+        const mkRT = () => new THREE.WebGLRenderTarget(4, 4, { type: THREE.UnsignedByteType, colorSpace: THREE.SRGBColorSpace, depthBuffer: false });
+        const rtScene = mkRT(), rtA = mkRT(), rtB = mkRT(), rtC = mkRT(), rtD = mkRT();
+        const tri = new THREE.BufferGeometry();
+        tri.setAttribute('position', new THREE.Float32BufferAttribute([-1, -1, 0, 3, -1, 0, -1, 3, 0], 3));
+        tri.setAttribute('uv', new THREE.Float32BufferAttribute([0, 0, 2, 0, 0, 2], 2));
+        const ortho = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+        const fsVert = /* glsl */ `varying vec2 vUv; void main() { vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }`;
+        const mkPass = (frag, uniforms) => {
+          const mat = new THREE.ShaderMaterial({ uniforms, vertexShader: fsVert, fragmentShader: frag, depthTest: false, depthWrite: false });
+          const mesh = new THREE.Mesh(tri, mat);
+          mesh.frustumCulled = false;
+          const sc = new THREE.Scene();
+          sc.add(mesh);
+          return { sc, u: mat.uniforms };
+        };
+        const tap4 = /* glsl */ `
+          vec3 tap4(sampler2D t, vec2 uv, vec2 px) {
+            return 0.25 * (texture2D(t, uv + px * vec2(-1.0, -1.0)).rgb + texture2D(t, uv + px * vec2(1.0, -1.0)).rgb
+                         + texture2D(t, uv + px * vec2(-1.0, 1.0)).rgb + texture2D(t, uv + px * vec2(1.0, 1.0)).rgb);
+          }`;
+        const bright = mkPass(/* glsl */ `
+          uniform sampler2D tSrc; uniform vec2 uPx; uniform float uTh; varying vec2 vUv;
+          ${tap4}
+          void main() {
+            vec3 c = tap4(tSrc, vUv, uPx);
+            float l = dot(c, vec3(0.2126, 0.7152, 0.0722));
+            gl_FragColor = vec4(c * smoothstep(uTh, uTh + 0.22, l), 1.0);
+          }`, { tSrc: { value: rtScene.texture }, uPx: { value: new THREE.Vector2() }, uTh: { value: 0.17 } });
+        const down = mkPass(/* glsl */ `
+          uniform sampler2D tSrc; uniform vec2 uPx; varying vec2 vUv;
+          ${tap4}
+          void main() { gl_FragColor = vec4(tap4(tSrc, vUv, uPx), 1.0); }`, { tSrc: { value: null }, uPx: { value: new THREE.Vector2() } });
+        const blur = mkPass(/* glsl */ `
+          uniform sampler2D tSrc; uniform vec2 uDir; varying vec2 vUv;
+          void main() {
+            vec3 c = texture2D(tSrc, vUv).rgb * 0.227027;
+            c += (texture2D(tSrc, vUv + uDir * 1.384615).rgb + texture2D(tSrc, vUv - uDir * 1.384615).rgb) * 0.316216;
+            c += (texture2D(tSrc, vUv + uDir * 3.230769).rgb + texture2D(tSrc, vUv - uDir * 3.230769).rgb) * 0.070270;
+            gl_FragColor = vec4(c, 1.0);
+          }`, { tSrc: { value: null }, uDir: { value: new THREE.Vector2() } });
+        const finalU = Object.assign({
+          tScene: { value: rtScene.texture }, tB1: { value: rtA.texture }, tB2: { value: rtC.texture },
+          uB: { value: new THREE.Vector2(0.85, 0.75) },
+        }, fogU);
+        const final = mkPass(/* glsl */ `
+          uniform sampler2D tScene, tB1, tB2; uniform vec2 uB;
+          uniform float uI; uniform vec2 uView; uniform vec4 uFc[4]; uniform vec2 uFa[4]; uniform vec3 uFcol[4];
+          varying vec2 vUv;
+          float hash(vec2 p) { return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453); }
+          void main() {
+            vec3 c = texture2D(tScene, vUv).rgb + texture2D(tB1, vUv).rgb * uB.x + texture2D(tB2, vUv).rgb * uB.y;
+            if (uI > 0.001) {
+              vec2 w = (vUv - 0.5) * uView;
+              for (int i = 0; i < 4; i++) {
+                vec4 f = uFc[i];
+                vec2 d = w - f.xy;
+                d = vec2(f.z * d.x + f.w * d.y, -f.w * d.x + f.z * d.y) * uFa[i];
+                float q = dot(d, d);
+                if (q < 1.0) c += uFcol[i] * exp(-q * 3.4) * (1.0 - smoothstep(0.75, 1.0, q)) * uI;
+              }
+            }
+            gl_FragColor = vec4(c, 1.0);
+            #include <colorspace_fragment>
+            gl_FragColor.rgb += (hash(gl_FragCoord.xy) - 0.5) / 255.0; // 어두운 그라데이션 계단 줄이기
+          }`, finalU);
+        const sz = { w: 4, h: 4, aw: 1, ah: 1, cw: 1, ch: 1 };
+        post = {
+          strength: finalU.uB.value,
+          setSize(w, h) {
+            sz.w = Math.max(1, Math.round(w)); sz.h = Math.max(1, Math.round(h));
+            sz.aw = Math.max(1, Math.round(sz.w / 4)); sz.ah = Math.max(1, Math.round(sz.h / 4));
+            sz.cw = Math.max(1, Math.round(sz.aw / 2)); sz.ch = Math.max(1, Math.round(sz.ah / 2));
+            rtScene.setSize(sz.w, sz.h);
+            rtA.setSize(sz.aw, sz.ah); rtB.setSize(sz.aw, sz.ah);
+            rtC.setSize(sz.cw, sz.ch); rtD.setSize(sz.cw, sz.ch);
+          },
+          render() {
+            const pass = (p, target) => { renderer.setRenderTarget(target); renderer.render(p.sc, ortho); };
+            renderer.setRenderTarget(rtScene);
+            renderer.render(scene, camera);
+            bright.u.uPx.value.set(1 / sz.w, 1 / sz.h);
+            pass(bright, rtA);
+            blur.u.tSrc.value = rtA.texture; blur.u.uDir.value.set(1 / sz.aw, 0); pass(blur, rtB);
+            blur.u.tSrc.value = rtB.texture; blur.u.uDir.value.set(0, 1 / sz.ah); pass(blur, rtA);
+            down.u.tSrc.value = rtA.texture; down.u.uPx.value.set(1 / sz.aw, 1 / sz.ah); pass(down, rtC);
+            blur.u.tSrc.value = rtC.texture; blur.u.uDir.value.set(1.6 / sz.cw, 0); pass(blur, rtD);
+            blur.u.tSrc.value = rtD.texture; blur.u.uDir.value.set(0, 1.6 / sz.ch); pass(blur, rtC);
+            pass(final, null);
+          },
+        };
+      } catch (e) {
+        post = null;
+      }
+    }
+
+    /* ---------- 화면 ↔ 세계 좌표 ---------- */
+    const heroEl = document.getElementById('top');
+    const markSlot = document.getElementById('heroMark');
+    const wordImg = document.querySelector('#heroWord img');
+    const teamsEl = document.getElementById('teams');
+    const logoEls = [...document.querySelectorAll('.team-logo')];
+    const secEls = ['about', 'league', 'staff', 'join'].map((id) => document.getElementById(id));
+    let W = 1, H = 1, visW = 1, visH = 1, wpp = 1;
+    const toWorld = (px, py, out) => { out.x = (px / W - 0.5) * visW; out.y = (0.5 - py / H) * visH; return out; };
+
+    function resize() {
+      if (reduce) canvas.style.height = heroEl.offsetHeight + 'px';
+      W = Math.max(1, canvas.clientWidth || innerWidth);
+      H = Math.max(1, canvas.clientHeight || innerHeight);
+      renderer.setSize(W, H, false);
+      camera.aspect = W / H;
+      camera.updateProjectionMatrix();
+      visH = 2 * CAMZ * tanH; visW = visH * camera.aspect; wpp = visH / H;
+      if (post) post.setSize(W * PR, H * PR);
+      U.uNebS.value = mobile ? 0.55 * Math.max(visW, visH) : 0.4 * visW;
+      U.uDustS.value = (mobile ? 0.62 : 0.55) * Math.max(visW, visH);
+      U.uGalS.value = (mobile ? 0.92 : 0.6) * Math.max(visW, visH);
+    }
+
+    const tmp = { x: 0, y: 0 };
+    let markPx = 400, wordPx = 470;
+    function readAnchors() {
+      const cr = canvas.getBoundingClientRect();
+      const mr = markSlot.getBoundingClientRect();
+      toWorld(mr.left + mr.width / 2 - cr.left, mr.top + mr.height / 2 - cr.top, tmp);
+      U.uMarkC.value.set(tmp.x, tmp.y, 0);
+      U.uMarkS.value = mr.width * wpp;
+      markPx = mr.width;
+      const wr = wordImg.getBoundingClientRect();
+      toWorld(wr.left + wr.width / 2 - cr.left, wr.top + wr.height / 2 - cr.top, tmp);
+      U.uWordC.value.set(tmp.x, tmp.y, 0);
+      U.uWordS.value = wr.width * wpp;
+      wordPx = wr.width;
+      const ms = Math.min(1.2, Math.max(0.72, markPx / 400));
+      U.uSz.value.set(2.7 * ms, 1.75 * Math.min(1.1, Math.max(0.75, wordPx / 470)), 2.4 * ms, 1.6);
+      return cr;
+    }
+
+    /* ---------- 마우스·터치: 밀려났다가 스프링처럼 돌아옴 ---------- */
+    const ptr = { px: -1e4, py: -1e4, nx: 0, ny: 0, t: -1e9, has: false };
+    const setPtr = (x, y) => {
+      ptr.px = x; ptr.py = y; ptr.t = performance.now(); ptr.has = true;
+      ptr.nx = (x / innerWidth) * 2 - 1; ptr.ny = -((y / innerHeight) * 2 - 1);
+    };
+    if (!reduce) {
+      addEventListener('pointermove', (e) => setPtr(e.clientX, e.clientY), { passive: true });
+      addEventListener('pointerdown', (e) => setPtr(e.clientX, e.clientY), { passive: true });
+      addEventListener('touchmove', (e) => { const t = e.touches[0]; if (t) setPtr(t.clientX, t.clientY); }, { passive: true });
+      document.addEventListener('pointerleave', () => { ptr.has = false; });
+      addEventListener('blur', () => { ptr.has = false; });
+    }
+    const vel = new Float32Array(nI * 3);
+    let springAwake = false;
+    const mw = { x: 0, y: 0 };
+    const holeW = { x: 0, y: 0 }, holeUv = { x: 0, y: 0 };
+    let holeK = 0;
+    function springs(dt, now, cr, scatter, introT) {
+      const active = ptr.has && now - ptr.t < 1800 && scatter < 0.35 && introT > 2.0;
+      if (!active && !springAwake) return;
+      toWorld(ptr.px - cr.left, ptr.py - cr.top, mw);
+      const mS = U.uMarkS.value, wS = U.uWordS.value;
+      const mc = U.uMarkC.value, wc = U.uWordC.value;
+      const R = mS * 0.17, R2 = R * R, F = mS * 12;
+      const K = 85, D = 7.5;
+      const steps = dt > 0.034 ? 2 : 1, h = dt / steps;
+      let energy = 0;
+      for (let s = 0; s < steps; s++) {
+        for (let i = 0; i < nI; i++) {
+          const j = i * 3;
+          const isW = i >= nMark;
+          const bx = isW ? wc.x + tx[i] * wS : mc.x + tx[i] * mS;
+          const by = isW ? wc.y + ty[i] * wS : mc.y + ty[i] * mS;
+          let ox = aOffset[j], oy = aOffset[j + 1], oz = aOffset[j + 2];
+          let vx = vel[j], vy = vel[j + 1], vz = vel[j + 2];
+          if (active) {
+            const dx = bx + ox - mw.x, dy = by + oy - mw.y;
+            const d2 = dx * dx + dy * dy;
+            if (d2 < R2) {
+              const d = Math.sqrt(d2) + 1e-5;
+              const f = 1 - d / R;
+              const ff = f * f * F * h;
+              vx += (dx / d) * ff; vy += (dy / d) * ff; vz += ff * 0.9;
+            }
+          }
+          vx += (-K * ox - D * vx) * h; vy += (-K * oy - D * vy) * h; vz += (-K * oz - D * vz) * h;
+          ox += vx * h; oy += vy * h; oz += vz * h;
+          aOffset[j] = ox; aOffset[j + 1] = oy; aOffset[j + 2] = oz;
+          vel[j] = vx; vel[j + 1] = vy; vel[j + 2] = vz;
+          if (s === steps - 1) energy += Math.abs(ox) + Math.abs(oy) + Math.abs(vx) * 0.1 + Math.abs(vy) * 0.1;
+        }
+      }
+      springAwake = active || energy > mS * 0.002;
+      if (!springAwake) { aOffset.fill(0); vel.fill(0); }
+      offAttr.needsUpdate = true;
+    }
+
+    /* ---------- 상태 ---------- */
+    const smooth = (cur, target, rate, dt) => cur + (target - cur) * (1 - Math.exp(-rate * dt));
+    const clamp01 = (v) => Math.min(1, Math.max(0, v));
+    const sstep = (a, b, v) => { const t = clamp01((v - a) / (b - a)); return t * t * (3 - 2 * t); };
+    let scatter = 0, cluster = 0, introT = reduce ? 30 : 0, spin = 0;
+    const galTarget = new THREE.Vector2(mobile ? 0.5 : 0.7, 0.5);
+    const galPos = galTarget.clone();
+    const galSpots = mobile
+      ? { about: [0.5, 0.42], league: [0.5, 0.5], staff: [0.5, 0.56], join: [0.5, 0.5] }
+      : { about: [0.72, 0.5], league: [0.52, 0.5], staff: [0.3, 0.52], join: [0.6, 0.6] };
+    const par = new THREE.Vector2();
+
+    function update(now, dt, realDt) {
+      const t = now / 1000;
+      U.uTime.value = reduce ? 2.4 : t;
+      const spinRate = 0.55 + 1.7 * sstep(0.0, 1.2, introT) * (1 - sstep(1.4, 2.3, introT));
+      if (!reduce) {
+        const dT = Math.min(realDt, 0.25) * (window.__NV_SKIP ? 5 : 1);
+        introT += dT;
+        spin += dT * spinRate;
+      }
+      const T = introT;
+      U.uT.value = T;
+      U.uFade.value = reduce ? 1 : sstep(0.0, 0.45, T);
+      U.uSpin.value = spin;
+      LU.uSpinRate.value = spinRate;
+      LU.uTrail.value = reduce ? 0 : (1 - sstep(1.85, 2.45, T)) * (mobile ? 1.0 : 0.85);
+      trails.visible = LU.uTrail.value > 0.003;
+
+      const cr = readAnchors();
+      // 스크롤 상태
+      if (!reduce) {
+        const hr = heroEl.getBoundingClientRect();
+        const scrolled = -hr.top;
+        const sTarget = clamp01((scrolled - hr.height * 0.04) / (hr.height * 0.7));
+        scatter = smooth(scatter, sTarget, 4.2, dt);
+        let cTarget = 0;
+        const tr = teamsEl.getBoundingClientRect();
+        const dist = Math.abs(tr.top + tr.height / 2 - innerHeight / 2) / (innerHeight * 0.5 + tr.height * 0.5);
+        cTarget = (1 - sstep(0.28, 0.78, dist)) * sstep(0.6, 0.95, scatter);
+        cluster = smooth(cluster, cTarget, 3.6, dt);
+        if (cluster > 0.001) {
+          logoEls.forEach((el, k) => {
+            const r = el.getBoundingClientRect();
+            toWorld(r.left + r.width / 2 - cr.left, r.top + r.height / 2 - cr.top, tmp);
+            U.uCl.value[k].set(tmp.x, tmp.y, 0, (r.width / 2) * wpp);
+          });
+        }
+        // 은하 중심: 화면 가운데에 가장 가까운 섹션 쪽으로
+        let best = 'about', bd = Infinity;
+        secEls.forEach((el) => {
+          const r = el.getBoundingClientRect();
+          const d = Math.abs(r.top + r.height / 2 - innerHeight / 2);
+          if (d < bd) { bd = d; best = el.id; }
+        });
+        galTarget.set(galSpots[best][0], galSpots[best][1]);
+        galPos.x = smooth(galPos.x, galTarget.x, 1.1, dt);
+        galPos.y = smooth(galPos.y, galTarget.y, 1.1, dt);
+        springs(Math.min(dt, 0.066), now, cr, scatter, T);
+        // 시차
+        let px = mobile || !ptr.has ? Math.sin(t * 0.21) * 0.35 : ptr.nx;
+        let py = mobile || !ptr.has ? Math.cos(t * 0.17) * 0.25 : ptr.ny;
+        par.x = smooth(par.x, px, 2.2, dt); par.y = smooth(par.y, py, 2.2, dt);
+        U.uPar.value.copy(par);
+      }
+      U.uScatter.value = scatter;
+      U.uCluster.value = cluster;
+      U.uDim.value = 1 - (mobile ? 0.5 : 0.42) * scatter;
+      toWorld(galPos.x * W, galPos.y * H, tmp);
+      U.uGalC.value.set(tmp.x, tmp.y, -1.0);
+      U.uNebC.value.copy(U.uMarkC.value);
+
+      const mc = U.uMarkC.value, mS = U.uMarkS.value;
+      const heroVis = 1 - sstep(0.0, 0.45, scatter);
+      // 실제 마크 그림
+      const mOpMax = post ? 0.52 : 0.62;
+      const mOp = reduce ? mOpMax : mOpMax * sstep(1.45, 2.15, T);
+      markMat.uniforms.uOp.value = mOp * heroVis;
+      markPlane.visible = markMat.uniforms.uOp.value > 0.002;
+      markPlane.position.set(mc.x, mc.y, 0);
+      markPlane.scale.set(mS, mS, 1);
+      // 커서 구멍(밀려난 입자가 보이게)
+      const holeOn = !reduce && ptr.has && now - ptr.t < 1800 && scatter < 0.35 && T > 2.0;
+      holeK = smooth(holeK, holeOn ? 1 : 0, holeOn ? 8 : 2.5, dt);
+      if (holeOn) {
+        toWorld(ptr.px - cr.left, ptr.py - cr.top, holeW);
+        holeUv.x = smooth(holeUv.x, (holeW.x - mc.x) / mS, 14, dt);
+        holeUv.y = smooth(holeUv.y, (holeW.y - mc.y) / mS, 14, dt);
+      }
+      markMat.uniforms.uHole.value.set(holeUv.x, holeUv.y, holeK);
+      // 빛이 마크를 쓸고 지나감(7초마다)
+      if (!reduce) {
+        const cyc = (T - 2.3) % 7.0;
+        markMat.uniforms.uSweep.value = T > 2.3 ? -0.4 + cyc * 1.1 : -1;
+      }
+      // 후광·빛살
+      const flashK = reduce ? 0 : Math.exp(-Math.pow((T - 1.98) / 0.15, 2));
+      const glowK = post ? 1 : 0.5; // 블룸 없는 화면(휴대폰)은 sRGB에서 더해져 더 붉게 보이므로 줄임
+      haloMat.uniforms.uHalo.value = ((reduce ? 0.8 : 0.3 + 0.5 * sstep(0.3, 2.0, T)) + flashK * 0.45) * heroVis * glowK;
+      haloMat.uniforms.uRays.value = (reduce ? 0.3 : 0.3 * sstep(1.8, 2.8, T)) * heroVis * (post ? 1 : 0.7);
+      halo.visible = heroVis > 0.002;
+      halo.position.set(mc.x, mc.y, -0.2);
+      halo.scale.setScalar(mS * 2.6);
+      // 충격파
+      const sp = (T - 1.92) / 1.05;
+      shock.visible = !reduce && sp > 0 && sp < 1;
+      shockMat.uniforms.uP.value = clamp01(sp);
+      shock.position.set(mc.x, mc.y, 0.05);
+      shock.scale.setScalar(mS * 5.4);
+      // 가로 빛줄기
+      const fk = reduce ? 0 : 0.8 * Math.max(0, Math.exp(-Math.max(0, T - 1.96) * 5.0) * sstep(1.82, 1.96, T));
+      flashMat.uniforms.uF.value = fk;
+      flash.visible = fk > 0.003;
+      flash.position.set(mc.x, mc.y, 0.06);
+      flash.scale.set(visW * 1.5, mS * 0.55, 1);
+      // 안개
+      const fogI = (reduce ? 0.18 : 0.34 - 0.18 * sstep(1.2, 2.6, T)) * (1 - 0.3 * scatter) * glowK;
+      const fogC = new THREE.Vector3().lerpVectors(mc, U.uGalC.value, sstep(0, 0.8, scatter));
+      const nS = U.uNebS.value;
+      fogU.uI.value = fogI;
+      fogU.uView.value.set(visW, visH);
+      fogDefs.forEach((f, k) => {
+        const a = f.r + (reduce ? 0 : t * f.w);
+        fogU.uFc.value[k].set(fogC.x + f.o[0] * nS * 0.75, fogC.y + f.o[1] * nS * 0.75, Math.cos(a), Math.sin(a));
+        fogU.uFa.value[k].set(1 / (f.sx * nS * 0.5), 1 / (f.sy * nS * 0.5));
+      });
+      fogMesh.visible = !post && fogI > 0.002; // 데스크톱은 마지막 합성 단계에서 안개를 더함
+      // 블룸 세기
+      if (post) {
+        const k = (1 + flashK * 0.5) * (1 - 0.3 * scatter);
+        post.strength.set(0.85 * k, 0.75 * k);
+      }
+    }
+
+    function render() {
+      if (post) post.render();
+      else renderer.render(scene, camera);
+    }
+
+    /* ---------- 돌리기 ---------- */
+    let running = true, raf = 0, last = performance.now(), first = true;
+    function firstFrameDone() {
+      if (!first) return;
+      first = false;
+      clearTimeout(window.__NV_GL_WATCH);
+      root.classList.remove('nogl');
+      root.classList.add('gl', 'gl-ready');
+    }
+    function loop(now) {
+      if (!running) return;
+      raf = requestAnimationFrame(loop);
+      const realDt = Math.max(0, (now - last) / 1000);
+      const dt = Math.min(0.1, realDt);
+      last = now;
+      update(now, dt, realDt);
+      render();
+      firstFrameDone();
+    }
+
+    resize();
+    if (reduce) {
+      const drawStill = () => { resize(); update(performance.now(), 0.016, 0.016); render(); firstFrameDone(); };
+      drawStill();
+      let rt = 0;
+      addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(drawStill, 150); });
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(drawStill).catch(() => {});
+    } else {
+      raf = requestAnimationFrame((n) => { last = n; loop(n); });
+      let rt = 0, lastW = innerWidth, lastH = innerHeight;
+      addEventListener('resize', () => {
+        clearTimeout(rt);
+        rt = setTimeout(() => {
+          // 휴대폰 주소창 접힘처럼 높이만 조금 바뀌면 다시 만들지 않음
+          if (coarse && innerWidth === lastW && Math.abs(innerHeight - lastH) < 140) return;
+          lastW = innerWidth; lastH = innerHeight;
+          resize();
+        }, 120);
+      });
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) { running = false; cancelAnimationFrame(raf); }
+        else if (!running) { running = true; last = performance.now(); raf = requestAnimationFrame(loop); }
+      });
+    }
+  }
+</script>
+</body>
 </html>

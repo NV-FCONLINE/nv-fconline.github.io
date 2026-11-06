@@ -1,7 +1,7 @@
 """클럽마크 원본(검정 배경 PNG)에서 사이트용 이미지를 만든다.
 
 - assets/nv-club-mark.png : 원본 그대로(검정 배경, 731x584)
-- assets/nv-mark.png      : 빨간 육각 N 마크만 잘라 정사각형 512px(검정 배경)
+- assets/og-image.png     : 빨간 육각 N 마크만 잘라 정사각형 512px(검정 배경, 링크 미리보기용)
 - favicon-32.png / apple-touch-icon.png(180) : 탭·홈 화면 아이콘
 """
 import sys
@@ -24,7 +24,7 @@ canvas = Image.new("RGB", (round(side), round(side)), (0, 0, 0))
 crop = im.crop((max(box[0], 0), max(box[1], 0), min(box[2], im.width), min(box[3], im.height)))
 canvas.paste(crop, (max(0, -box[0]), max(0, -box[1])))
 
-canvas.resize((512, 512), Image.LANCZOS).save(out / "assets" / "nv-mark.png", optimize=True)
+canvas.resize((512, 512), Image.LANCZOS).save(out / "assets" / "og-image.png", optimize=True)
 canvas.resize((180, 180), Image.LANCZOS).save(out / "apple-touch-icon.png", optimize=True)
 canvas.resize((32, 32), Image.LANCZOS).save(out / "favicon-32.png", optimize=True)
 print("box", box, "side", round(side))
