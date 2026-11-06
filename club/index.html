@@ -1,0 +1,1076 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>NV 클럽 공간</title>
+<meta name="description" content="NV 클럽 멤버 전용 공간 — 공지사항, 건의사항, 자유게시판">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="theme-color" content="#000000">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https://cdn.discordapp.com data:; connect-src https://*.workers.dev http://localhost:* http://127.0.0.1:*; base-uri 'none'; form-action 'none'">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32.png">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=Michroma&display=swap">
+<style>
+  :root {
+    color-scheme: dark;
+    --bg: #000000;
+    --ink: #d8d8d6;
+    --ink-hi: #f3f3f1;
+    --ink-mid: #c4c4c1;
+    --ink-dim: #9a9a96;
+    --red-top: #a0071e;
+    --red-mid: #c92d3f;
+    --red-bot: #e64a58;
+    --red-soft: #ffb3ba;
+    --sky: #44a0c0;
+    --line: rgba(230, 74, 88, 0.34);
+    --line-soft: rgba(230, 74, 88, 0.16);
+    --glass: rgba(14, 8, 10, 0.78);
+    --glass-edge: rgba(216, 216, 214, 0.1);
+    --rule: rgba(216, 216, 214, 0.1);
+    --f-lat: 'Michroma', 'Eurostile', 'Segoe UI', 'Malgun Gothic', 'Apple SD Gothic Neo', system-ui, sans-serif;
+    --f-kr: 'IBM Plex Sans KR', 'Malgun Gothic', 'Apple SD Gothic Neo', 'Noto Sans KR', system-ui, sans-serif;
+    --gut-l: max(16px, env(safe-area-inset-left, 0px));
+    --gut-r: max(16px, env(safe-area-inset-right, 0px));
+  }
+  @media (min-width: 760px) {
+    :root {
+      --gut-l: max(32px, env(safe-area-inset-left, 0px));
+      --gut-r: max(32px, env(safe-area-inset-right, 0px));
+    }
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  html { background: var(--bg); -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+  body {
+    margin: 0; min-height: 100vh; min-height: 100svh;
+    display: flex; flex-direction: column;
+    background:
+      radial-gradient(ellipse 70% 320px at 50% -60px, rgba(160, 7, 30, 0.32), rgba(160, 7, 30, 0) 75%),
+      radial-gradient(ellipse 40% 260px at 92% 8%, rgba(68, 160, 192, 0.06), rgba(0, 0, 0, 0) 70%),
+      var(--bg);
+    background-repeat: no-repeat;
+    color: var(--ink);
+    font-family: var(--f-kr); font-size: 16px; line-height: 1.7;
+    word-break: keep-all; overflow-wrap: break-word;
+    -webkit-font-smoothing: antialiased;
+  }
+  img { max-width: 100%; }
+  a { color: inherit; }
+  button, input, textarea { font: inherit; color: inherit; }
+  :focus-visible { outline: 2px solid var(--sky); outline-offset: 2px; border-radius: 2px; }
+  [hidden] { display: none !important; }
+  .sr-only {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+  }
+  .skip {
+    position: absolute; left: var(--gut-l); top: -60px; z-index: 50;
+    padding: 10px 14px; background: #000; color: var(--ink-hi); border: 1px solid var(--sky);
+  }
+  .skip:focus { top: 8px; }
+  .wrap {
+    width: 100%; max-width: 920px; margin: 0 auto;
+    padding-inline: var(--gut-l) var(--gut-r);
+  }
+
+  /* ---------- 상단 ---------- */
+  .top {
+    position: sticky; top: 0; z-index: 20;
+    padding-top: env(safe-area-inset-top, 0px);
+    background: rgba(0, 0, 0, 0.72);
+    border-bottom: 1px solid var(--line-soft);
+    -webkit-backdrop-filter: blur(14px) saturate(130%);
+    backdrop-filter: blur(14px) saturate(130%);
+  }
+  .top-in { height: 60px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .brand {
+    display: inline-flex; align-items: center; gap: 10px; flex: none;
+    min-height: 44px; text-decoration: none; color: var(--ink-hi);
+    font-family: var(--f-lat); font-size: 15px; letter-spacing: 0.14em;
+  }
+  .brand img { width: 30px; height: 30px; display: block; filter: drop-shadow(0 0 10px rgba(230, 74, 88, 0.45)); }
+  .brand-sub { font-size: 10px; letter-spacing: 0.3em; color: var(--red-bot); padding-left: 2px; }
+  .who { display: flex; align-items: center; gap: 8px; min-width: 0; }
+  .who-av { width: 28px; height: 28px; border-radius: 50%; flex: none; background: #1a1012; }
+  .who-name {
+    min-width: 0; max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    font-size: 14.5px; font-weight: 600; color: var(--ink-hi);
+  }
+
+  /* ---------- 공통 ---------- */
+  main { flex: 1 0 auto; padding-block: 24px 72px; }
+  main:focus { outline: none; }
+  .idx {
+    display: inline-flex; align-items: center; gap: 12px; margin: 0 0 8px;
+    font-family: var(--f-lat); font-size: 10.5px; letter-spacing: 0.3em; color: var(--red-bot);
+  }
+  .idx::after { content: ''; width: 36px; height: 1px; background: linear-gradient(90deg, var(--red-bot), rgba(230, 74, 88, 0)); }
+  .h1 { margin: 0; font-size: clamp(24px, 3.4vw, 32px); line-height: 1.3; font-weight: 700; letter-spacing: -0.02em; color: var(--ink-hi); }
+  .h1:focus { outline: none; }
+  .h2 { margin: 0 0 10px; font-size: 17px; font-weight: 700; color: var(--ink-hi); }
+  .desc { margin: 6px 0 0; font-size: 14.5px; line-height: 1.65; color: var(--ink-dim); max-width: 40em; }
+  .muted { color: var(--ink-dim); }
+  .panel {
+    position: relative; background: var(--glass); border: 1px solid var(--glass-edge);
+    padding: clamp(18px, 3vw, 28px);
+  }
+  .hud::before, .hud::after { content: ''; position: absolute; width: 14px; height: 14px; pointer-events: none; }
+  .hud::before { top: -1px; left: -1px; border-top: 1px solid var(--red-bot); border-left: 1px solid var(--red-bot); }
+  .hud::after { bottom: -1px; right: -1px; border-bottom: 1px solid var(--red-bot); border-right: 1px solid var(--red-bot); }
+
+  .btn {
+    position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    min-height: 44px; padding: 0 18px; border-radius: 2px; border: 0; cursor: pointer;
+    font-size: 15px; font-weight: 600; line-height: 1.2; text-decoration: none; color: #fff;
+    white-space: nowrap; transition: box-shadow 0.2s ease, background-color 0.2s ease, transform 0.2s ease;
+  }
+  .btn-primary {
+    background: linear-gradient(170deg, #b8142c 0%, #a0071e 45%, #c92d3f 100%);
+    box-shadow: inset 0 0 0 1px rgba(255, 140, 150, 0.32), 0 10px 30px -14px rgba(230, 74, 88, 0.9);
+  }
+  .btn-primary:hover { box-shadow: inset 0 0 0 1px rgba(255, 160, 170, 0.6), 0 0 26px rgba(230, 74, 88, 0.45); }
+  .btn-ghost { color: var(--ink-hi); background: rgba(0, 0, 0, 0.35); box-shadow: inset 0 0 0 1px rgba(216, 216, 214, 0.3); }
+  .btn-ghost:hover { box-shadow: inset 0 0 0 1px rgba(230, 74, 88, 0.75); }
+  .btn-sky { color: var(--ink-hi); background: rgba(68, 160, 192, 0.1); box-shadow: inset 0 0 0 1px rgba(68, 160, 192, 0.55); }
+  .btn-sky:hover { background: rgba(68, 160, 192, 0.18); }
+  .btn-danger { color: var(--red-soft); background: transparent; box-shadow: inset 0 0 0 1px rgba(230, 74, 88, 0.45); }
+  .btn-danger:hover { background: rgba(160, 7, 30, 0.2); }
+  .btn[disabled] { opacity: 0.55; cursor: default; }
+  .btn-text {
+    display: inline-flex; align-items: center; min-height: 44px; padding: 0 10px;
+    background: none; border: 0; cursor: pointer; font-size: 14px; font-weight: 500; color: var(--ink-mid);
+    text-decoration: none; border-radius: 2px;
+  }
+  .btn-text:hover { color: var(--ink-hi); text-decoration: underline; text-underline-offset: 4px; }
+  .btn-text.danger { color: var(--red-soft); }
+  .btn-wide { width: 100%; }
+  .actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+
+  .badge {
+    display: inline-flex; align-items: center; height: 22px; padding: 0 7px; flex: none;
+    font-size: 12px; font-weight: 600; line-height: 1; border-radius: 2px; white-space: nowrap;
+    border: 1px solid rgba(216, 216, 214, 0.25); color: var(--ink-mid);
+  }
+  .b-pin { color: var(--red-soft); border-color: rgba(230, 74, 88, 0.5); background: rgba(160, 7, 30, 0.2); }
+  .b-todo { color: #8fd3ea; border-color: rgba(68, 160, 192, 0.6); background: rgba(68, 160, 192, 0.1); }
+  .b-hidden { color: var(--ink-dim); border-style: dashed; }
+  .b-staff { height: 20px; padding: 0 6px; font-size: 11.5px; color: var(--red-soft); border-color: rgba(230, 74, 88, 0.4); }
+  .b-left { height: 20px; padding: 0 6px; font-size: 11.5px; color: var(--ink-dim); }
+
+  .alert { margin: 0 0 16px; padding: 12px 14px; border: 1px solid rgba(230, 74, 88, 0.5); background: rgba(160, 7, 30, 0.14); color: var(--ink-hi); font-size: 15px; }
+  .info { margin: 0 0 16px; padding: 12px 14px; border: 1px solid rgba(68, 160, 192, 0.4); background: rgba(68, 160, 192, 0.07); color: var(--ink); font-size: 14.5px; }
+
+  .loading { display: flex; align-items: center; gap: 12px; padding: 40px 0; color: var(--ink-dim); font-size: 15px; }
+  .loading::before {
+    content: ''; width: 18px; height: 18px; border-radius: 50%; flex: none;
+    border: 2px solid rgba(230, 74, 88, 0.25); border-top-color: var(--red-bot);
+    animation: spin 0.9s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) { .loading::before { animation: none; } * { transition: none !important; } }
+
+  /* ---------- 탭 ---------- */
+  .tabs {
+    display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+    margin: 0 0 26px; border-bottom: 1px solid var(--rule);
+  }
+  .tabs a {
+    position: relative; display: flex; align-items: center; justify-content: center;
+    min-height: 50px; padding: 0 6px; text-decoration: none; text-align: center;
+    font-size: 15.5px; font-weight: 600; color: var(--ink-dim);
+  }
+  .tabs a:hover { color: var(--ink-hi); }
+  .tabs a[aria-current="page"] { color: var(--ink-hi); }
+  .tabs a[aria-current="page"]::after {
+    content: ''; position: absolute; left: 12%; right: 12%; bottom: -1px; height: 2px;
+    background: linear-gradient(90deg, var(--red-top), var(--red-bot));
+  }
+
+  /* ---------- 목록 ---------- */
+  .head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 14px 20px; margin: 0 0 20px; }
+  .head > div { min-width: 0; flex: 1 1 320px; }
+  .list { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--rule); }
+  .row {
+    display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 4px 18px;
+    min-height: 68px; padding: 12px 6px; border-bottom: 1px solid var(--rule);
+    text-decoration: none; color: inherit; transition: background-color 0.2s ease;
+  }
+  .row:hover { background: rgba(230, 74, 88, 0.05); }
+  .row-top { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 8px; min-width: 0; }
+  .row-title { font-size: 16.5px; font-weight: 600; color: var(--ink-hi); line-height: 1.45; overflow-wrap: anywhere; min-width: 0; }
+  .row-meta { grid-column: 1; font-size: 13px; color: var(--ink-dim); }
+  .row-rc {
+    grid-column: 2; grid-row: 1 / span 2; justify-self: end; text-align: right;
+    font-size: 12.5px; line-height: 1.5; color: var(--ink-mid); font-variant-numeric: tabular-nums;
+  }
+  .row-rc b { color: var(--ink-hi); font-weight: 600; }
+  .empty { padding: 36px 6px; border-bottom: 1px solid var(--rule); color: var(--ink-dim); font-size: 15px; }
+  .more { display: flex; justify-content: center; margin-top: 18px; }
+  .sub-h { margin: 34px 0 10px; font-size: 16px; font-weight: 700; color: var(--ink-hi); }
+  @media (max-width: 560px) {
+    .row { grid-template-columns: minmax(0, 1fr); }
+    .row-rc { grid-column: 1; grid-row: auto; justify-self: start; text-align: left; }
+  }
+
+  /* ---------- 글 ---------- */
+  .back {
+    display: flex; width: fit-content; align-items: center; gap: 6px; min-height: 44px; margin: 0 0 6px -4px; padding: 0 4px;
+    font-size: 14.5px; color: var(--ink-mid); text-decoration: none;
+  }
+  .back:hover { color: var(--ink-hi); }
+  .back svg { width: 16px; height: 16px; }
+  .post-badges { display: flex; gap: 6px; margin: 0 0 10px; }
+  .post-title { overflow-wrap: anywhere; }
+  .post-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; margin: 10px 0 0; font-size: 14px; color: var(--ink-dim); }
+  .post-meta .name { color: var(--ink-mid); font-weight: 600; }
+  .post-body {
+    margin: 22px 0 0; padding: 22px 0 0; border-top: 1px solid var(--rule);
+    font-size: 16.5px; line-height: 1.85; color: var(--ink); white-space: pre-wrap; overflow-wrap: anywhere;
+  }
+  .post-body a, .c-body a { color: #8fd3ea; text-decoration: underline; text-underline-offset: 3px; word-break: break-all; }
+  .ack {
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 16px;
+    margin: 26px 0 0; padding: 16px 18px; border: 1px solid rgba(68, 160, 192, 0.4); background: rgba(68, 160, 192, 0.07);
+  }
+  .ack p { margin: 0; font-size: 15px; color: var(--ink); }
+  .ack.done { justify-content: flex-start; color: #8fd3ea; font-weight: 600; font-size: 15px; }
+  .ack.done svg { width: 20px; height: 20px; flex: none; }
+  .staff-tools {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 16px 0 0; padding: 14px 0 0;
+    border-top: 1px dashed rgba(230, 74, 88, 0.25);
+  }
+  .staff-tools .lbl { font-family: var(--f-lat); font-size: 10px; letter-spacing: 0.26em; color: var(--red-bot); margin-right: 4px; }
+  .manage { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 0 4px; margin: 14px -10px 0 0; }
+
+  /* ---------- 댓글 ---------- */
+  .comments { margin-top: 34px; }
+  .c-list { list-style: none; margin: 0 0 16px; padding: 0; border-top: 1px solid var(--rule); }
+  .c-item { padding: 14px 0 10px; border-bottom: 1px solid var(--rule); }
+  .c-item.staff-reply { border-left: 2px solid rgba(230, 74, 88, 0.55); padding-left: 14px; background: linear-gradient(90deg, rgba(160, 7, 30, 0.1), rgba(160, 7, 30, 0) 60%); }
+  .c-head { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; font-size: 14px; }
+  .c-head .name { font-weight: 600; color: var(--ink-hi); }
+  .c-head time { color: var(--ink-dim); font-size: 13px; }
+  .c-body { margin: 4px 0 0; font-size: 15.5px; line-height: 1.75; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .c-tools { display: flex; justify-content: flex-end; gap: 0 2px; margin: 0 -10px 0 0; }
+  .c-tools .btn-text { min-height: 40px; font-size: 13.5px; }
+
+  /* ---------- 입력 ---------- */
+  .form { display: grid; gap: 18px; }
+  .field { display: grid; gap: 6px; }
+  .field label, .field .lab { font-size: 14px; font-weight: 600; color: var(--ink-mid); }
+  .input, .textarea {
+    width: 100%; min-height: 48px; padding: 11px 14px; border-radius: 2px;
+    font-size: 16px; line-height: 1.6; color: var(--ink-hi);
+    background: rgba(255, 255, 255, 0.035); border: 1px solid rgba(216, 216, 214, 0.2);
+  }
+  .textarea { min-height: 220px; resize: vertical; }
+  .textarea.short { min-height: 96px; }
+  .input:focus-visible, .textarea:focus-visible { border-color: var(--sky); outline: 2px solid var(--sky); outline-offset: 0; }
+  .input::placeholder, .textarea::placeholder { color: #7d7d79; }
+  .count { justify-self: end; font-size: 12.5px; color: var(--ink-dim); font-variant-numeric: tabular-nums; }
+  .count.over { color: var(--red-soft); }
+  .hint { margin: 0; font-size: 13.5px; color: var(--ink-dim); }
+  .check { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; cursor: pointer; font-size: 15px; }
+  .check input { width: 20px; height: 20px; accent-color: var(--red-mid); }
+  .form-err:empty { display: none; }
+  .c-form { display: grid; gap: 8px; }
+  .c-form .row2 { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+
+  /* ---------- 읽음 현황 ---------- */
+  .rc-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 22px 0 18px; }
+  .rc-tab {
+    display: grid; gap: 4px; align-content: center; min-height: 76px; padding: 12px 16px; text-align: left; cursor: pointer;
+    background: rgba(255, 255, 255, 0.025); border: 1px solid var(--rule); border-radius: 2px; color: var(--ink-mid);
+  }
+  .rc-tab .t { font-size: 14.5px; font-weight: 600; }
+  .rc-tab .n { font-family: var(--f-lat); font-size: 20px; letter-spacing: 0.04em; color: var(--ink-hi); font-variant-numeric: tabular-nums; }
+  .rc-tab .n small { font-size: 13px; color: var(--ink-dim); letter-spacing: 0; }
+  .rc-tab[aria-selected="true"] { border-color: rgba(230, 74, 88, 0.65); background: rgba(160, 7, 30, 0.16); color: var(--ink-hi); }
+  .meter { height: 3px; margin-top: 6px; background: rgba(216, 216, 214, 0.12); overflow: hidden; }
+  .meter i { display: block; height: 100%; background: linear-gradient(90deg, var(--red-top), var(--red-bot)); }
+  .rc-tab.sky .meter i { background: linear-gradient(90deg, #2c7c98, var(--sky)); }
+  .people { list-style: none; margin: 0 0 6px; padding: 0; border-top: 1px solid var(--rule); }
+  .people li { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 48px; padding: 6px 4px; border-bottom: 1px solid var(--rule); }
+  .people .nm { display: flex; align-items: center; gap: 8px; min-width: 0; font-size: 15px; color: var(--ink-hi); }
+  .people .nm span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .people time { flex: none; font-size: 13.5px; color: var(--ink-dim); font-variant-numeric: tabular-nums; }
+  .people.todo .nm { color: var(--ink); }
+  .people .none { justify-content: flex-start; color: var(--ink-dim); font-size: 14.5px; }
+  .rc-sub { display: flex; align-items: baseline; justify-content: space-between; margin: 22px 0 8px; font-size: 15px; font-weight: 700; color: var(--ink-hi); }
+  .rc-sub:first-child { margin-top: 0; }
+  .rc-sub small { font-size: 13px; font-weight: 500; color: var(--ink-dim); }
+
+  /* ---------- 로그인 ---------- */
+  .login { max-width: 480px; margin: clamp(8px, 6vh, 64px) auto 0; text-align: center; }
+  .login .mark { width: 88px; height: 88px; display: block; margin: 4px auto 14px; filter: drop-shadow(0 0 22px rgba(230, 74, 88, 0.45)) drop-shadow(0 0 60px rgba(160, 7, 30, 0.45)); }
+  .login .idx { justify-content: center; }
+  .login .idx::before { content: ''; width: 36px; height: 1px; background: linear-gradient(270deg, var(--red-bot), rgba(230, 74, 88, 0)); }
+  .login .desc { margin: 10px auto 22px; }
+  .login .alert { text-align: left; }
+  .login .small { margin: 16px 0 0; font-size: 13.5px; color: var(--ink-dim); line-height: 1.7; }
+  .login .small a { color: var(--ink-mid); text-underline-offset: 3px; display: inline-flex; align-items: center; min-height: 44px; }
+
+  /* ---------- 개인정보 ---------- */
+  .doc { max-width: 680px; }
+  .doc h2 { margin: 30px 0 8px; font-size: 18px; font-weight: 700; color: var(--ink-hi); }
+  .doc p, .doc li { font-size: 15.5px; line-height: 1.8; color: var(--ink); }
+  .doc ul { margin: 0; padding-left: 1.2em; }
+  .doc li { margin: 2px 0; }
+  .doc strong { color: var(--ink-hi); font-weight: 600; }
+
+  /* ---------- 바닥 ---------- */
+  .foot { border-top: 1px solid var(--line-soft); padding-block: 18px calc(18px + env(safe-area-inset-bottom, 0px)); }
+  .foot-in { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 18px; }
+  .foot-main { margin: 0; display: flex; align-items: center; gap: 10px; font-size: 13.5px; color: var(--ink-dim); }
+  .foot-main img { width: 20px; height: 20px; display: block; }
+  .foot-links { display: flex; gap: 4px; margin-right: -10px; }
+  .foot-links a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 10px; font-size: 13.5px; color: var(--ink-mid); text-decoration: none; }
+  .foot-links a:hover { color: var(--ink-hi); text-decoration: underline; text-underline-offset: 4px; }
+
+  .toast {
+    position: fixed; left: 50%; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); z-index: 40;
+    transform: translate(-50%, 20px); opacity: 0; pointer-events: none;
+    width: max-content; max-width: calc(100% - 32px); padding: 12px 16px;
+    background: #140c0e; border: 1px solid var(--line); color: var(--ink-hi); font-size: 14.5px;
+    box-shadow: 0 16px 40px -12px rgba(0, 0, 0, 0.9); transition: opacity 0.25s ease, transform 0.25s ease;
+  }
+  .toast.on { opacity: 1; transform: translate(-50%, 0); }
+
+  @media (max-width: 560px) {
+    main { padding-block: 16px 56px; }
+    .brand-sub { display: none; }
+    .who-name { max-width: 34vw; font-size: 14px; }
+    .tabs { margin-bottom: 20px; }
+    .tabs a { font-size: 15px; }
+    .head .btn { width: 100%; }
+    .post-body { font-size: 16px; }
+    .rc-tab { min-height: 70px; padding: 10px 12px; }
+  }
+</style>
+</head>
+<body>
+<a class="skip" href="#main">본문으로 건너뛰기</a>
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="/" aria-label="NV 홈페이지로"><img src="../assets/nv-mark.png" alt="" width="30" height="30"><span>NV</span><span class="brand-sub">CLUB</span></a>
+    <div class="who" id="who" hidden>
+      <img class="who-av" id="whoAv" alt="" width="28" height="28" hidden>
+      <span class="who-name" id="whoName"></span>
+      <span class="badge b-staff" id="whoStaff" hidden>운영진</span>
+      <button class="btn-text" id="logoutBtn" type="button">로그아웃</button>
+    </div>
+  </div>
+</header>
+
+<main id="main" tabindex="-1">
+  <div class="wrap" id="view">
+    <noscript><p class="alert">이 화면은 자바스크립트가 켜져 있어야 보여요.</p></noscript>
+  </div>
+</main>
+
+<footer class="foot">
+  <div class="wrap foot-in">
+    <p class="foot-main"><img src="../assets/nv-mark.png" alt="" width="20" height="20">NV · NAME VALUE 클럽 공간</p>
+    <nav class="foot-links" aria-label="바닥 메뉴">
+      <a href="/">홈페이지</a>
+      <a href="#/privacy">개인정보 안내</a>
+    </nav>
+  </div>
+</footer>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+'use strict';
+const API = 'https://nv-api.e2jinsoopark.workers.dev';
+
+/* 로컬에서만 ?api=http://localhost:8787 처럼 API 주소를 바꿀 수 있다 */
+const API_BASE = (function () {
+  const local = location.hostname === 'localhost' || location.hostname === '127.0.0.1' || location.hostname === '[::1]';
+  if (local) {
+    const q = new URLSearchParams(location.search).get('api');
+    if (q && /^https?:\/\/(localhost|127\.0\.0\.1)(:\d{1,5})?$/.test(q)) return q;
+  }
+  return API;
+})();
+
+const TOKEN_KEY = 'nv_club_session';
+const BOARDS = [
+  { slug: 'notice', name: '공지사항', lat: 'NOTICE' },
+  { slug: 'suggest', name: '건의사항', lat: 'SUGGEST' },
+  { slug: 'free', name: '자유게시판', lat: 'FREE BOARD' },
+];
+const BOARD = Object.fromEntries(BOARDS.map((b) => [b.slug, b]));
+
+const LOGIN_ERR = {
+  denied: '디스코드 로그인을 취소했어요. 다시 해 주세요.',
+  not_member: 'NV 디스코드 서버의 클럽 멤버만 들어올 수 있어요. 서버에 들어와 있는지, 클럽 역할이 있는지 운영진에게 물어봐 주세요.',
+  state: '로그인 시간이 지났어요. 다시 해 주세요.',
+  ticket: '로그인 확인 시간이 지났어요. 다시 해 주세요.',
+  discord: '디스코드와 연결하지 못했어요. 잠시 뒤 다시 해 주세요.',
+  server: '서버에 문제가 생겼어요. 잠시 뒤 다시 해 주세요.',
+  session: '로그인이 끝났어요. 다시 로그인해 주세요.',
+};
+const ERR = {
+  network: '서버에 연결하지 못했어요. 인터넷 연결을 확인하고 다시 해 주세요.',
+  server: '서버에 문제가 생겼어요. 잠시 뒤 다시 해 주세요.',
+  forbidden: '이 작업은 할 수 없어요.',
+  not_found: '글을 찾을 수 없어요. 지워졌거나 볼 수 없는 글이에요.',
+  rate: '짧은 시간에 너무 많이 썼어요. 10분쯤 뒤에 다시 써 주세요.',
+  title_required: '제목을 써 주세요.',
+  title_too_long: '제목은 80자까지 쓸 수 있어요.',
+  body_required: '내용을 써 주세요.',
+  body_too_long: '내용은 5,000자까지 쓸 수 있어요.',
+  comment_required: '댓글 내용을 써 주세요.',
+  comment_too_long: '댓글은 1,000자까지 쓸 수 있어요.',
+  too_large: '글이 너무 길어요.',
+};
+const errText = (e) => ERR[e && e.code] || ERR.server;
+
+const state = { token: null, me: null, loginError: null, seq: 0 };
+const $ = (id) => document.getElementById(id);
+const view = $('view');
+
+/* ---------- 저장소(사생활 모드에서는 실패할 수 있음) ---------- */
+function loadToken() { try { return localStorage.getItem(TOKEN_KEY); } catch (e) { return null; } }
+function saveToken(t) { state.token = t; try { localStorage.setItem(TOKEN_KEY, t); } catch (e) {} }
+function clearToken() { state.token = null; try { localStorage.removeItem(TOKEN_KEY); } catch (e) {} }
+
+/* ---------- DOM 도우미: 사용자 글은 언제나 textContent로만 ---------- */
+function h(tag, props) {
+  const el = document.createElement(tag);
+  if (props) {
+    for (const k of Object.keys(props)) {
+      const v = props[k];
+      if (v == null || v === false) continue;
+      if (k === 'class') el.className = v;
+      else if (k === 'text') el.textContent = v;
+      else if (k.slice(0, 2) === 'on') el.addEventListener(k.slice(2), v);
+      else el.setAttribute(k, v === true ? '' : String(v));
+    }
+  }
+  for (let i = 2; i < arguments.length; i++) append(el, arguments[i]);
+  return el;
+}
+function append(el, kid) {
+  if (kid == null || kid === false) return;
+  if (Array.isArray(kid)) { kid.forEach((k) => append(el, k)); return; }
+  el.append(kid instanceof Node ? kid : document.createTextNode(String(kid)));
+}
+const NS = 'http://www.w3.org/2000/svg';
+function icon(kind) {
+  const s = document.createElementNS(NS, 'svg');
+  s.setAttribute('viewBox', '0 0 24 24'); s.setAttribute('aria-hidden', 'true'); s.setAttribute('fill', 'none');
+  s.setAttribute('stroke', 'currentColor'); s.setAttribute('stroke-width', '2'); s.setAttribute('stroke-linecap', 'round'); s.setAttribute('stroke-linejoin', 'round');
+  const p = document.createElementNS(NS, 'path');
+  p.setAttribute('d', kind === 'check' ? 'M4 12.5l5 5L20 6.5' : 'M15 5l-7 7 7 7');
+  s.append(p);
+  return s;
+}
+
+/* 줄바꿈은 CSS(pre-wrap), 링크는 http(s)만 a 요소로 */
+const URL_RE = /https?:\/\/[A-Za-z0-9\-._~:/?#[\]@!$&()*+,;=%]+/g;
+function linkify(text) {
+  const out = [];
+  let last = 0;
+  for (const m of text.matchAll(URL_RE)) {
+    let url = m[0];
+    let trail = '';
+    while (/[.,!?;:)\]]$/.test(url)) {
+      const ch = url.slice(-1);
+      if (ch === ')' && (url.split('(').length - 1) >= (url.split(')').length - 1)) break;
+      trail = ch + trail;
+      url = url.slice(0, -1);
+    }
+    if (m.index > last) out.push(document.createTextNode(text.slice(last, m.index)));
+    let ok = false;
+    try { const u = new URL(url); ok = u.protocol === 'https:' || u.protocol === 'http:'; } catch (e) {}
+    out.push(ok ? h('a', { href: url, target: '_blank', rel: 'noopener noreferrer nofollow ugc' }, url) : document.createTextNode(url));
+    if (trail) out.push(document.createTextNode(trail));
+    last = m.index + m[0].length;
+  }
+  if (last < text.length) out.push(document.createTextNode(text.slice(last)));
+  return out;
+}
+
+/* ---------- 시간(KST) ---------- */
+const KST = new Intl.DateTimeFormat('ko-KR', { timeZone: 'Asia/Seoul', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
+function kst(ms) { const o = {}; for (const p of KST.formatToParts(new Date(ms))) o[p.type] = p.value; return o; }
+function fmtFull(ms) { const o = kst(ms); return `${o.year}.${o.month}.${o.day} ${o.hour}:${o.minute}`; }
+function fmtShort(ms) {
+  const o = kst(ms), n = kst(Date.now());
+  if (o.year === n.year && o.month === n.month && o.day === n.day) return `오늘 ${o.hour}:${o.minute}`;
+  if (o.year === n.year) return `${o.month}.${o.day}`;
+  return `${o.year}.${o.month}.${o.day}`;
+}
+function timeEl(ms, short) { return h('time', { datetime: new Date(ms).toISOString() }, short ? fmtShort(ms) : fmtFull(ms)); }
+
+/* ---------- API ---------- */
+class ApiError extends Error {
+  constructor(status, code, handled, data) { super(code); this.status = status; this.code = code; this.handled = handled; this.data = data; }
+}
+async function api(path, opt) {
+  opt = opt || {};
+  const headers = {};
+  if (state.token) headers.Authorization = 'Bearer ' + state.token;
+  let body;
+  if (opt.body !== undefined) { headers['Content-Type'] = 'application/json'; body = JSON.stringify(opt.body); }
+  let res;
+  try {
+    res = await fetch(API_BASE + path, { method: opt.method || 'GET', headers, body, cache: 'no-store' });
+  } catch (e) {
+    throw new ApiError(0, 'network');
+  }
+  let data = null;
+  try { data = await res.json(); } catch (e) {}
+  if (res.status === 401 && !opt.noAuthRedirect) {
+    clearToken();
+    state.me = null;
+    state.loginError = 'session';
+    renderWho();
+    route();
+    throw new ApiError(401, 'session', true);
+  }
+  if (!res.ok) throw new ApiError(res.status, (data && data.error) || 'server', false, data);
+  return data;
+}
+
+/* ---------- 알림 ---------- */
+let toastTimer;
+function toast(msg) {
+  const t = $('toast');
+  t.textContent = msg;
+  t.classList.add('on');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('on'), 3200);
+}
+async function copyText(text) {
+  try { await navigator.clipboard.writeText(text); return true; } catch (e) {}
+  const ta = h('textarea', { readonly: true, style: 'position:fixed;top:-200px;left:0;opacity:0' });
+  ta.value = text;
+  document.body.append(ta);
+  ta.select();
+  let ok = false;
+  try { ok = document.execCommand('copy'); } catch (e) {}
+  ta.remove();
+  return ok;
+}
+
+/* ---------- 화면 틀 ---------- */
+function setTitle(t) { document.title = t ? `${t} · NV 클럽 공간` : 'NV 클럽 공간'; }
+function show(nodes, opts) {
+  view.replaceChildren();
+  append(view, nodes);
+  if (!opts || !opts.keepScroll) window.scrollTo(0, 0);
+  const h1 = view.querySelector('.h1');
+  if (h1 && state.navigated) h1.focus({ preventScroll: true });
+}
+function loadingEl(msg) { return h('div', { class: 'loading', role: 'status' }, msg || '불러오는 중이에요.'); }
+function errorBox(e, retry) {
+  return h('div', { class: 'alert', role: 'alert' },
+    h('p', { style: 'margin:0 0 10px' }, errText(e)),
+    retry ? h('button', { class: 'btn btn-ghost', type: 'button', onclick: retry }, '다시 불러오기') : null);
+}
+function tabs(active) {
+  return h('nav', { class: 'tabs', 'aria-label': '게시판' },
+    BOARDS.map((b) => h('a', { href: `#/b/${b.slug}`, 'aria-current': b.slug === active ? 'page' : null }, b.name)));
+}
+function badge(text, kind) { return h('span', { class: `badge b-${kind}` }, text); }
+function authorName(a) { return [h('span', { class: 'name' }, a.name), a.is_staff ? badge('운영진', 'staff') : null]; }
+
+function renderWho() {
+  const me = state.me;
+  $('who').hidden = !me;
+  if (!me) return;
+  $('whoName').textContent = me.name;
+  $('whoStaff').hidden = !me.is_staff;
+  const av = $('whoAv');
+  if (me.avatar_url) { av.src = me.avatar_url; av.hidden = false; av.onerror = () => { av.hidden = true; }; }
+  else av.hidden = true;
+}
+
+/* ---------- 라우팅 ---------- */
+function currentNext() {
+  const hsh = location.hash;
+  return /^#\/[A-Za-z0-9/_-]{0,100}$/.test(hsh) && hsh !== '#/privacy' ? hsh : '#/';
+}
+function route() {
+  const seq = ++state.seq;
+  const hsh = location.hash || '#/';
+  let m;
+  if (hsh === '#/privacy') return renderPrivacy();
+  if (!state.me) return renderLogin();
+  if (hsh === '#/' || hsh === '#') return renderBoard('notice', seq);
+  if ((m = hsh.match(/^#\/b\/(notice|suggest|free)$/))) return renderBoard(m[1], seq);
+  if ((m = hsh.match(/^#\/p\/(\d{1,15})$/))) return renderPost(+m[1], seq);
+  if ((m = hsh.match(/^#\/write\/(notice|suggest|free)$/))) return renderWrite(m[1], null, seq);
+  if ((m = hsh.match(/^#\/edit\/(\d{1,15})$/))) return renderEdit(+m[1], seq);
+  if ((m = hsh.match(/^#\/receipts\/(\d{1,15})$/))) return renderReceipts(+m[1], seq);
+  return renderNotFound();
+}
+const stale = (seq) => seq !== state.seq;
+function go(hash) { if (location.hash === hash) route(); else location.hash = hash; }
+
+/* ---------- 로그인 ---------- */
+function renderLogin() {
+  setTitle('로그인');
+  const err = state.loginError;
+  const href = `${API_BASE}/auth/login?next=${encodeURIComponent(currentNext())}`;
+  show(h('section', { class: 'login panel hud', 'aria-labelledby': 'login-h' },
+    h('img', { class: 'mark', src: '../assets/nv-mark.png', alt: 'NV 클럽 마크', width: 88, height: 88 }),
+    h('p', { class: 'idx' }, 'NV CLUB'),
+    h('h1', { class: 'h1', id: 'login-h', tabindex: '-1' }, '클럽 공간'),
+    h('p', { class: 'desc' }, '공지사항, 건의사항, 자유게시판이 있어요. NV 디스코드 서버의 클럽 멤버만 들어올 수 있어요.'),
+    err ? h('p', { class: 'alert', role: 'alert' }, LOGIN_ERR[err] || LOGIN_ERR.server) : null,
+    h('a', { class: 'btn btn-primary btn-wide', href }, 'Discord로 로그인'),
+    h('p', { class: 'small' }, '로그인하면 디스코드 아이디, 서버 별명, 역할을 확인해요. ', h('a', { href: '#/privacy' }, '개인정보 안내'))));
+}
+
+/* ---------- 게시판 목록 ---------- */
+function boardDesc(slug) {
+  const staff = state.me && state.me.is_staff;
+  if (slug === 'notice') return staff ? '공지를 올리면 그때의 클럽 멤버를 기준으로 열람과 확인을 따로 셉니다.' : '운영진 공지예요. 다 읽었으면 글 아래 ‘확인했어요’를 눌러 주세요.';
+  if (slug === 'suggest') return staff ? '멤버들이 남긴 건의예요. 댓글로 답하면 쓴 사람과 운영진만 볼 수 있어요.' : '운영진에게 전할 말을 남겨 주세요. 쓴 글은 나와 운영진만 볼 수 있어요.';
+  return '클럽 멤버라면 누구나 쓰고 읽을 수 있어요.';
+}
+function postRow(p, slug) {
+  const top = [];
+  if (p.pinned) top.push(badge('고정', 'pin'));
+  if (p.status === 'hidden') top.push(badge('숨김', 'hidden'));
+  if (slug === 'notice' && p.my && p.my.in_audience && !p.my.acked_at && !p.mine) top.push(badge('확인 전', 'todo'));
+  top.push(h('span', { class: 'row-title' }, p.title));
+  const meta = [p.author.name, fmtShort(p.created_at)];
+  if (p.comment_count) meta.push(`${slug === 'suggest' ? '답변·댓글' : '댓글'} ${p.comment_count}`);
+  const rc = p.receipts
+    ? h('span', { class: 'row-rc' }, '열람 ', h('b', null, `${p.receipts.opened}/${p.receipts.total}`), h('br'), '확인 ', h('b', null, `${p.receipts.acked}/${p.receipts.total}`))
+    : null;
+  return h('li', null, h('a', { class: 'row', href: `#/p/${p.id}` },
+    h('span', { class: 'row-top' }, top),
+    h('span', { class: 'row-meta' }, meta.join(' · ')),
+    rc));
+}
+async function renderBoard(slug, seq) {
+  const b = BOARD[slug];
+  setTitle(b.name);
+  show([tabs(slug), loadingEl()]);
+  let data;
+  try { data = await api(`/api/boards/${slug}/posts`); } catch (e) {
+    if (e.handled || stale(seq)) return;
+    return show([tabs(slug), h('h1', { class: 'h1', tabindex: '-1', style: 'margin-bottom:16px' }, b.name), errorBox(e, () => renderBoard(slug, ++state.seq))]);
+  }
+  if (stale(seq)) return;
+  const me = state.me;
+  const inlineSuggest = slug === 'suggest' && !me.is_staff;
+  const head = h('div', { class: 'head' },
+    h('div', null,
+      h('p', { class: 'idx' }, b.lat),
+      h('h1', { class: 'h1', tabindex: '-1' }, b.name),
+      h('p', { class: 'desc' }, boardDesc(slug))),
+    data.board.can_write && !inlineSuggest ? h('a', { class: 'btn btn-primary', href: `#/write/${slug}` }, slug === 'notice' ? '공지 쓰기' : '글쓰기') : null);
+
+  const list = h('ul', { class: 'list' });
+  const fill = (posts) => posts.forEach((p) => list.append(postRow(p, slug)));
+  fill(data.posts);
+  if (!data.posts.length) {
+    list.append(h('li', { class: 'empty' }, inlineSuggest ? '아직 남긴 건의가 없어요.' : '아직 글이 없어요.'));
+  }
+  const more = h('div', { class: 'more' });
+  let before = data.next_before;
+  const moreBtn = h('button', { class: 'btn btn-ghost', type: 'button' }, '더 보기');
+  moreBtn.addEventListener('click', async () => {
+    moreBtn.disabled = true;
+    try {
+      const d = await api(`/api/boards/${slug}/posts?before=${before}`);
+      fill(d.posts);
+      before = d.next_before;
+      if (!before) more.remove();
+    } catch (e) { if (!e.handled) toast(errText(e)); }
+    moreBtn.disabled = false;
+  });
+  if (before) more.append(moreBtn);
+
+  const parts = [tabs(slug), head];
+  if (inlineSuggest) {
+    parts.push(h('section', { class: 'panel hud', 'aria-labelledby': 'sg-h' },
+      h('h2', { class: 'h2', id: 'sg-h' }, '건의하기'),
+      postForm({ slug, inline: true, seq })));
+    parts.push(h('h2', { class: 'sub-h' }, '내가 남긴 건의'));
+  }
+  parts.push(list, more);
+  show(parts);
+}
+
+/* ---------- 글쓰기 폼 ---------- */
+function counter(input, max) {
+  const c = h('span', { class: 'count', 'aria-live': 'off' });
+  const upd = () => { const n = [...input.value].length; c.textContent = `${n.toLocaleString('ko-KR')} / ${max.toLocaleString('ko-KR')}`; c.classList.toggle('over', n > max); };
+  input.addEventListener('input', upd);
+  upd();
+  return c;
+}
+function postForm({ slug, post, inline, seq }) {
+  const uid = Math.random().toString(36).slice(2, 8);
+  const title = h('input', { class: 'input', id: `t-${uid}`, name: 'title', maxlength: 80, required: true, autocomplete: 'off', placeholder: slug === 'suggest' ? '예: 내전 시작 시간을 바꿔 주세요' : '' });
+  const body = h('textarea', { class: 'textarea' + (inline ? ' short' : ''), id: `b-${uid}`, name: 'body', maxlength: 5000, required: true, rows: inline ? 5 : 12 });
+  if (inline) body.style.minHeight = '140px';
+  if (post) { title.value = post.title; body.value = post.body; }
+  const pin = slug === 'notice' && !post && state.me.is_staff ? h('input', { type: 'checkbox', name: 'pinned' }) : null;
+  const err = h('p', { class: 'alert form-err', role: 'alert' });
+  const submit = h('button', { class: 'btn btn-primary', type: 'submit' }, post ? '고친 내용 저장' : (slug === 'suggest' ? '건의 보내기' : (slug === 'notice' ? '공지 올리기' : '올리기')));
+  const form = h('form', { class: 'form', novalidate: true },
+    h('div', { class: 'field' }, h('label', { for: title.id }, '제목'), title, counter(title, 80)),
+    h('div', { class: 'field' }, h('label', { for: body.id }, '내용'), body, counter(body, 5000)),
+    pin ? h('label', { class: 'check' }, pin, '공지 목록 맨 위에 고정') : null,
+    h('p', { class: 'hint' }, '줄바꿈과 링크는 그대로 보여요. 사진은 아직 올릴 수 없어요.'),
+    err,
+    h('div', { class: 'actions' }, submit, inline ? null : h('a', { class: 'btn btn-ghost', href: post ? `#/p/${post.id}` : `#/b/${slug}` }, '취소')));
+  form.addEventListener('submit', async (ev) => {
+    ev.preventDefault();
+    err.textContent = '';
+    const t = title.value.trim(), bd = body.value.trim();
+    if (!t) { err.textContent = ERR.title_required; title.focus(); return; }
+    if (!bd) { err.textContent = ERR.body_required; body.focus(); return; }
+    submit.disabled = true;
+    try {
+      if (post) {
+        await api(`/api/posts/${post.id}`, { method: 'PATCH', body: { title: t, body: bd } });
+        toast('고친 내용을 저장했어요.');
+        go(`#/p/${post.id}`);
+      } else {
+        const r = await api(`/api/boards/${slug}/posts`, { method: 'POST', body: { title: t, body: bd, pinned: pin ? pin.checked : undefined } });
+        if (r.audience) toast(`공지를 올렸어요. 클럽 멤버 ${r.audience.count}명을 기준으로 셉니다.`);
+        else toast(slug === 'suggest' ? '건의를 보냈어요. 운영진이 확인할게요.' : '글을 올렸어요.');
+        if (inline) renderBoard(slug, ++state.seq); else go(`#/p/${r.id}`);
+      }
+    } catch (e) {
+      if (e.handled) return;
+      err.textContent = errText(e);
+      submit.disabled = false;
+    }
+  });
+  return form;
+}
+function renderWrite(slug, _unused, seq) {
+  const b = BOARD[slug];
+  const me = state.me;
+  setTitle(`${b.name} 쓰기`);
+  if (slug === 'notice' && !me.is_staff) {
+    return show([tabs(slug), h('h1', { class: 'h1', tabindex: '-1', style: 'margin-bottom:16px' }, '공지 쓰기'), h('p', { class: 'alert', role: 'alert' }, '공지는 운영진만 쓸 수 있어요.')]);
+  }
+  show([tabs(slug),
+    h('a', { class: 'back', href: `#/b/${slug}` }, icon('back'), `${b.name} 목록`),
+    h('section', { class: 'panel hud', 'aria-labelledby': 'w-h' },
+      h('p', { class: 'idx' }, b.lat),
+      h('h1', { class: 'h1', id: 'w-h', tabindex: '-1', style: 'margin-bottom:20px' }, slug === 'notice' ? '공지 쓰기' : slug === 'suggest' ? '건의하기' : '글쓰기'),
+      slug === 'suggest' ? h('p', { class: 'info' }, '건의는 나와 운영진만 볼 수 있어요.') : null,
+      postForm({ slug, seq }))]);
+}
+async function renderEdit(id, seq) {
+  setTitle('글 고치기');
+  show(loadingEl());
+  let d;
+  try { d = await api(`/api/posts/${id}`); } catch (e) {
+    if (e.handled || stale(seq)) return;
+    return show([h('h1', { class: 'h1', tabindex: '-1', style: 'margin-bottom:16px' }, '글 고치기'), errorBox(e)]);
+  }
+  if (stale(seq)) return;
+  const p = d.post;
+  if (!d.can.edit) return show([tabs(p.board.slug), h('h1', { class: 'h1', tabindex: '-1', style: 'margin-bottom:16px' }, '글 고치기'), h('p', { class: 'alert', role: 'alert' }, '내가 쓴 글만 고칠 수 있어요.')]);
+  show([tabs(p.board.slug),
+    h('a', { class: 'back', href: `#/p/${p.id}` }, icon('back'), '글로 돌아가기'),
+    h('section', { class: 'panel hud', 'aria-labelledby': 'e-h' },
+      h('h1', { class: 'h1', id: 'e-h', tabindex: '-1', style: 'margin-bottom:20px' }, '글 고치기'),
+      postForm({ slug: p.board.slug, post: p, seq }))]);
+}
+
+/* ---------- 글 보기 ---------- */
+async function renderPost(id, seq, opts) {
+  setTitle('글');
+  if (!opts) show(loadingEl());
+  let d;
+  try { d = await api(`/api/posts/${id}`); } catch (e) {
+    if (e.handled || stale(seq)) return;
+    return show([h('h1', { class: 'h1', tabindex: '-1', style: 'margin-bottom:16px' }, '글을 열 수 없어요'), errorBox(e, e.code === 'not_found' ? null : () => renderPost(id, ++state.seq)), h('a', { class: 'btn btn-ghost', href: '#/' }, '공지사항으로')]);
+  }
+  if (stale(seq)) return;
+  const p = d.post, slug = p.board.slug, me = state.me;
+  setTitle(p.title);
+  const reload = () => renderPost(id, ++state.seq, { keep: true });
+
+  const badges = [];
+  if (p.pinned) badges.push(badge('고정', 'pin'));
+  if (p.status === 'hidden') badges.push(badge('숨김', 'hidden'));
+  const edited = p.updated_at - p.created_at > 60000;
+
+  const article = h('article', { class: 'panel hud', 'aria-labelledby': 'p-h' },
+    badges.length ? h('div', { class: 'post-badges' }, badges) : null,
+    h('h1', { class: 'h1 post-title', id: 'p-h', tabindex: '-1' }, p.title),
+    h('p', { class: 'post-meta' }, authorName(p.author), h('span', { 'aria-hidden': 'true' }, '·'), timeEl(p.created_at),
+      edited ? [h('span', { 'aria-hidden': 'true' }, '·'), h('span', null, '수정 ', timeEl(p.updated_at))] : null),
+    h('div', { class: 'post-body' }, linkify(p.body)));
+
+  if (p.board.receipts && d.read) {
+    const box = h('div');
+    const paint = (read) => {
+      box.replaceChildren(read.acked_at
+        ? h('div', { class: 'ack done' }, icon('check'), h('span', null, '확인했어요 · ', timeEl(read.acked_at)))
+        : h('div', { class: 'ack' },
+          h('p', null, '공지를 다 읽었으면 눌러 주세요.'),
+          h('button', {
+            class: 'btn btn-sky', type: 'button', onclick: async (ev) => {
+              const btn = ev.currentTarget;
+              btn.disabled = true;
+              try { const r = await api(`/api/posts/${p.id}/ack`, { method: 'POST' }); paint(r); toast('확인했어요.'); }
+              catch (e) { if (!e.handled) { toast(errText(e)); btn.disabled = false; } }
+            },
+          }, '확인했어요')));
+    };
+    paint(d.read);
+    article.append(box);
+  }
+  if (d.can.receipts) {
+    article.append(h('div', { class: 'staff-tools' },
+      h('span', { class: 'lbl', 'aria-hidden': 'true' }, 'STAFF'),
+      h('a', { class: 'btn btn-ghost', href: `#/receipts/${p.id}` }, '읽음 현황'),
+      h('button', {
+        class: 'btn btn-ghost', type: 'button', onclick: async () => {
+          const link = `${location.origin}${location.pathname}#/p/${p.id}`;
+          const ok = await copyText(`[NV 공지] ${p.title}\n${link}`);
+          toast(ok ? '복사했어요. 카톡 대화방에 붙여 넣으세요.' : '복사하지 못했어요. 주소창의 링크를 직접 복사해 주세요.');
+        },
+      }, '카톡용 복사')));
+  }
+
+  const manage = [];
+  if (d.can.edit) manage.push(h('a', { class: 'btn-text', href: `#/edit/${p.id}` }, '고치기'));
+  if (d.can.pin) {
+    manage.push(h('button', { class: 'btn-text', type: 'button', onclick: () => act(() => api(`/api/posts/${p.id}`, { method: 'PATCH', body: { pinned: !p.pinned } }), p.pinned ? '고정을 풀었어요.' : '맨 위에 고정했어요.', reload) }, p.pinned ? '고정 풀기' : '맨 위에 고정'));
+  }
+  if (d.can.moderate) {
+    const hide = p.status !== 'hidden';
+    manage.push(h('button', { class: 'btn-text', type: 'button', onclick: () => act(() => api(`/api/posts/${p.id}`, { method: 'PATCH', body: { status: hide ? 'hidden' : 'visible' } }), hide ? '글을 숨겼어요. 운영진과 쓴 사람만 볼 수 있어요.' : '글을 다시 보이게 했어요.', reload) }, hide ? '숨기기' : '다시 보이기'));
+  }
+  if (d.can.delete) {
+    manage.push(h('button', {
+      class: 'btn-text danger', type: 'button', onclick: () => {
+        if (!confirm('이 글을 지울까요? 댓글도 함께 지워지고 되돌릴 수 없어요.')) return;
+        act(() => api(`/api/posts/${p.id}`, { method: 'DELETE' }), '글을 지웠어요.', () => go(`#/b/${slug}`));
+      },
+    }, '지우기'));
+  }
+  if (manage.length) article.append(h('div', { class: 'manage' }, manage));
+
+  show([tabs(slug), h('a', { class: 'back', href: `#/b/${slug}` }, icon('back'), `${p.board.name} 목록`), article, commentsSection(d, reload)], { keepScroll: opts && opts.keep });
+}
+async function act(fn, okMsg, after) {
+  try { await fn(); toast(okMsg); if (after) after(); }
+  catch (e) { if (!e.handled) toast(errText(e)); }
+}
+function commentsSection(d, reload) {
+  const p = d.post, slug = p.board.slug, me = state.me;
+  const cs = d.comments;
+  const label = slug === 'suggest' ? '답변과 댓글' : '댓글';
+  const list = h('ul', { class: 'c-list' });
+  for (const c of cs) {
+    const tools = [];
+    if (me.is_staff) {
+      const hide = c.status !== 'hidden';
+      tools.push(h('button', { class: 'btn-text', type: 'button', onclick: () => act(() => api(`/api/comments/${c.id}`, { method: 'PATCH', body: { status: hide ? 'hidden' : 'visible' } }), hide ? '댓글을 숨겼어요.' : '댓글을 다시 보이게 했어요.', reload) }, hide ? '숨기기' : '다시 보이기'));
+    }
+    if (c.can_delete) {
+      tools.push(h('button', {
+        class: 'btn-text danger', type: 'button', onclick: () => {
+          if (!confirm('이 댓글을 지울까요?')) return;
+          act(() => api(`/api/comments/${c.id}`, { method: 'DELETE' }), '댓글을 지웠어요.', reload);
+        },
+      }, '지우기'));
+    }
+    list.append(h('li', { class: 'c-item' + (slug === 'suggest' && c.author.is_staff ? ' staff-reply' : '') },
+      h('div', { class: 'c-head' }, authorName(c.author), timeEl(c.created_at, true), c.status === 'hidden' ? badge('숨김', 'hidden') : null),
+      h('p', { class: 'c-body' }, linkify(c.body)),
+      tools.length ? h('div', { class: 'c-tools' }, tools) : null));
+  }
+  if (!cs.length) list.append(h('li', { class: 'empty', style: 'padding:20px 0' }, slug === 'suggest' ? '아직 답변이 없어요.' : '아직 댓글이 없어요.'));
+
+  const ta = h('textarea', { class: 'textarea short', id: 'c-body', maxlength: 1000, rows: 3,
+    placeholder: slug === 'suggest' ? (me.is_staff ? '답변을 써 주세요. 쓴 사람과 운영진만 봐요.' : '덧붙일 말을 써 주세요.') : '댓글을 써 주세요.' });
+  const send = h('button', { class: 'btn btn-primary', type: 'submit' }, slug === 'suggest' && me.is_staff ? '답변 달기' : '댓글 달기');
+  const err = h('p', { class: 'alert form-err', role: 'alert' });
+  const form = h('form', { class: 'c-form', novalidate: true },
+    h('label', { class: 'sr-only', for: 'c-body' }, `${label} 쓰기`), ta, err,
+    h('div', { class: 'row2' }, counter(ta, 1000), send));
+  form.addEventListener('submit', async (ev) => {
+    ev.preventDefault();
+    err.textContent = '';
+    const v = ta.value.trim();
+    if (!v) { err.textContent = ERR.comment_required; ta.focus(); return; }
+    send.disabled = true;
+    try { await api(`/api/posts/${p.id}/comments`, { method: 'POST', body: { body: v } }); toast('댓글을 달았어요.'); reload(); }
+    catch (e) { if (e.handled) return; err.textContent = errText(e); send.disabled = false; }
+  });
+  return h('section', { class: 'comments', 'aria-labelledby': 'c-h' },
+    h('h2', { class: 'h2', id: 'c-h' }, `${label} ${cs.length}`), list, form);
+}
+
+/* ---------- 읽음 현황(운영진) ---------- */
+async function renderReceipts(id, seq) {
+  setTitle('읽음 현황');
+  show(loadingEl());
+  let d;
+  try { d = await api(`/api/posts/${id}/receipts`); } catch (e) {
+    if (e.handled || stale(seq)) return;
+    return show([h('a', { class: 'back', href: `#/p/${id}` }, icon('back'), '공지로 돌아가기'),
+      h('h1', { class: 'h1', tabindex: '-1', style: 'margin-bottom:16px' }, '읽음 현황'),
+      h('p', { class: 'alert', role: 'alert' }, e.code === 'forbidden' ? '읽음 현황은 운영진만 볼 수 있어요.' : errText(e))]);
+  }
+  if (stale(seq)) return;
+  const n = d.counts.total;
+  const pct = (x) => (n ? Math.round((x / n) * 100) : 0);
+  const MEASURES = [
+    { key: 'opened_at', id: 'opened', label: '열람', count: d.counts.opened, todo: '아직 안 열어 봤어요', doneL: '열어 봤어요', cls: '' },
+    { key: 'acked_at', id: 'acked', label: '확인', count: d.counts.acked, todo: '아직 확인 안 했어요', doneL: '확인했어요', cls: 'sky' },
+  ];
+  let current = 'opened';
+  const panel = h('div', { role: 'tabpanel', id: 'rc-panel', tabindex: '0' });
+  const tabBtns = MEASURES.map((m) => h('button', {
+    class: `rc-tab ${m.cls}`, type: 'button', role: 'tab', id: `rc-${m.id}`, 'aria-controls': 'rc-panel',
+    onclick: () => select(m.id),
+  },
+  h('span', { class: 't' }, m.label),
+  h('span', { class: 'n' }, `${m.count}`, h('small', null, ` / ${n}명`)),
+  h('span', { class: 'meter', 'aria-hidden': 'true' }, h('i', { style: `width:${pct(m.count)}%` }))));
+  const tablist = h('div', { class: 'rc-tabs', role: 'tablist', 'aria-label': '열람과 확인' }, tabBtns);
+  tablist.addEventListener('keydown', (ev) => {
+    if (ev.key !== 'ArrowLeft' && ev.key !== 'ArrowRight') return;
+    ev.preventDefault();
+    select(current === 'opened' ? 'acked' : 'opened');
+    $(`rc-${current}`).focus();
+  });
+  function personRow(a, key) {
+    return h('li', null,
+      h('span', { class: 'nm' }, h('span', null, a.name), a.is_author ? badge('작성자', 'left') : null, a.left ? badge('나감', 'left') : null),
+      a[key] ? timeEl(a[key]) : null);
+  }
+  function select(which) {
+    current = which;
+    const m = MEASURES.find((x) => x.id === which);
+    tabBtns.forEach((b) => { const on = b.id === `rc-${which}`; b.setAttribute('aria-selected', on ? 'true' : 'false'); b.tabIndex = on ? 0 : -1; });
+    panel.setAttribute('aria-labelledby', `rc-${which}`);
+    const todo = d.audience.filter((a) => !a[m.key]).sort((x, y) => x.name.localeCompare(y.name, 'ko'));
+    const done = d.audience.filter((a) => a[m.key]).sort((x, y) => x[m.key] - y[m.key]);
+    panel.replaceChildren(
+      h('h2', { class: 'rc-sub' }, `${m.todo}`, h('small', null, `${todo.length}명`)),
+      h('ul', { class: 'people todo' }, todo.length ? todo.map((a) => personRow(a, m.key)) : h('li', { class: 'none' }, '모두 했어요.')),
+      h('h2', { class: 'rc-sub' }, `${m.doneL}`, h('small', null, `${done.length}명 · 빠른 순`)),
+      h('ul', { class: 'people' }, done.length ? done.map((a) => personRow(a, m.key)) : h('li', { class: 'none' }, '아직 없어요.')));
+  }
+  select('opened');
+  show([tabs('notice'),
+    h('a', { class: 'back', href: `#/p/${id}` }, icon('back'), '공지로 돌아가기'),
+    h('p', { class: 'idx' }, 'RECEIPTS'),
+    h('h1', { class: 'h1', tabindex: '-1' }, '읽음 현황'),
+    h('p', { class: 'desc', style: 'color:var(--ink-mid);font-weight:600' }, d.post.title),
+    h('p', { class: 'desc' }, `공지를 올린 ${fmtFull(d.post.created_at)} 기준 클럽 멤버 ${n}명이에요. 그 뒤에 들어온 멤버는 세지 않아요. 열람은 글을 처음 연 때, 확인은 ‘확인했어요’를 누른 때예요. 시각은 한국 시간이에요.`),
+    tablist, panel]);
+}
+
+/* ---------- 개인정보 안내 ---------- */
+function renderPrivacy() {
+  setTitle('개인정보 안내');
+  show([
+    state.me ? h('a', { class: 'back', href: '#/' }, icon('back'), '클럽 공간으로') : h('a', { class: 'back', href: '#/' }, icon('back'), '로그인 화면으로'),
+    h('article', { class: 'doc', 'aria-labelledby': 'pv-h' },
+      h('p', { class: 'idx' }, 'PRIVACY'),
+      h('h1', { class: 'h1', id: 'pv-h', tabindex: '-1' }, '개인정보 안내'),
+      h('p', { class: 'desc' }, 'NV 클럽 공간이 어떤 정보를 어디에 두고, 언제 지우는지 적었어요.'),
+      h('h2', null, '저장하는 정보'),
+      h('ul', null,
+        h('li', null, '디스코드 아이디(숫자), 서버 별명 또는 디스코드 이름, 프로필 사진 정보, 서버 역할'),
+        h('li', null, '내가 쓴 글과 댓글'),
+        h('li', null, '공지를 처음 연 시각, ‘확인했어요’를 누른 시각'),
+        h('li', null, '로그인 상태를 지키는 값. 브라우저에 두고, 서버에는 알아볼 수 없게 바꾼 값만 둬요.')),
+      h('p', null, h('strong', null, '이메일, IP 주소, 디스코드 로그인 토큰은 저장하지 않아요.'), ' 디스코드 토큰은 로그인 확인에만 쓰고 바로 없앱니다.'),
+      h('h2', null, '운영진이 볼 수 있는 것'),
+      h('ul', null,
+        h('li', null, '공지마다 누가 열어 봤는지, 누가 확인했는지, 그 시각까지 볼 수 있어요.'),
+        h('li', null, '건의사항은 쓴 사람과 운영진만 볼 수 있어요.')),
+      h('h2', null, '처리하는 곳'),
+      h('ul', null,
+        h('li', null, h('strong', null, 'Discord'), ': 로그인, 서버 멤버와 역할 확인'),
+        h('li', null, h('strong', null, 'Cloudflare'), ': 서버와 데이터베이스(글, 댓글, 열람 기록)'),
+        h('li', null, h('strong', null, 'GitHub Pages'), ': 이 화면')),
+      h('h2', null, '지우는 때'),
+      h('ul', null,
+        h('li', null, 'NV 디스코드 서버를 나가거나 클럽 역할이 빠지면 바로 로그인이 풀려요.'),
+        h('li', null, '그로부터 30일이 지나면 저장한 정보를 지워요. 쓴 글과 댓글도 함께 지워요. 공지사항은 남기고 쓴 사람 이름만 지워요.'),
+        h('li', null, '30일 전이라도 운영진에게 말하면 바로 지워요.')),
+      h('h2', null, '요청하는 방법'),
+      h('p', null, 'NV 디스코드 서버에서 운영진 역할이 있는 사람에게 DM을 보내 주세요. "클럽 공간 정보 지워 주세요"라고만 써도 돼요. 무엇이 저장됐는지 알고 싶을 때도 같은 방법으로 물어보면 돼요.'),
+      h('p', { class: 'muted', style: 'font-size:13.5px;margin-top:26px' }, '2026년 11월부터 적용'))]);
+}
+function renderNotFound() {
+  setTitle('없는 페이지');
+  show([h('h1', { class: 'h1', tabindex: '-1' }, '없는 페이지예요'), h('p', { class: 'desc' }, '주소를 다시 확인해 주세요.'), h('p', null, h('a', { class: 'btn btn-ghost', href: '#/' }, '공지사항으로'))]);
+}
+
+/* ---------- 시작 ---------- */
+$('logoutBtn').addEventListener('click', async () => {
+  try { await api('/api/session', { method: 'DELETE', noAuthRedirect: true }); } catch (e) {}
+  clearToken();
+  state.me = null;
+  state.loginError = null;
+  renderWho();
+  history.replaceState(null, '', location.pathname + location.search + '#/');
+  route();
+  toast('로그아웃했어요.');
+});
+
+/* 디스코드 로그인 뒤 돌아온 #ticket=… / #error=… 를 읽고 주소에서 바로 지운다 */
+async function consumeAuthFragment() {
+  const raw = location.hash.slice(1);
+  if (/^(ticket|error)=/.test(raw)) {
+    const p = new URLSearchParams(raw);
+    history.replaceState(null, '', location.pathname + location.search);
+    if (p.get('error')) {
+      state.loginError = p.get('error');
+    } else {
+      show(loadingEl('로그인하는 중이에요.'));
+      try {
+        const r = await api('/api/session', { method: 'POST', body: { ticket: p.get('ticket') || '' }, noAuthRedirect: true });
+        saveToken(r.token);
+        state.me = r.me;
+        history.replaceState(null, '', location.pathname + location.search + (r.next || '#/'));
+      } catch (e) {
+        state.loginError = e.code === 'not_member' ? 'not_member' : e.code === 'ticket' ? 'ticket' : 'server';
+      }
+    }
+  }
+}
+
+async function boot() {
+  await consumeAuthFragment();
+  if (!state.token) state.token = loadToken();
+  if (state.token && !state.me) {
+    show(loadingEl());
+    try {
+      state.me = (await api('/api/me', { noAuthRedirect: true })).me;
+    } catch (e) {
+      if (e.status === 401) { clearToken(); state.loginError = 'session'; }
+      else { renderWho(); return show([h('h1', { class: 'h1', tabindex: '-1', style: 'margin-bottom:16px' }, '클럽 공간'), errorBox(e, () => location.reload())]); }
+    }
+  }
+  renderWho();
+  window.addEventListener('hashchange', async () => {
+    state.navigated = true;
+    if (/^#(ticket|error)=/.test(location.hash)) { await consumeAuthFragment(); renderWho(); }
+    route();
+  });
+  route();
+}
+boot();
+</script>
+</body>
+</html>

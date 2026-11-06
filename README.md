@@ -16,6 +16,7 @@ FC Online 클럽 NV 홈페이지입니다. 주소: https://nv-fconline.github.io
 | 파일 | 역할 |
 |---|---|
 | `index.html` | 홈페이지 전체(CSS·JS 인라인, three.js 0.160.0은 jsDelivr에서 불러옴) |
+| `club/index.html` | 클럽 공간(클럽원 전용): 디스코드 로그인, 공지사항(열람·확인 집계), 건의사항, 자유게시판. 서버는 `nv-api`(Cloudflare Worker, 별도 폴더) |
 | `assets/nv-brand.js` | 투명 마크·워드마크 그림(data URI)과 입자 좌표(마크 6000점·워드마크 3000점) |
 | `assets/nv-mark.png`, `assets/nv-wordmark.png` | 투명 배경 마크와 "NAME VALUE" 글자 |
 | `assets/teams/*.webp` | 내전 리그 9팀 로고 |
