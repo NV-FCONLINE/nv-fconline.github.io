@@ -174,19 +174,23 @@
   @media (prefers-reduced-motion: reduce) { .loading::before { animation: none; } * { transition: none !important; } }
 
   /* ---------- 탭 ---------- */
+  /* 칸은 똑같이 나누되 글자보다 좁아지지 않게. 탭이 많아 넘치면 탭 줄만 옆으로 밀린다 */
   .tabs {
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(84px, 1fr));
-    margin: 0 0 26px; border-bottom: 1px solid var(--rule);
+    display: grid; grid-auto-flow: column; grid-auto-columns: minmax(max-content, 1fr);
+    margin: 0 0 26px; box-shadow: inset 0 -1px 0 var(--rule);
+    overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none;
   }
+  .tabs::-webkit-scrollbar { display: none; }
   .tabs a {
     position: relative; display: flex; align-items: center; justify-content: center;
-    min-height: 50px; padding: 0 6px; text-decoration: none; text-align: center;
+    min-height: 50px; padding: 0 6px; text-decoration: none; text-align: center; white-space: nowrap;
     font-size: 15.5px; font-weight: 600; color: var(--ink-dim);
   }
+  .tabs a:focus-visible { outline-offset: -3px; }
   .tabs a:hover { color: var(--ink-hi); }
   .tabs a[aria-current="page"] { color: var(--ink-hi); }
   .tabs a[aria-current="page"]::after {
-    content: ''; position: absolute; left: 12%; right: 12%; bottom: -1px; height: 2px;
+    content: ''; position: absolute; left: 12%; right: 12%; bottom: 0; height: 2px;
     background: linear-gradient(90deg, var(--red-top), var(--red-bot));
   }
 
@@ -436,14 +440,136 @@
     .brand-sub { display: none; }
     .who-name { max-width: 34vw; font-size: 14px; }
     .tabs { margin-bottom: 20px; }
-    .tabs a { font-size: 15px; padding: 0 2px; }
+    .tabs a { font-size: 15px; padding: 0 4px; }
     .head .btn { width: 100%; }
     .post-body { font-size: 16px; }
     .rc-tab { min-height: 70px; padding: 10px 12px; }
   }
+
+  /* ---------- 전적 ---------- */
+  .tb-defs { position: absolute; width: 0; height: 0; overflow: hidden; }
+  .tb { display: block; overflow: visible; }
+  /* 전적은 불러온 뒤 길어진다. 처음부터 바닥줄을 화면 밖에 두어 불러올 때 화면이 밀리지 않게 */
+  body.tall main { min-height: calc(100vh - 61px); min-height: calc(100svh - 61px - env(safe-area-inset-top, 0px)); }
+  .st-meta {
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px;
+    margin: 16px 0 24px; padding: 12px 0 0; border-top: 1px solid var(--rule);
+  }
+  .st-meta p { margin: 0; font-size: 13.5px; color: var(--ink-dim); font-variant-numeric: tabular-nums; }
+  .st-meta p b { font-weight: 600; color: var(--ink-mid); }
+  .st-sec { margin-top: 38px; }
+  .st-sec > .h2 { font-size: 18px; margin-bottom: 6px; }
+  .st-sec > .hint { margin: 0 0 14px; }
+  .st-h3 { margin: 26px 0 10px; font-size: 15.5px; font-weight: 700; color: var(--ink-hi); }
+
+  .st-me .h2 { margin-bottom: 14px; }
+  .st-id { display: flex; align-items: center; gap: 16px; min-width: 0; }
+  .st-id .tb { width: 64px; height: 64px; flex: none; filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.55)); }
+  .st-nick { margin: 0; font-size: 21px; font-weight: 700; line-height: 1.35; color: var(--ink-hi); overflow-wrap: anywhere; }
+  .st-line { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 12px; margin: 2px 0 0; font-size: 14.5px; color: var(--ink-mid); font-variant-numeric: tabular-nums; }
+  .lv { color: var(--ink-dim); font-size: 0.93em; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .st-src { margin: 6px 0 0; font-size: 13px; line-height: 1.6; color: var(--ink-dim); }
+  .st-state { margin: 0; font-size: 15px; line-height: 1.7; color: var(--ink); }
+  .st-me .actions { margin-top: 16px; }
+  .st-form { display: grid; gap: 10px; margin-top: 16px; }
+  .st-form .actions { margin-top: 0; }
+  .st-form .alert, .tl-edit .alert { margin: 0; }
+  .st-form .hint, .tl-edit .hint { margin-top: -2px; }
+
+  .tn { font-weight: 600; }
+  .tn-800 { color: #e6cf8f; }
+  .tn-900 { color: #d7a2f2; }
+  .tn-1000 { color: #6fe0d9; }
+  .tn-1100 { color: #c4cfdc; }
+  .b-div { color: var(--ink-hi); border-color: rgba(216, 216, 214, 0.32); background: rgba(216, 216, 214, 0.06); }
+  .b-state { color: var(--ink-dim); border-style: dashed; border-color: rgba(216, 216, 214, 0.22); font-weight: 500; }
+
+  .tl { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--rule); }
+  .tl-row {
+    display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; align-items: center; column-gap: 12px;
+    min-height: 66px; padding: 9px 4px; border-bottom: 1px solid var(--rule);
+  }
+  .tl-row.is-me { background: linear-gradient(90deg, rgba(160, 7, 30, 0.14), rgba(160, 7, 30, 0) 70%); }
+  .tl-art { width: 44px; height: 44px; }
+  .tl-art .tb { width: 48px; height: 48px; margin: -2px; filter: drop-shadow(0 4px 9px rgba(0, 0, 0, 0.6)); }
+  .tl-id { min-width: 0; }
+  .tl-name { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 6px; font-size: 15.5px; font-weight: 600; line-height: 1.45; color: var(--ink-hi); }
+  .tl-name > span:first-child { overflow-wrap: anywhere; min-width: 0; }
+  .tl-sub { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 10px; margin-top: 2px; font-size: 13.5px; line-height: 1.5; color: var(--ink-mid); font-variant-numeric: tabular-nums; }
+  .tl-sub .nk { overflow-wrap: anywhere; min-width: 0; }
+  .tl-act { grid-column: 3; grid-row: 1; margin-right: -10px; }
+  .tl-edit { grid-column: 1 / -1; display: grid; gap: 10px; margin-top: 10px; padding: 14px; border: 1px solid rgba(230, 74, 88, 0.42); background: rgba(160, 7, 30, 0.08); }
+
+  .st-scroll {
+    overflow-x: auto; overscroll-behavior-x: contain; border: 1px solid var(--rule); background: #0b0708;
+  }
+  .st-scroll:focus-visible { outline-offset: 2px; }
+  .st-table { width: 100%; border-collapse: collapse; font-size: 14.5px; font-variant-numeric: tabular-nums; }
+  .st-table caption { text-align: left; }
+  .st-table th, .st-table td { padding: 10px 9px; text-align: right; white-space: nowrap; border-bottom: 1px solid var(--rule); }
+  .st-table tbody tr:last-child > * { border-bottom: 0; }
+  .st-table thead th { padding-block: 9px; font-size: 12.5px; font-weight: 600; color: var(--ink-dim); }
+  .st-table td { color: var(--ink); }
+  .st-table .c-rank { width: 44px; min-width: 44px; text-align: center; position: sticky; left: 0; z-index: 1; background: #0b0708; }
+  .st-table .c-name { text-align: left; position: sticky; left: 44px; z-index: 1; background: #0b0708; min-width: 112px; max-width: 220px; white-space: normal; box-shadow: 1px 0 0 var(--rule); }
+  .st-table td.c-rank { font-weight: 600; color: var(--ink-mid); }
+  .st-table tbody tr:first-child td.c-rank { color: var(--red-soft); }
+  .st-table tbody .c-name { font-weight: 400; }
+  .st-table tbody .c-name b { display: block; font-weight: 600; color: var(--ink-hi); overflow-wrap: anywhere; line-height: 1.4; }
+  .st-table tbody .c-name small { display: block; font-size: 12.5px; color: var(--ink-dim); overflow-wrap: anywhere; line-height: 1.4; }
+  .st-note { margin: 8px 0 0; font-size: 13px; color: var(--ink-dim); }
+
+  .mt-list { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--rule); }
+  .mt { border-bottom: 1px solid var(--rule); }
+  .mt > summary { display: grid; gap: 6px; padding: 12px 4px 14px; cursor: pointer; list-style: none; border-radius: 2px; }
+  .mt > summary::-webkit-details-marker { display: none; }
+  .mt > summary:hover { background: rgba(230, 74, 88, 0.05); }
+  .mt > summary:focus-visible { outline-offset: -2px; }
+  .mt-meta { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 13px; color: var(--ink-dim); }
+  .mt-more { display: inline-flex; align-items: center; gap: 4px; flex: none; color: var(--ink-mid); }
+  .mt-more svg { width: 16px; height: 16px; transition: transform 0.2s ease; }
+  .mt[open] .mt-more svg { transform: rotate(180deg); }
+  .mt-score { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 12px; }
+  .mt-side { min-width: 0; }
+  .mt-side.a { text-align: right; }
+  .mt-nick { display: block; font-size: 15.5px; font-weight: 500; line-height: 1.4; color: var(--ink-mid); overflow-wrap: anywhere; }
+  .mt-who { display: block; margin-top: 1px; font-size: 12.5px; line-height: 1.4; color: var(--ink-dim); overflow-wrap: anywhere; }
+  .mt-side.win .mt-nick { font-weight: 700; color: var(--ink-hi); }
+  .mt-goals { font-size: 22px; font-weight: 700; line-height: 1; white-space: nowrap; color: var(--ink-mid); font-variant-numeric: tabular-nums; }
+  .mt-goals .w { color: var(--ink-hi); }
+  .mt-goals .l { color: var(--ink-dim); }
+  .mt-goals .sep { padding: 0 6px; color: var(--ink-dim); }
+  .mt-detail { padding: 0 4px 16px; }
+  .mt-stats { width: 100%; border-collapse: collapse; font-size: 14px; font-variant-numeric: tabular-nums; table-layout: fixed; }
+  .mt-stats th, .mt-stats td { padding: 7px 4px; border-top: 1px solid rgba(216, 216, 214, 0.07); }
+  .mt-stats thead th { border-top: 0; font-size: 12.5px; font-weight: 600; color: var(--ink-mid); overflow-wrap: anywhere; }
+  .mt-stats .sa, .mt-stats .sb { text-align: center; }
+  .mt-stats .sl { width: 34%; text-align: center; font-size: 12.5px; font-weight: 500; color: var(--ink-dim); }
+  .mt-stats td { color: var(--ink-mid); }
+  .mt-stats td.hi { color: var(--ink-hi); font-weight: 700; }
+
+  .st-empty { padding: 26px 4px; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
+  .st-empty p { margin: 0; font-size: 15px; color: var(--ink); }
+  .st-empty p + p { margin-top: 4px; font-size: 14px; color: var(--ink-dim); }
+  .st-attr { margin: 48px 0 0; padding-top: 14px; border-top: 1px solid var(--rule); font-size: 12.5px; letter-spacing: 0.02em; color: var(--ink-dim); }
+  @media (max-width: 560px) {
+    .st-meta .btn { width: 100%; }
+    .st-id .tb { width: 56px; height: 56px; }
+    .st-nick { font-size: 19px; }
+    .mt-score { gap: 8px; }
+    .mt-goals { font-size: 20px; }
+    .mt-goals .sep { padding: 0 4px; }
+    .st-table { font-size: 14px; }
+    .st-table th, .st-table td { padding-inline: 5px; }
+    .st-table .c-rank { width: 34px; min-width: 34px; }
+    .st-table .c-name { left: 34px; min-width: 92px; max-width: 120px; padding-left: 4px; }
+  }
+  @media (prefers-reduced-motion: reduce) { .mt-more svg { transition: none; } }
 </style>
 </head>
 <body>
+<!-- 티어 배지 그림: 홈페이지(../index.html)의 tb-defs를 그대로 옮김. 고칠 때는 두 곳을 같이 고친다 -->
+<svg class="tb-defs" width="0" height="0" aria-hidden="true" focusable="false"><defs><linearGradient id="tb-shine" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".5" stop-color="#fff" stop-opacity=".5"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient><radialGradient id="tbk-glow" cx="47.59" cy="47.04" r="68" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#fff3d6" stop-opacity="0.34"/><stop offset="0.6" stop-color="#f0ddb0" stop-opacity="0.13"/><stop offset="0.8" stop-color="#e6cf98" stop-opacity="0.035"/><stop offset="1" stop-color="#e6cf98" stop-opacity="0"/></radialGradient><linearGradient id="tbk-band" x1="0" y1="0" x2=".5" y2="1"><stop offset="0" stop-color="#5a4d52"/><stop offset="0.4" stop-color="#3d3337"/><stop offset="0.75" stop-color="#2d2629"/><stop offset="1" stop-color="#463b40"/></linearGradient><pattern id="tbk-streak" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(-28)"><rect width="1.1" height="8" fill="#fff" fill-opacity="0.12"/><rect x="4.6" width=".6" height="8" fill="#fff" fill-opacity="0.072"/></pattern><linearGradient id="tbk-panel" gradientUnits="userSpaceOnUse" x1="34.63" y1="13.7" x2="88.33" y2="100.74"><stop offset="0" stop-color="#f6f4f0"/><stop offset="0.5" stop-color="#e6e3dd"/><stop offset="0.8" stop-color="#c4c0b9"/><stop offset="1" stop-color="#a29e96"/></linearGradient><pattern id="tbk-pstr" width="6.5" height="6.5" patternUnits="userSpaceOnUse" patternTransform="rotate(-28)"><rect width="2.4" height="6.5" fill="#8f8a82" fill-opacity="0.13"/></pattern><filter id="tbk-glowf" x="-25%" y="-25%" width="150%" height="150%"><feGaussianBlur stdDeviation="2.4"/></filter><filter id="tbk-blur" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="1.6"/></filter><linearGradient id="tbk-dk" gradientUnits="userSpaceOnUse" x1="53.15" y1="16.48" x2="66.11" y2="97.04"><stop offset="0" stop-color="#4e483d"/><stop offset="0.15" stop-color="#46413a"/><stop offset="0.31" stop-color="#36332d"/><stop offset="0.4" stop-color="#2c2a24"/><stop offset="0.49" stop-color="#1c1b19"/><stop offset="0.67" stop-color="#111214"/><stop offset="0.86" stop-color="#121316"/><stop offset="1" stop-color="#141518"/></linearGradient><linearGradient id="tbk-lt" gradientUnits="userSpaceOnUse" x1="53.15" y1="16.48" x2="66.11" y2="97.04"><stop offset="0" stop-color="#b8aa8e"/><stop offset="0.15" stop-color="#a49678"/><stop offset="0.31" stop-color="#8a7d62"/><stop offset="0.4" stop-color="#7b6f55"/><stop offset="0.49" stop-color="#4e493e"/><stop offset="0.67" stop-color="#2a2a2a"/><stop offset="0.86" stop-color="#3a3833"/><stop offset="1" stop-color="#34322e"/></linearGradient><pattern id="tbk-sm-p" width="9.7" height="9.7" patternUnits="userSpaceOnUse" patternTransform="rotate(-28) translate(7.73 0)"><rect width="5.4" height="9.7" fill="#fff"/></pattern><mask id="tbk-sm" maskUnits="userSpaceOnUse" x="-30" y="-30" width="180" height="180"><rect x="-30" y="-30" width="180" height="180" fill="url(#tbk-sm-p)"/></mask><linearGradient id="tbk-body" x1="35.74" y1="0" x2="86.48" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#f8f4d2"/><stop offset="0.198" stop-color="#fffede"/><stop offset="0.397" stop-color="#fefdf6"/><stop offset="0.496" stop-color="#fbf8ee"/><stop offset="0.496" stop-color="#e6d7b6"/><stop offset="0.748" stop-color="#e3d3ae"/><stop offset="0.96" stop-color="#e8dab6"/><stop offset="1" stop-color="#f6efcf"/></linearGradient><linearGradient id="tbk-gap" x1="35.74" y1="0" x2="86.48" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#5c5954"/><stop offset="0.496" stop-color="#69665f"/><stop offset="0.496" stop-color="#2a251b"/><stop offset="1" stop-color="#221d15"/></linearGradient><linearGradient id="tbk-refl" gradientUnits="userSpaceOnUse" x1="-7.96" y1="60" x2="-7.96" y2="69.81"><stop offset="0" stop-color="#f2e2a2" stop-opacity="0"/><stop offset="0.25" stop-color="#f2e2a2" stop-opacity="0.55"/><stop offset="1" stop-color="#ead39a" stop-opacity="0.85"/></linearGradient><linearGradient id="tbk-bar" x1="0" y1="72.41" x2="0" y2="77.04" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#a5966a"/><stop offset="0.3" stop-color="#d9cca0"/><stop offset="0.5" stop-color="#b49b5c"/><stop offset="0.8" stop-color="#8f7c42"/><stop offset="1" stop-color="#5d5232"/></linearGradient><radialGradient id="tbk-barhl"><stop offset="0" stop-color="#fffffd" stop-opacity="1"/><stop offset="0.55" stop-color="#fff8de" stop-opacity="0.75"/><stop offset="1" stop-color="#fff3cc" stop-opacity="0"/></radialGradient><radialGradient id="tbs-glow" cx="45.74" cy="41.48" r="70" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#e04cff" stop-opacity="0.46"/><stop offset="0.55" stop-color="#c43ce6" stop-opacity="0.2"/><stop offset="0.8" stop-color="#a92fd0" stop-opacity="0.06"/><stop offset="1" stop-color="#a92fd0" stop-opacity="0"/></radialGradient><linearGradient id="tbs-band" x1="0" y1="0" x2=".5" y2="1"><stop offset="0" stop-color="#a1309f"/><stop offset="0.35" stop-color="#7a1d7e"/><stop offset="0.7" stop-color="#5c1566"/><stop offset="1" stop-color="#8a3aa6"/></linearGradient><pattern id="tbs-streak" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(-28)"><rect width="1.1" height="8" fill="#fff" fill-opacity="0.1"/><rect x="4.6" width=".6" height="8" fill="#fff" fill-opacity="0.060"/></pattern><linearGradient id="tbs-panel" gradientUnits="userSpaceOnUse" x1="34.63" y1="13.7" x2="88.33" y2="100.74"><stop offset="0" stop-color="#fdf0ee"/><stop offset="0.25" stop-color="#f5c9c7"/><stop offset="0.45" stop-color="#ef8f8a"/><stop offset="1" stop-color="#d9625f"/></linearGradient><pattern id="tbs-pstr" width="6.5" height="6.5" patternUnits="userSpaceOnUse" patternTransform="rotate(-28)"><rect width="2.4" height="6.5" fill="#ffffff" fill-opacity="0.14"/></pattern><filter id="tbs-glowf" x="-25%" y="-25%" width="150%" height="150%"><feGaussianBlur stdDeviation="2.8"/></filter><filter id="tbs-blur" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="1.6"/></filter><radialGradient id="tbs-flare"><stop offset="0" stop-color="#ffe2ff" stop-opacity="0.95"/><stop offset="0.15" stop-color="#ff8cff" stop-opacity="0.8"/><stop offset="0.45" stop-color="#f53cf8" stop-opacity="0.38"/><stop offset="1" stop-color="#e030f0" stop-opacity="0"/></radialGradient><linearGradient id="tbs-dk" gradientUnits="userSpaceOnUse" x1="47.59" y1="18.89" x2="62.41" y2="89.26"><stop offset="0" stop-color="#e214e4"/><stop offset="0.11" stop-color="#d50fd8"/><stop offset="0.33" stop-color="#8a1a9a"/><stop offset="0.54" stop-color="#5c106e"/><stop offset="0.69" stop-color="#3c0c47"/><stop offset="1" stop-color="#3a0b44"/></linearGradient><linearGradient id="tbs-lt" gradientUnits="userSpaceOnUse" x1="47.59" y1="18.89" x2="62.41" y2="89.26"><stop offset="0" stop-color="#ee9cf3"/><stop offset="0.11" stop-color="#e68bee"/><stop offset="0.33" stop-color="#a656ba"/><stop offset="0.54" stop-color="#8e48ae"/><stop offset="0.69" stop-color="#6c2f98"/><stop offset="1" stop-color="#682ea2"/></linearGradient><pattern id="tbs-sm-p" width="9.8" height="9.8" patternUnits="userSpaceOnUse" patternTransform="rotate(-28) translate(8.79 0)"><rect width="4.3" height="9.8" fill="#fff"/></pattern><mask id="tbs-sm" maskUnits="userSpaceOnUse" x="-30" y="-30" width="180" height="180"><rect x="-30" y="-30" width="180" height="180" fill="url(#tbs-sm-p)"/></mask><radialGradient id="tbs-lit" gradientUnits="userSpaceOnUse" cx="38.33" cy="27.22" r="24.07"><stop offset="0" stop-color="#ff3cf6" stop-opacity="0.55"/><stop offset="0.5" stop-color="#f02cf0" stop-opacity="0.22"/><stop offset="1" stop-color="#f02cf0" stop-opacity="0"/></radialGradient><linearGradient id="tbs-rim" gradientUnits="userSpaceOnUse" x1="38.33" y1="28.15" x2="82.78" y2="80"><stop offset="0" stop-color="#c62ccb"/><stop offset="0.35" stop-color="#9c1eaa"/><stop offset="0.62" stop-color="#651676"/><stop offset="1" stop-color="#4a0e5a"/></linearGradient><linearGradient id="tbs-edge" gradientUnits="userSpaceOnUse" x1="38.33" y1="30" x2="80.93" y2="80"><stop offset="0" stop-color="#ffffff"/><stop offset="0.5" stop-color="#f1ebf5"/><stop offset="1" stop-color="#b3a8c2"/></linearGradient><linearGradient id="tbs-lo" gradientUnits="userSpaceOnUse" x1="60.93" y1="48.52" x2="79.07" y2="78.15"><stop offset="0" stop-color="#dcd6ea"/><stop offset="0.6" stop-color="#d6cbdf"/><stop offset="1" stop-color="#dfc6dc"/></linearGradient><linearGradient id="tbs-hi" gradientUnits="userSpaceOnUse" x1="47.59" y1="30" x2="62.41" y2="61.48"><stop offset="0" stop-color="#fbf1f9"/><stop offset="0.5" stop-color="#f1ebf5"/><stop offset="1" stop-color="#ece7f3"/></linearGradient><filter id="tbs-soft" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation=".9"/></filter><clipPath id="tb-clip-champ"><path d="M53.74,17.77Q57.59,15.56 61.62,17.43L89.82,30.51Q93.52,32.22 93.71,36.29L94.99,62.97Q95.19,67.04 92.05,69.63L65.46,91.61Q62.04,94.44 57.95,92.71L30.05,80.85Q26.3,79.26 26.18,75.19L25.12,38.33Q25,34.26 28.53,32.23Z"/></clipPath><clipPath id="tbs-half"><polygon points="25.1,100.95 95.64,3.87 47.1,-31.4 -23.44,65.68"/></clipPath><radialGradient id="tbt-glow" gradientUnits="userSpaceOnUse" cx="59.02" cy="60.39" r="64"><stop offset="0" stop-color="#2ee6cf" stop-opacity="0.3"/><stop offset="0.66" stop-color="#20c8b0" stop-opacity="0.14"/><stop offset="0.84" stop-color="#14a890" stop-opacity="0.04"/><stop offset="1" stop-color="#14a890" stop-opacity="0"/></radialGradient><linearGradient id="tbt-out" gradientUnits="userSpaceOnUse" x1="54.7" y1="9.36" x2="72.37" y2="111.43"><stop offset="0" stop-color="#62fdf8"/><stop offset="0.3" stop-color="#17f5ec"/><stop offset="0.55" stop-color="#14e2d8"/><stop offset="0.8" stop-color="#0ea29a"/><stop offset="1" stop-color="#08746e"/></linearGradient><radialGradient id="tbt-outsh" gradientUnits="userSpaceOnUse" cx="11.91" cy="99.65" r="29.44"><stop offset="0" stop-color="#0d2e2a" stop-opacity="0.95"/><stop offset="0.55" stop-color="#0f3a35" stop-opacity="0.8"/><stop offset="1" stop-color="#0f3a35" stop-opacity="0"/></radialGradient><linearGradient id="tbt-side" gradientUnits="userSpaceOnUse" x1="-10.08" y1="46.65" x2="-10.08" y2="97.69"><stop offset="0" stop-color="#0f8584"/><stop offset="0.5" stop-color="#0b6461"/><stop offset="1" stop-color="#0a4a46"/></linearGradient><linearGradient id="tbt-sand" gradientUnits="userSpaceOnUse" x1="40.96" y1="13.28" x2="99.85" y2="99.65"><stop offset="0" stop-color="#fdefd9"/><stop offset="0.3" stop-color="#e6d8b0"/><stop offset="0.6" stop-color="#b9a974"/><stop offset="0.8" stop-color="#8f8352"/><stop offset="1" stop-color="#6f6438"/></linearGradient><linearGradient id="tbt-dk" gradientUnits="userSpaceOnUse" x1="48.81" y1="27.02" x2="82.18" y2="97.69"><stop offset="0" stop-color="#48f2f6"/><stop offset="0.08" stop-color="#4ee6ea"/><stop offset="0.17" stop-color="#2cd4dc"/><stop offset="0.36" stop-color="#12939a"/><stop offset="0.49" stop-color="#0a7e84"/><stop offset="0.65" stop-color="#06686b"/><stop offset="0.8" stop-color="#045a5a"/><stop offset="1" stop-color="#004e4d"/></linearGradient><linearGradient id="tbt-lt" gradientUnits="userSpaceOnUse" x1="48.81" y1="27.02" x2="82.18" y2="97.69"><stop offset="0" stop-color="#8cfcfc"/><stop offset="0.1" stop-color="#80f8fa"/><stop offset="0.38" stop-color="#20d8d6"/><stop offset="0.48" stop-color="#14ccc8"/><stop offset="0.7" stop-color="#0bb0a6"/><stop offset="0.77" stop-color="#08a89b"/><stop offset="0.86" stop-color="#00988c"/><stop offset="1" stop-color="#008678"/></linearGradient><pattern id="tbt-sm-p" width="11" height="11" patternUnits="userSpaceOnUse" patternTransform="rotate(-27) translate(5.14 0)"><rect width="4.2" height="11" fill="#fff"/></pattern><mask id="tbt-sm" maskUnits="userSpaceOnUse" x="-30" y="-30" width="180" height="180"><rect x="-30" y="-30" width="180" height="180" fill="url(#tbt-sm-p)"/></mask><linearGradient id="tbt-fdk" gradientUnits="userSpaceOnUse" x1="-10.08" y1="27.02" x2="-10.08" y2="99.65"><stop offset="0" stop-color="#4ae8ee"/><stop offset="0.3" stop-color="#26cdd5"/><stop offset="0.6" stop-color="#13aab2"/><stop offset="0.85" stop-color="#0b7a80"/><stop offset="1" stop-color="#086a6e"/></linearGradient><linearGradient id="tbt-flt" gradientUnits="userSpaceOnUse" x1="-10.08" y1="27.02" x2="-10.08" y2="99.65"><stop offset="0" stop-color="#86fafc"/><stop offset="0.3" stop-color="#3ae2e8"/><stop offset="0.6" stop-color="#1ec6c9"/><stop offset="0.85" stop-color="#12a0a4"/><stop offset="1" stop-color="#0e8a8e"/></linearGradient><pattern id="tbt-fm-p" width="7.46" height="7.46" patternUnits="userSpaceOnUse" patternTransform="rotate(-6) translate(1.68 0)"><rect width="4.91" height="7.46" fill="#fff"/></pattern><mask id="tbt-fm" maskUnits="userSpaceOnUse" x="-30" y="-30" width="180" height="180"><rect x="-30" y="-30" width="180" height="180" fill="url(#tbt-fm-p)"/></mask><filter id="tbt-blur" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="1.4"/></filter><filter id="tbt-glowf" x="-25%" y="-25%" width="150%" height="150%"><feGaussianBlur stdDeviation="2.2"/></filter><linearGradient id="tbt-b1" gradientUnits="userSpaceOnUse" x1="40.96" y1="34.87" x2="60.59" y2="60.39"><stop offset="0" stop-color="#fbfffe"/><stop offset="0.65" stop-color="#f2fbf9"/><stop offset="1" stop-color="#dff3ee"/></linearGradient><linearGradient id="tbt-b2" gradientUnits="userSpaceOnUse" x1="48.81" y1="46.65" x2="66.48" y2="70.21"><stop offset="0" stop-color="#f6fdfb"/><stop offset="0.4" stop-color="#c4eee6"/><stop offset="1" stop-color="#6fd4c2"/></linearGradient><linearGradient id="tbt-b3" gradientUnits="userSpaceOnUse" x1="54.7" y1="68.24" x2="72.37" y2="83.95"><stop offset="0" stop-color="#93e8de"/><stop offset="0.3" stop-color="#4cdcbb"/><stop offset="0.7" stop-color="#27e6ae"/><stop offset="1" stop-color="#20eaab"/></linearGradient><clipPath id="tb-clip-superchal"><path d="M32.88,24.62Q36.25,21.92 40.57,21.92L82.18,21.92Q86.89,21.92 88.61,26.3L101.95,60.27Q103.38,63.93 101.81,67.52L90.12,94.19Q88.07,98.87 82.97,98.87L37.82,98.87Q33.5,98.87 30.4,95.86L23.59,89.27Q21.33,87.09 21.3,83.95L20.97,50.58Q20.94,47.44 22.07,44.51L26.84,32.23Q28.4,28.2 31.77,25.5Z"/></clipPath><radialGradient id="tbc-glow" cx="47.59" cy="47.04" r="68" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#dfe7f2" stop-opacity="0.38"/><stop offset="0.6" stop-color="#b9c4d2" stop-opacity="0.16"/><stop offset="0.82" stop-color="#a3afbf" stop-opacity="0.05"/><stop offset="1" stop-color="#a3afbf" stop-opacity="0"/></radialGradient><linearGradient id="tbc-band" x1="0" y1="0" x2=".5" y2="1"><stop offset="0" stop-color="#717a87"/><stop offset="0.4" stop-color="#4a515c"/><stop offset="0.75" stop-color="#353a43"/><stop offset="1" stop-color="#5d6571"/></linearGradient><pattern id="tbc-streak" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(-28)"><rect width="1.1" height="8" fill="#fff" fill-opacity="0.12"/><rect x="4.6" width=".6" height="8" fill="#fff" fill-opacity="0.072"/></pattern><linearGradient id="tbc-panel" gradientUnits="userSpaceOnUse" x1="34.63" y1="13.7" x2="88.33" y2="100.74"><stop offset="0" stop-color="#f3f5f8"/><stop offset="0.55" stop-color="#e2e6ec"/><stop offset="1" stop-color="#bcc3cd"/></linearGradient><pattern id="tbc-pstr" width="6.5" height="6.5" patternUnits="userSpaceOnUse" patternTransform="rotate(-28)"><rect width="2.4" height="6.5" fill="#8f8a82" fill-opacity="0.13"/></pattern><filter id="tbc-glowf" x="-25%" y="-25%" width="150%" height="150%"><feGaussianBlur stdDeviation="2.4"/></filter><filter id="tbc-blur" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="1.6"/></filter><pattern id="tbc-str" width="9.7" height="9.7" patternUnits="userSpaceOnUse" patternTransform="rotate(-28) translate(7.49 0)"><rect width="9.7" height="9.7" fill="#3f4651"/><rect width="6.1" height="9.7" fill="#8f99a7"/></pattern><linearGradient id="tbc-pshade" gradientUnits="userSpaceOnUse" x1="47.59" y1="22.96" x2="69.81" y2="95.19"><stop offset="0" stop-color="#fff" stop-opacity="0.16"/><stop offset="0.2" stop-color="#000" stop-opacity="0"/><stop offset="0.5" stop-color="#07090d" stop-opacity="0.42"/><stop offset="0.75" stop-color="#07090d" stop-opacity="0.7"/><stop offset="1" stop-color="#07090d" stop-opacity="0.8"/></linearGradient><linearGradient id="tbc-icon" gradientUnits="userSpaceOnUse" x1="0" y1="37.78" x2="0" y2="78.52"><stop offset="0" stop-color="#ffffff"/><stop offset="0.55" stop-color="#e3e8ef"/><stop offset="1" stop-color="#a9b3c1"/></linearGradient><clipPath id="tb-clip-cr"><path d="M56.18,17.87Q59.44,16.11 62.77,17.74L88.3,30.2Q91.3,31.67 91.6,34.99L94.66,68.53Q95,72.22 92.13,74.57L67.78,94.46Q64.63,97.04 60.96,95.27L30.93,80.86Q27.59,79.26 27.47,75.56L26.22,37.41Q26.11,34.07 29.05,32.49Z"/></clipPath></defs><symbol id="tb-superchamp" viewBox="0 0 120 120" overflow="visible"><circle cx="47.59" cy="47.04" r="68" fill="url(#tbk-glow)"/><path d="M30.02,6.65Q35.57,-0.76 44.78,0.21L84.91,4.43Q94.12,5.39 98.04,13.78L115.09,50.19Q119.02,58.58 112.48,65.14L58.4,119.42Q51.86,125.98 46.69,118.31L4.38,55.53Q-0.8,47.85 4.75,40.43Z" pathLength="100" fill="none" stroke="#cdb987" stroke-width="0.8" stroke-dasharray="44 4 10 6 32 4" stroke-linejoin="round"/><path d="M32.43,7.87Q36.33,2.46 42.97,3.05L85.41,6.76Q92.05,7.34 94.98,13.33L113.5,51.15Q116.43,57.14 111.81,61.94L58.53,117.32Q53.91,122.13 50.09,116.66L6.58,54.47Q2.75,49.01 6.65,43.61Z" pathLength="100" fill="none" stroke="#b49b62" stroke-width="0.5" stroke-dasharray="20 6 18 10 14 8 24" stroke-linejoin="round"/><path d="M34.17,9.37Q36.44,5.98 40.51,6.2L85.29,8.54Q89.36,8.76 91.28,12.35L112.01,51.18Q113.93,54.78 111.2,57.81L59.75,115.18Q57.03,118.21 54.57,114.96L8.8,54.17Q6.35,50.92 8.62,47.53Z" pathLength="100" fill="none" stroke="#8e7646" stroke-width="0.5" stroke-dasharray="30 8 22 6 30 4" stroke-linejoin="round"/><line x1="2.04" y1="56.67" x2="15" y2="76.3" stroke="#cdbf98" stroke-opacity="0.9" stroke-width="1.48" stroke-linecap="square"/><line x1="97.22" y1="15.93" x2="108.7" y2="35.93" stroke="#d2c49e" stroke-opacity="0.85" stroke-width="1.3" stroke-linecap="square"/><path d="M32.8,12.34Q35.07,8.52 39.52,8.52L81.58,8.52Q86.39,8.52 88.88,12.64L109.49,46.83Q112.36,51.59 108.87,55.91L63.9,111.67Q60.64,115.7 57.31,111.73L10.97,56.46Q8.35,53.34 10.44,49.84Z" fill="none" stroke="#fff1cc" stroke-opacity="0.5" stroke-width="3.2" filter="url(#tbk-glowf)"/><path d="M32.8,12.34Q35.07,8.52 39.52,8.52L81.58,8.52Q86.39,8.52 88.88,12.64L109.49,46.83Q112.36,51.59 108.87,55.91L63.9,111.67Q60.64,115.7 57.31,111.73L10.97,56.46Q8.35,53.34 10.44,49.84Z" fill="url(#tbk-band)"/><path d="M32.8,12.34Q35.07,8.52 39.52,8.52L81.58,8.52Q86.39,8.52 88.88,12.64L109.49,46.83Q112.36,51.59 108.87,55.91L63.9,111.67Q60.64,115.7 57.31,111.73L10.97,56.46Q8.35,53.34 10.44,49.84Z" fill="url(#tbk-streak)"/><path d="M32.8,12.34Q35.07,8.52 39.52,8.52L81.58,8.52Q86.39,8.52 88.88,12.64L109.49,46.83Q112.36,51.59 108.87,55.91L63.9,111.67Q60.64,115.7 57.31,111.73L10.97,56.46Q8.35,53.34 10.44,49.84Z" fill="none" stroke="#000" stroke-opacity="0.5" stroke-width=".5"/><path d="M35.68,15.46Q37.39,12.59 40.72,12.59L80.48,12.59Q84.09,12.59 85.95,15.68L105.25,47.68Q107.4,51.25 104.78,54.49L63.02,106.26Q60.58,109.29 58.08,106.31L15.3,55.28Q13.33,52.94 14.9,50.32Z" fill="#77726e"/><path d="M36.11,15.82Q37.7,13.15 40.81,13.15L80.41,13.15Q83.78,13.15 85.52,16.03L104.72,47.87Q106.72,51.2 104.28,54.23L62.85,105.59Q60.57,108.42 58.24,105.63L15.84,55.07Q14.01,52.89 15.47,50.44Z" fill="#221c1f"/><path d="M36.82,16.8Q38.33,14.26 41.3,14.26L79.81,14.26Q83.15,14.26 84.87,17.11L103.08,47.31Q105.37,51.11 102.58,54.57L62.65,104.07Q60.56,106.67 58.41,104.11L18.46,56.47Q15.37,52.78 17.84,48.64Z" fill="url(#tbk-panel)"/><path d="M36.82,16.8Q38.33,14.26 41.3,14.26L79.81,14.26Q83.15,14.26 84.87,17.11L103.08,47.31Q105.37,51.11 102.58,54.57L62.65,104.07Q60.56,106.67 58.41,104.11L18.46,56.47Q15.37,52.78 17.84,48.64Z" fill="url(#tbk-pstr)"/><path d="M57.43,22.1Q61.67,19.81 65.99,21.93L89.19,33.26Q93.52,35.37 93.96,40.17L96.78,71.13Q97.22,75.93 93.49,78.97L70.58,97.69Q66.85,100.74 62.51,98.66L34.16,85.05Q29.81,82.96 29.66,78.15L28.49,42.59Q28.33,37.78 32.57,35.49Z" fill="#0b0b0c" fill-opacity=".75" filter="url(#tbk-blur)"/><path d="M56.18,17.87Q59.44,16.11 62.77,17.74L88.3,30.2Q91.3,31.67 91.6,34.99L94.66,68.53Q95,72.22 92.13,74.57L67.78,94.46Q64.63,97.04 60.96,95.27L30.93,80.86Q27.59,79.26 27.47,75.56L26.22,37.41Q26.11,34.07 29.05,32.49Z" fill="url(#tbk-dk)"/><path d="M56.18,17.87Q59.44,16.11 62.77,17.74L88.3,30.2Q91.3,31.67 91.6,34.99L94.66,68.53Q95,72.22 92.13,74.57L67.78,94.46Q64.63,97.04 60.96,95.27L30.93,80.86Q27.59,79.26 27.47,75.56L26.22,37.41Q26.11,34.07 29.05,32.49Z" fill="url(#tbk-lt)" mask="url(#tbk-sm)"/><path d="M56.18,17.87Q59.44,16.11 62.77,17.74L88.3,30.2Q91.3,31.67 91.6,34.99L94.66,68.53Q95,72.22 92.13,74.57L67.78,94.46Q64.63,97.04 60.96,95.27L30.93,80.86Q27.59,79.26 27.47,75.56L26.22,37.41Q26.11,34.07 29.05,32.49Z" fill="none" stroke="#000" stroke-opacity=".45" stroke-width=".5"/><polygon points="60.93,6.48 66.3,12.59 55.56,12.59" fill="#fbfaf6"/><polygon points="60.93,6.48 66.3,12.59 62.78,12.59" fill="#c9b897" fill-opacity=".85"/><polygon points="17.59,22.96 28.7,21.11 17.59,35.56" fill="#fbfaf6"/><polygon points="20.93,22.41 28.7,21.11 24.26,24.63" fill="#c9b897" fill-opacity=".85"/><polygon points="93.15,23.7 103.89,26.67 103.33,41.11" fill="#fbfaf6"/><polygon points="99.81,28.52 103.89,26.67 103.33,35.93" fill="#c9b897" fill-opacity=".85"/><polygon points="18.7,75.19 30.19,87.96 22.04,87.96" fill="#fbfaf6"/><polygon points="102.04,74.26 101.48,86.3 90.19,90.93" fill="#fbfaf6"/><polygon points="102.04,74.26 101.67,81.85 98.89,80.74" fill="#c9b897" fill-opacity=".85"/><polygon points="54.63,101.11 65.74,100.37 60.37,108.15" fill="#fbfaf6"/><path d="M31.85,38.89 L48.15,47.41 L62.04,31.67 L76.11,47.04 L92.78,37.04 L90.56,63.52 L82.78,80.56 L40.93,80.56 L34.26,62.59Z" fill="#050506" fill-opacity=".7" filter="url(#tbk-blur)"/><path d="M30.37,36.3 L46.67,44.81 L60.56,29.07 L74.63,44.44 L91.3,34.44 L89.07,60.93 L81.3,77.96 L39.44,77.96 L32.78,60Z" fill="#1b1a17" stroke="#1b1a17" stroke-width=".6" stroke-linejoin="round"/><path d="M30.37,36.3 L46.67,44.81 L60.56,29.07 L74.63,44.44 L91.3,34.44 L89.07,60.93 L81.3,77.96 L39.44,77.96 L32.78,60Z" fill="none" stroke="#8b8068" stroke-opacity=".7" stroke-width=".3" stroke-linejoin="round"/><path d="M31.14,37.43 L46.82,45.62 L60.56,30.04 L74.51,45.27 L90.54,35.65 L88.44,60.76 L80.88,77.31 L39.9,77.31 L33.41,59.85Z" fill="none" stroke="#a09270" stroke-width=".55" stroke-dasharray=".55 .55" stroke-dashoffset="0" stroke-linejoin="round"/><path d="M31.9,38.56 L46.97,46.43 L60.57,31.01 L74.39,46.1 L89.79,36.86 L87.8,60.59 L80.46,76.67 L40.35,76.67 L34.05,59.7Z" fill="none" stroke="#a09270" stroke-width=".55" stroke-dasharray=".55 .55" stroke-dashoffset="0.55" stroke-linejoin="round"/><path d="M32.56,39.53 L47.1,47.13 L60.58,31.84 L74.29,46.81 L89.15,37.89 L87.26,60.45 L80.11,76.11 L40.73,76.11 L34.6,59.58Z" fill="url(#tbk-gap)"/><path d="M35,42.22 L47.96,52.04 L60.93,33.7 L72.22,52.22 L85.93,42.22 L84.63,50.74 L81.3,62.22 L79.07,70 L42.04,69.81 L38.89,62.22 L36.3,50.74Z" fill="url(#tbk-body)"/><polygon points="40.56,66.3 60.93,60.93 60.93,69.81 42.04,69.81" fill="url(#tbk-refl)"/><circle cx="49.07" cy="50.93" r="5.93" fill="#696660"/><circle cx="72.04" cy="51.11" r="5.93" fill="#292419"/><polygon points="40.56,69.63 81.3,69.63 82.41,72.59 39.81,72.59" fill="#15130e"/><polygon points="40.19,72.41 83.15,72.41 81.67,77.04 41.3,77.04" fill="url(#tbk-bar)" stroke="#120f08" stroke-width=".35"/><ellipse cx="62.04" cy="73.89" rx="17.04" ry="0.56" fill="url(#tbk-barhl)"/></symbol><symbol id="tb-champ" viewBox="0 0 120 120" overflow="visible"><circle cx="45.74" cy="41.48" r="70" fill="url(#tbs-glow)"/><path d="M31.09,8.37Q34.87,3.33 41.15,3.66L83.89,5.9Q90.18,6.23 93.14,11.79L113.11,49.19Q116.07,54.75 111.84,59.41L60.68,115.79Q56.45,120.46 52.48,115.57L3.56,55.3Q-0.41,50.42 3.36,45.38Z" pathLength="100" fill="none" stroke="#f04cff" stroke-width="0.75" stroke-dasharray="50 14 32 4" stroke-linejoin="round"/><path d="M32.39,9.32Q35.1,5.57 39.73,5.73L84,7.28Q88.62,7.44 90.87,11.48L112.08,49.6Q114.33,53.65 111.28,57.13L60.97,114.56Q57.92,118.04 54.94,114.5L4.91,55.03Q1.93,51.48 4.64,47.73Z" pathLength="100" fill="none" stroke="#b55ae0" stroke-width="0.5" stroke-dasharray="22 8 18 16 30 6" stroke-linejoin="round"/><path d="M33.3,10.15Q35.21,7.42 38.54,7.48L84,8.27Q87.33,8.33 89,11.21L111.35,49.77Q113.02,52.66 110.87,55.2L61.46,113.63Q59.31,116.18 57.12,113.66L6.01,55.02Q3.82,52.51 5.72,49.77Z" pathLength="100" fill="none" stroke="#e02ad8" stroke-width="0.6" stroke-dasharray="48 16 30 6" stroke-linejoin="round"/><line x1="2.04" y1="56.67" x2="15" y2="76.3" stroke="#d27ff0" stroke-opacity="0.9" stroke-width="1.67" stroke-linecap="square"/><line x1="97.22" y1="15.93" x2="108.7" y2="35.93" stroke="#e08af5" stroke-opacity="0.8" stroke-width="1.3" stroke-linecap="square"/><path d="M32.6,12.21Q35.07,8.52 39.52,8.52L81.58,8.52Q86.39,8.52 88.88,12.64L109.49,46.83Q112.36,51.59 108.85,55.89L63.92,110.95Q60.64,114.96 57.17,111.11L7.75,56.37Q5.02,53.34 7.29,49.96Z" fill="none" stroke="#ff4cf2" stroke-opacity="0.6" stroke-width="3.6" filter="url(#tbs-glowf)"/><path d="M32.6,12.21Q35.07,8.52 39.52,8.52L81.58,8.52Q86.39,8.52 88.88,12.64L109.49,46.83Q112.36,51.59 108.85,55.89L63.92,110.95Q60.64,114.96 57.17,111.11L7.75,56.37Q5.02,53.34 7.29,49.96Z" fill="url(#tbs-band)"/><path d="M32.6,12.21Q35.07,8.52 39.52,8.52L81.58,8.52Q86.39,8.52 88.88,12.64L109.49,46.83Q112.36,51.59 108.85,55.89L63.92,110.95Q60.64,114.96 57.17,111.11L7.75,56.37Q5.02,53.34 7.29,49.96Z" fill="url(#tbs-streak)"/><path d="M32.6,12.21Q35.07,8.52 39.52,8.52L81.58,8.52Q86.39,8.52 88.88,12.64L109.49,46.83Q112.36,51.59 108.85,55.89L63.92,110.95Q60.64,114.96 57.17,111.11L7.75,56.37Q5.02,53.34 7.29,49.96Z" fill="none" stroke="#000" stroke-opacity="0.5" stroke-width=".5"/><path d="M33.39,12.03Q35.37,9.07 38.92,9.07L82.22,9.07Q86.08,9.07 88.07,12.37L109.39,47.73Q111.68,51.54 108.87,54.98L63.24,110.9Q60.62,114.11 57.84,111.03L7.9,55.71Q5.72,53.29 7.54,50.58Z" fill="none" stroke="#c933cf" stroke-width="0.55"/><path d="M34.97,14.99Q36.95,12.04 40.5,12.04L80.55,12.04Q84.4,12.04 86.39,15.34L105.77,47.48Q108.07,51.28 105.26,54.73L63.13,106.35Q60.51,109.56 57.73,106.48L11.65,55.44Q9.47,53.02 11.28,50.31Z" fill="none" stroke="#e07f73" stroke-width="0.35"/><path d="M35.39,15.36Q37.25,12.59 40.58,12.59L80.48,12.59Q84.09,12.59 85.95,15.68L105.24,47.67Q107.39,51.23 104.76,54.46L62.94,105.7Q60.49,108.71 57.88,105.82L12.22,55.24Q10.17,52.97 11.87,50.43Z" fill="#c9706d"/><path d="M35.81,15.73Q37.54,13.15 40.65,13.15L80.41,13.15Q83.78,13.15 85.52,16.03L104.71,47.86Q106.71,51.19 104.25,54.2L62.76,105.05Q60.46,107.86 58.03,105.16L12.79,55.04Q10.87,52.92 12.46,50.55Z" fill="#3c0b45"/><path d="M36.82,16.8Q38.33,14.26 41.3,14.26L79.81,14.26Q83.15,14.26 84.87,17.11L103.08,47.31Q105.37,51.11 102.58,54.57L62.65,104.07Q60.56,106.67 58.41,104.11L18.46,56.47Q15.37,52.78 17.84,48.64Z" fill="url(#tbs-panel)"/><path d="M36.82,16.8Q38.33,14.26 41.3,14.26L79.81,14.26Q83.15,14.26 84.87,17.11L103.08,47.31Q105.37,51.11 102.58,54.57L62.65,104.07Q60.56,106.67 58.41,104.11L18.46,56.47Q15.37,52.78 17.84,48.64Z" fill="url(#tbs-pstr)"/><path d="M56.75,20.17Q60.93,17.78 65.29,19.8L92.48,32.42Q96.85,34.44 97.08,39.25L98.29,64.45Q98.52,69.26 94.81,72.33L69.08,93.6Q65.37,96.67 60.94,94.78L34.06,83.36Q29.63,81.48 29.49,76.67L28.47,41.29Q28.33,36.48 32.51,34.09Z" fill="#14031c" fill-opacity=".8" filter="url(#tbs-blur)"/><path d="M55.03,18.69Q58.89,16.48 62.92,18.35L91.12,31.43Q94.81,33.15 95.01,37.22L96.29,63.89Q96.48,67.96 93.34,70.56L66.76,92.54Q63.33,95.37 59.24,93.63L31.34,81.78Q27.59,80.19 27.48,76.11L26.41,39.26Q26.3,35.19 29.83,33.16Z" fill="#2c0a38"/><path d="M53.74,17.77Q57.59,15.56 61.62,17.43L89.82,30.51Q93.52,32.22 93.71,36.29L94.99,62.97Q95.19,67.04 92.05,69.63L65.46,91.61Q62.04,94.44 57.95,92.71L30.05,80.85Q26.3,79.26 26.18,75.19L25.12,38.33Q25,34.26 28.53,32.23Z" fill="url(#tbs-dk)"/><path d="M53.74,17.77Q57.59,15.56 61.62,17.43L89.82,30.51Q93.52,32.22 93.71,36.29L94.99,62.97Q95.19,67.04 92.05,69.63L65.46,91.61Q62.04,94.44 57.95,92.71L30.05,80.85Q26.3,79.26 26.18,75.19L25.12,38.33Q25,34.26 28.53,32.23Z" fill="url(#tbs-lt)" mask="url(#tbs-sm)"/><g clip-path="url(#tb-clip-champ)"><circle cx="38.33" cy="27.22" r="24.07" fill="url(#tbs-lit)"/></g><path d="M53.74,17.77Q57.59,15.56 61.62,17.43L89.82,30.51Q93.52,32.22 93.71,36.29L94.99,62.97Q95.19,67.04 92.05,69.63L65.46,91.61Q62.04,94.44 57.95,92.71L30.05,80.85Q26.3,79.26 26.18,75.19L25.12,38.33Q25,34.26 28.53,32.23Z" fill="none" stroke="#2a0636" stroke-opacity=".6" stroke-width=".5"/><polygon points="60.93,6.48 66.3,12.59 55.56,12.59" fill="#fbfaf6"/><polygon points="17.59,22.96 28.7,21.11 17.59,35.56" fill="#fbfaf6"/><polygon points="93.15,23.7 103.89,26.67 103.33,41.11" fill="#fbfaf6"/><polygon points="18.7,75.19 30.19,87.96 22.04,87.96" fill="#fbfaf6"/><polygon points="102.04,74.26 101.48,86.3 90.19,90.93" fill="#fbfaf6"/><polygon points="54.63,101.11 65.74,100.37 60.37,108.15" fill="#fbfaf6"/><ellipse cx="22.78" cy="21.11" rx="17" ry="11" transform="rotate(-40 22.78 21.11)" fill="url(#tbs-flare)"/><polygon points="62.78,25.56 72.51,44.01 93.07,47.56 78.53,62.53 81.5,83.18 62.78,73.97 44.06,83.18 47.03,62.53 32.48,47.56 53.04,44.01" fill="#12031a" fill-opacity=".7" stroke="#12031a" stroke-opacity=".7" stroke-width="1.2" stroke-linejoin="round" filter="url(#tbs-blur)"/><polygon points="61.48,23.7 71.22,42.16 91.77,45.71 77.23,60.67 80.2,81.32 61.48,72.12 42.76,81.32 45.73,60.67 31.19,45.71 51.75,42.16" fill="#8d7c9c" stroke="#8d7c9c" stroke-width="1.1" stroke-linejoin="round"/><polygon points="60.93,22.22 70.66,40.67 91.22,44.23 76.68,59.19 79.65,79.84 60.93,70.64 42.2,79.84 45.17,59.19 30.63,44.23 51.19,40.67" fill="url(#tbs-edge)" stroke="url(#tbs-edge)" stroke-width="1.1" stroke-linejoin="round"/><polygon points="60.93,23.33 70.32,41.14 90.16,44.57 76.13,59.01 78.99,78.94 60.93,70.06 42.86,78.94 45.72,59.01 31.69,44.57 51.53,41.14" fill="url(#tbs-rim)" stroke="#9c8fb0" stroke-width=".3" stroke-linejoin="round"/><polygon points="60.37,27.78 67.61,42.44 83.79,44.8 72.08,56.21 74.85,72.33 60.37,64.72 45.89,72.33 48.66,56.21 36.95,44.8 53.13,42.44" fill="#3b0a55" stroke="#3b0a55" stroke-width="1.2" stroke-linejoin="round"/><polygon points="60.37,27.78 67.61,42.44 83.79,44.8 72.08,56.21 74.85,72.33 60.37,64.72 45.89,72.33 48.66,56.21 36.95,44.8 53.13,42.44" fill="url(#tbs-lo)"/><polygon points="60.37,27.78 67.61,42.44 83.79,44.8 72.08,56.21 74.85,72.33 60.37,64.72 45.89,72.33 48.66,56.21 36.95,44.8 53.13,42.44" fill="url(#tbs-hi)" clip-path="url(#tbs-half)"/><polyline points="36.95,44.8 53.13,42.44 60.37,27.78" fill="none" stroke="#ffe4fd" stroke-opacity=".95" stroke-width="1.6" stroke-linejoin="round" filter="url(#tbs-soft)"/><polygon points="60.37,27.78 67.61,42.44 83.79,44.8 72.08,56.21 74.85,72.33 60.37,64.72 45.89,72.33 48.66,56.21 36.95,44.8 53.13,42.44" fill="none" stroke="#fff" stroke-opacity=".5" stroke-width=".3" stroke-linejoin="round"/></symbol><symbol id="tb-superchal" viewBox="0 0 120 120" overflow="visible"><circle cx="59.02" cy="60.39" r="64" fill="url(#tbt-glow)"/><path d="M15.8,23.5Q18.3,15.65 26.47,14.54L78.88,7.41Q87.05,6.3 92.32,12.64L109.31,33.12Q114.57,39.47 115.41,47.67L116.52,58.42Q117.37,66.63 114.16,74.22L107.36,90.34Q104.15,97.94 96.18,100.05L54.94,110.95Q46.97,113.06 39.1,110.61L34.55,109.19Q26.67,106.74 22.81,99.46L7.17,69.97Q3.3,62.69 5.81,54.84Z" pathLength="100" fill="none" stroke="#3cf2e4" stroke-width="0.7" stroke-dasharray="0 6 9 9 14 14 16 12 12 8"/><path d="M16.85,24.19Q18.76,17.79 25.36,16.78L78.9,8.54Q85.5,7.53 89.85,12.59L108.36,34.13Q112.71,39.19 113.51,45.82L115.08,58.8Q115.88,65.42 113.39,71.62L106.13,89.68Q103.65,95.87 97.22,97.69L54.33,109.84Q47.91,111.66 41.51,109.78L34.97,107.87Q28.57,106 25.34,100.16L8.29,69.35Q5.06,63.51 6.98,57.12Z" pathLength="100" fill="none" stroke="#22c9bb" stroke-width="0.45" stroke-dasharray="4 12 16 14 10 22 8 14"/><path d="M17.38,25.23Q18.97,19.56 24.78,18.57L78.34,9.37Q84.14,8.37 88.06,12.77L107.32,34.4Q111.23,38.8 112.04,44.63L113.96,58.49Q114.77,64.32 112.67,69.82L105.48,88.65Q103.38,94.16 97.74,95.86L54.45,108.94Q48.81,110.64 43.13,109.09L35.84,107.1Q30.16,105.54 27.22,100.44L9.35,69.42Q6.41,64.32 8,58.65Z" fill="none" stroke="#4ffff0" stroke-opacity=".38" stroke-width="2.2" filter="url(#tbt-glowf)"/><path d="M17.38,25.23Q18.97,19.56 24.78,18.57L78.34,9.37Q84.14,8.37 88.06,12.77L107.32,34.4Q111.23,38.8 112.04,44.63L113.96,58.49Q114.77,64.32 112.67,69.82L105.48,88.65Q103.38,94.16 97.74,95.86L54.45,108.94Q48.81,110.64 43.13,109.09L35.84,107.1Q30.16,105.54 27.22,100.44L9.35,69.42Q6.41,64.32 8,58.65Z" fill="url(#tbt-out)"/><path d="M17.38,25.23Q18.97,19.56 24.78,18.57L78.34,9.37Q84.14,8.37 88.06,12.77L107.32,34.4Q111.23,38.8 112.04,44.63L113.96,58.49Q114.77,64.32 112.67,69.82L105.48,88.65Q103.38,94.16 97.74,95.86L54.45,108.94Q48.81,110.64 43.13,109.09L35.84,107.1Q30.16,105.54 27.22,100.44L9.35,69.42Q6.41,64.32 8,58.65Z" fill="url(#tbt-outsh)"/><path d="M18.16,25.36Q19.6,20.25 24.82,19.36L78.62,10.12Q83.85,9.22 87.37,13.18L106.96,35.19Q110.49,39.14 111.22,44.39L113.23,58.98Q113.96,64.23 112.07,69.18L104.67,88.56Q102.79,93.52 97.71,95.05L53.87,108.29Q48.8,109.83 43.69,108.43L35.79,106.27Q30.68,104.87 28.04,100.28L9.9,68.8Q7.26,64.21 8.69,59.11Z" fill="none" stroke="#c8fffa" stroke-opacity=".55" stroke-width=".45"/><path d="M29.6,24.38Q31.14,20.35 35.44,19.91L81.03,15.29Q85.32,14.85 87.45,18.61L107.92,54.67Q110.06,58.43 108.6,62.5L94.63,101.48Q93.17,105.54 88.86,105.63L41.35,106.63Q37.03,106.72 34.89,102.97L15.82,69.64Q13.67,65.89 15.22,61.86Z" fill="#043a35" fill-opacity=".6" filter="url(#tbt-blur)"/><path d="M28.95,22.05Q30.36,18.39 34.27,17.99L80.63,13.29Q84.54,12.89 86.47,16.3L107.33,53.05Q109.27,56.47 107.95,60.16L93.71,99.88Q92.39,103.58 88.46,103.66L40.17,104.67Q36.25,104.76 34.3,101.35L14.84,67.33Q12.89,63.93 14.3,60.26Z" fill="url(#tbt-sand)"/><path d="M28.95,22.05Q30.36,18.39 34.27,17.99L80.63,13.29Q84.54,12.89 86.47,16.3L107.33,53.05Q109.27,56.47 107.95,60.16L93.71,99.88Q92.39,103.58 88.46,103.66L40.17,104.67Q36.25,104.76 34.3,101.35L14.84,67.33Q12.89,63.93 14.3,60.26Z" fill="none" stroke="#6d5a2c" stroke-opacity=".5" stroke-width=".4"/><path d="M34.25,26.97Q37.62,24.27 41.94,24.27L83.56,24.27Q88.27,24.27 89.99,28.66L103.32,62.63Q104.76,66.28 103.18,69.88L91.49,96.55Q89.44,101.22 84.34,101.22L39.19,101.22Q34.87,101.22 31.77,98.22L24.96,91.63Q22.7,89.44 22.67,86.3L22.34,52.93Q22.31,49.79 23.45,46.86L28.21,34.58Q29.77,30.56 33.14,27.86Z" fill="#012624" fill-opacity=".8" filter="url(#tbt-blur)"/><path d="M21.33,46.26Q21.33,44.3 20.08,45.81L17.08,49.46Q15.83,50.97 15.7,52.93L14.4,72.17Q14.26,74.13 14.95,75.97L18.68,86.03Q19.37,87.87 20.73,89.29L27.43,96.27Q28.79,97.69 30.67,98.24L31.62,98.51Q33.5,99.06 32.1,97.69L22.73,88.47Q21.33,87.09 21.33,85.13Z" fill="url(#tbt-side)"/><path d="M32.88,24.62Q36.25,21.92 40.57,21.92L82.18,21.92Q86.89,21.92 88.61,26.3L101.95,60.27Q103.38,63.93 101.81,67.52L90.12,94.19Q88.07,98.87 82.97,98.87L37.82,98.87Q33.5,98.87 30.4,95.86L23.59,89.27Q21.33,87.09 21.3,83.95L20.97,50.58Q20.94,47.44 22.07,44.51L26.84,32.23Q28.4,28.2 31.77,25.5Z" fill="url(#tbt-dk)"/><path d="M32.88,24.62Q36.25,21.92 40.57,21.92L82.18,21.92Q86.89,21.92 88.61,26.3L101.95,60.27Q103.38,63.93 101.81,67.52L90.12,94.19Q88.07,98.87 82.97,98.87L37.82,98.87Q33.5,98.87 30.4,95.86L23.59,89.27Q21.33,87.09 21.3,83.95L20.97,50.58Q20.94,47.44 22.07,44.51L26.84,32.23Q28.4,28.2 31.77,25.5Z" fill="url(#tbt-lt)" mask="url(#tbt-sm)"/><g clip-path="url(#tb-clip-superchal)"><polygon points="19.37,44.69 29.97,25.45 37.03,23.49 39.78,100.44 32.13,100.44 19.37,87.87" fill="url(#tbt-fdk)"/><polygon points="19.37,44.69 29.97,25.45 37.03,23.49 39.78,100.44 32.13,100.44 19.37,87.87" fill="url(#tbt-flt)" mask="url(#tbt-fm)"/><line x1="37.03" y1="23.49" x2="39.78" y2="100.44" stroke="#04484b" stroke-opacity=".55" stroke-width=".7"/></g><path d="M32.88,24.62Q36.25,21.92 40.57,21.92L82.18,21.92Q86.89,21.92 88.61,26.3L101.95,60.27Q103.38,63.93 101.81,67.52L90.12,94.19Q88.07,98.87 82.97,98.87L37.82,98.87Q33.5,98.87 30.4,95.86L23.59,89.27Q21.33,87.09 21.3,83.95L20.97,50.58Q20.94,47.44 22.07,44.51L26.84,32.23Q28.4,28.2 31.77,25.5Z" fill="none" stroke="#003b3c" stroke-opacity=".55" stroke-width=".5"/><path d="M33.39,24.84Q36.42,22.41 40.31,22.41L82.32,22.41Q86.56,22.41 88.11,26.36L101.56,60.63Q102.85,63.92 101.43,67.15L89.59,94.17Q87.75,98.38 83.16,98.38L37.59,98.38Q33.7,98.38 30.91,95.67L23.85,88.84Q21.82,86.88 21.79,84.05L21.46,50.35Q21.43,47.53 22.45,44.89L27.4,32.12Q28.81,28.5 31.84,26.07Z" fill="none" stroke="#b9ffff" stroke-opacity=".35" stroke-width=".35"/><polygon points="21.53,40.96 26.43,39.98 21.53,47.44" fill="#7a5b3c" fill-opacity=".5"/><polygon points="16.62,39.59 28.79,37.03 28.79,39.39 21.53,40.96 21.53,62.36 16.62,62.75" fill="#f7fbfb"/><polygon points="86.5,21.33 93.96,20.54 93.96,33.3" fill="#7a5b3c" fill-opacity=".5"/><polygon points="83.75,18.58 97.1,17.01 97.1,40.76 93.96,40.76 93.96,20.35 83.75,21.33" fill="#f7fbfb"/><polygon points="92.59,68.24 95.92,67.66 95.92,96.51 84.93,97.49 84.93,94.74 92.59,94.16" fill="#f7fbfb"/><polygon points="22.7,80.02 26.24,80.02 26.24,90.23 31.54,89.84 31.54,93.17 22.7,93.57" fill="#f7fbfb"/><polygon points="42.53,12.1 40.57,21.13 34.68,22.31" fill="#f4fefe"/><polygon points="2.09,69.03 19.76,68.24 15.83,74.92" fill="#d9fbfb"/><polygon points="80.61,94.35 65.3,107.5 68.05,99.26" fill="#fbfcfc"/><polygon points="101.03,34.87 109.66,38.8 103.38,54.9" fill="#8afcfb"/><line x1="93.57" y1="70.6" x2="97.1" y2="67.46" stroke="#f4fbfb" stroke-width="0.98" stroke-linecap="round"/><line x1="93.57" y1="73.35" x2="97.1" y2="70.21" stroke="#f4fbfb" stroke-width="0.98" stroke-linecap="round"/><path d="M34.09,36.44 L75.11,28.99 L81.79,27.22 L82.57,38.8 C82.97,54.9 76.29,74.13 58.63,89.25 L38.01,60.79Z" transform="translate(1.96 2.75)" fill="#012624" fill-opacity=".7" filter="url(#tbt-blur)"/><path d="M34.09,36.44 L75.11,28.99 Q60.59,53.13 38.01,60.79Z" transform="translate(0.59 1.77)" fill="#0a4c4a" fill-opacity=".7"/><path d="M34.09,36.44 L75.11,28.99 Q60.59,53.13 38.01,60.79Z" transform="translate(0.39 1.37)" fill="#d8c48e"/><path d="M34.09,36.44 L75.11,28.99 Q60.59,53.13 38.01,60.79Z" fill="url(#tbt-b1)" stroke="#0d5a57" stroke-opacity=".45" stroke-width=".3" stroke-linejoin="round"/><path d="M39.39,62.55 Q60.59,56.27 81.79,27.22 L81,37.23 Q60,75.51 46.26,77.27Z" transform="translate(0.59 1.77)" fill="#0a4c4a" fill-opacity=".7"/><path d="M39.39,62.55 Q60.59,56.27 81.79,27.22 L81,37.23 Q60,75.51 46.26,77.27Z" transform="translate(0.39 1.37)" fill="#d8c48e"/><path d="M39.39,62.55 Q60.59,56.27 81.79,27.22 L81,37.23 Q60,75.51 46.26,77.27Z" fill="url(#tbt-b2)" stroke="#0d5a57" stroke-opacity=".45" stroke-width=".3" stroke-linejoin="round"/><path d="M48.22,78.65 Q61.77,76.88 82.57,38.8 C82.97,54.9 76.29,74.13 58.63,89.25 Q51.17,85.52 48.22,78.65Z" transform="translate(0.59 1.77)" fill="#0a4c4a" fill-opacity=".7"/><path d="M48.22,78.65 Q61.77,76.88 82.57,38.8 C82.97,54.9 76.29,74.13 58.63,89.25 Q51.17,85.52 48.22,78.65Z" transform="translate(0.39 1.37)" fill="#d8c48e"/><path d="M48.22,78.65 Q61.77,76.88 82.57,38.8 C82.97,54.9 76.29,74.13 58.63,89.25 Q51.17,85.52 48.22,78.65Z" fill="url(#tbt-b3)" stroke="#0d5a57" stroke-opacity=".45" stroke-width=".3" stroke-linejoin="round"/><path d="M34.68,37.23 L74.33,29.77" fill="none" stroke="#fff" stroke-opacity=".9" stroke-width=".45"/><path d="M39.98,63.14 Q60.98,57.06 81.2,28.59" fill="none" stroke="#fff" stroke-opacity=".8" stroke-width=".4"/></symbol><symbol id="tb-cr" viewBox="0 0 120 120" overflow="visible"><circle cx="47.59" cy="47.04" r="68" fill="url(#tbc-glow)"/><path d="M32.03,7.6Q36.15,1.89 43.16,2.51L85.28,6.19Q92.29,6.8 95.38,13.12L113.78,50.7Q116.88,57.02 112,62.09L58.74,117.45Q53.86,122.52 49.83,116.76L6.33,54.59Q2.3,48.82 6.42,43.12Z" pathLength="100" fill="none" stroke="#c3ccd8" stroke-width="0.7" stroke-dasharray="44 4 10 6 32 4" stroke-linejoin="round"/><path d="M33.69,8.62Q36.54,4.52 41.53,4.87L85.47,7.94Q90.45,8.29 92.73,12.74L112.47,51.32Q114.74,55.77 111.34,59.44L58.94,115.84Q55.54,119.51 52.6,115.46L7.94,53.94Q5,49.9 7.85,45.79Z" pathLength="100" fill="none" stroke="#9aa5b4" stroke-width="0.45" stroke-dasharray="20 6 18 10 14 8 24" stroke-linejoin="round"/><path d="M34.33,9.66Q36.26,6.72 39.78,6.87L85.07,8.85Q88.58,9 90.27,12.09L111.53,51.1Q113.21,54.19 110.88,56.83L59.9,114.68Q57.57,117.32 55.43,114.53L9.1,54.11Q6.96,51.32 8.9,48.38Z" pathLength="100" fill="none" stroke="#7d8796" stroke-width="0.45" stroke-dasharray="30 8 22 6 30 4" stroke-linejoin="round"/><line x1="2.04" y1="56.67" x2="15" y2="76.3" stroke="#c6ced8" stroke-opacity="0.75" stroke-width="1.3" stroke-linecap="square"/><line x1="97.22" y1="15.93" x2="108.7" y2="35.93" stroke="#c6ced8" stroke-opacity="0.7" stroke-width="1.11" stroke-linecap="square"/><path d="M32.8,12.34Q35.07,8.52 39.52,8.52L81.58,8.52Q86.39,8.52 88.88,12.64L109.49,46.83Q112.36,51.59 108.87,55.91L63.9,111.67Q60.64,115.7 57.31,111.73L10.97,56.46Q8.35,53.34 10.44,49.84Z" fill="none" stroke="#e6eef8" stroke-opacity="0.35" stroke-width="3.2" filter="url(#tbc-glowf)"/><path d="M32.8,12.34Q35.07,8.52 39.52,8.52L81.58,8.52Q86.39,8.52 88.88,12.64L109.49,46.83Q112.36,51.59 108.87,55.91L63.9,111.67Q60.64,115.7 57.31,111.73L10.97,56.46Q8.35,53.34 10.44,49.84Z" fill="url(#tbc-band)"/><path d="M32.8,12.34Q35.07,8.52 39.52,8.52L81.58,8.52Q86.39,8.52 88.88,12.64L109.49,46.83Q112.36,51.59 108.87,55.91L63.9,111.67Q60.64,115.7 57.31,111.73L10.97,56.46Q8.35,53.34 10.44,49.84Z" fill="url(#tbc-streak)"/><path d="M32.8,12.34Q35.07,8.52 39.52,8.52L81.58,8.52Q86.39,8.52 88.88,12.64L109.49,46.83Q112.36,51.59 108.87,55.91L63.9,111.67Q60.64,115.7 57.31,111.73L10.97,56.46Q8.35,53.34 10.44,49.84Z" fill="none" stroke="#000" stroke-opacity="0.5" stroke-width=".5"/><path d="M35.68,15.46Q37.39,12.59 40.72,12.59L80.48,12.59Q84.09,12.59 85.95,15.68L105.25,47.68Q107.4,51.25 104.78,54.49L63.02,106.26Q60.58,109.29 58.08,106.31L15.3,55.28Q13.33,52.94 14.9,50.32Z" fill="#8b929c"/><path d="M36.11,15.82Q37.7,13.15 40.81,13.15L80.41,13.15Q83.78,13.15 85.52,16.03L104.72,47.87Q106.72,51.2 104.28,54.23L62.85,105.59Q60.57,108.42 58.24,105.63L15.84,55.07Q14.01,52.89 15.47,50.44Z" fill="#262a31"/><path d="M36.82,16.8Q38.33,14.26 41.3,14.26L79.81,14.26Q83.15,14.26 84.87,17.11L103.08,47.31Q105.37,51.11 102.58,54.57L62.65,104.07Q60.56,106.67 58.41,104.11L18.46,56.47Q15.37,52.78 17.84,48.64Z" fill="url(#tbc-panel)"/><path d="M36.82,16.8Q38.33,14.26 41.3,14.26L79.81,14.26Q83.15,14.26 84.87,17.11L103.08,47.31Q105.37,51.11 102.58,54.57L62.65,104.07Q60.56,106.67 58.41,104.11L18.46,56.47Q15.37,52.78 17.84,48.64Z" fill="url(#tbc-pstr)"/><path d="M59.37,26.52Q64.26,23.89 69.25,26.33L91.12,37.01Q96.11,39.44 96.62,44.98L99.31,74.47Q99.81,80 95.51,83.52L73.75,101.3Q69.44,104.81 64.44,102.41L37.42,89.44Q32.41,87.04 32.23,81.48L31.11,47.4Q30.93,41.85 35.82,39.22Z" fill="#06070a" fill-opacity=".85" filter="url(#tbc-blur)"/><path d="M56.18,17.87Q59.44,16.11 62.77,17.74L88.3,30.2Q91.3,31.67 91.6,34.99L94.66,68.53Q95,72.22 92.13,74.57L67.78,94.46Q64.63,97.04 60.96,95.27L30.93,80.86Q27.59,79.26 27.47,75.56L26.22,37.41Q26.11,34.07 29.05,32.49Z" fill="url(#tbc-str)"/><path d="M56.18,17.87Q59.44,16.11 62.77,17.74L88.3,30.2Q91.3,31.67 91.6,34.99L94.66,68.53Q95,72.22 92.13,74.57L67.78,94.46Q64.63,97.04 60.96,95.27L30.93,80.86Q27.59,79.26 27.47,75.56L26.22,37.41Q26.11,34.07 29.05,32.49Z" fill="url(#tbc-pshade)"/><path d="M56.18,17.87Q59.44,16.11 62.77,17.74L88.3,30.2Q91.3,31.67 91.6,34.99L94.66,68.53Q95,72.22 92.13,74.57L67.78,94.46Q64.63,97.04 60.96,95.27L30.93,80.86Q27.59,79.26 27.47,75.56L26.22,37.41Q26.11,34.07 29.05,32.49Z" fill="none" stroke="#000" stroke-opacity=".45" stroke-width=".5"/><polygon points="60.93,6.48 66.3,12.59 55.56,12.59" fill="#fbfaf6"/><polygon points="60.93,6.48 66.3,12.59 62.78,12.59" fill="#c3c9d2" fill-opacity=".85"/><polygon points="17.59,22.96 28.7,21.11 17.59,35.56" fill="#fbfaf6"/><polygon points="20.93,22.41 28.7,21.11 24.26,24.63" fill="#c3c9d2" fill-opacity=".85"/><polygon points="93.15,23.7 103.89,26.67 103.33,41.11" fill="#fbfaf6"/><polygon points="99.81,28.52 103.89,26.67 103.33,35.93" fill="#c3c9d2" fill-opacity=".85"/><polygon points="18.7,75.19 30.19,87.96 22.04,87.96" fill="#fbfaf6"/><polygon points="102.04,74.26 101.48,86.3 90.19,90.93" fill="#fbfaf6"/><polygon points="102.04,74.26 101.67,81.85 98.89,80.74" fill="#c3c9d2" fill-opacity=".85"/><polygon points="54.63,101.11 65.74,100.37 60.37,108.15" fill="#fbfaf6"/><polygon points="39.44,56.67 61.67,38.52 83.89,56.67 83.89,65.93 61.67,47.78 39.44,65.93" fill="#05070b" fill-opacity=".6" filter="url(#tbc-blur)"/><polygon points="38.33,54.44 60.56,36.3 82.78,54.44 82.78,63.7 60.56,45.56 38.33,63.7" fill="url(#tbc-icon)" stroke="#1a1f27" stroke-width="1.1" stroke-linejoin="round"/><polyline points="38.33,54.44 60.56,36.3 82.78,54.44" fill="none" stroke="#fff" stroke-opacity=".9" stroke-width=".45" stroke-linejoin="round" transform="translate(0 .45)"/><polygon points="60.56,36.3 82.78,54.44 82.78,63.7 60.56,45.56" fill="#7f8a99" fill-opacity=".28"/><polygon points="39.44,73.33 61.67,55.19 83.89,73.33 83.89,82.59 61.67,64.44 39.44,82.59" fill="#05070b" fill-opacity=".6" filter="url(#tbc-blur)"/><polygon points="38.33,71.11 60.56,52.96 82.78,71.11 82.78,80.37 60.56,62.22 38.33,80.37" fill="url(#tbc-icon)" stroke="#1a1f27" stroke-width="1.1" stroke-linejoin="round"/><polyline points="38.33,71.11 60.56,52.96 82.78,71.11" fill="none" stroke="#fff" stroke-opacity=".9" stroke-width=".45" stroke-linejoin="round" transform="translate(0 .45)"/><polygon points="60.56,52.96 82.78,71.11 82.78,80.37 60.56,62.22" fill="#7f8a99" fill-opacity=".28"/></symbol></svg>
 <a class="skip" href="#main">본문으로 건너뛰기</a>
 <header class="top">
   <div class="wrap top-in">
@@ -551,7 +677,7 @@ function icon(kind) {
   s.setAttribute('viewBox', '0 0 24 24'); s.setAttribute('aria-hidden', 'true'); s.setAttribute('fill', 'none');
   s.setAttribute('stroke', 'currentColor'); s.setAttribute('stroke-width', '2'); s.setAttribute('stroke-linecap', 'round'); s.setAttribute('stroke-linejoin', 'round');
   const p = document.createElementNS(NS, 'path');
-  p.setAttribute('d', kind === 'check' ? 'M4 12.5l5 5L20 6.5' : 'M15 5l-7 7 7 7');
+  p.setAttribute('d', kind === 'check' ? 'M4 12.5l5 5L20 6.5' : kind === 'down' ? 'M6 9l6 6 6-6' : 'M15 5l-7 7 7 7');
   s.append(p);
   return s;
 }
@@ -649,6 +775,13 @@ function setTitle(t) { document.title = t ? `${t} · NV 클럽 공간` : 'NV 클
 function show(nodes, opts) {
   view.replaceChildren();
   append(view, nodes);
+  /* 탭이 넘쳐 옆으로 밀릴 때 지금 탭이 잘리지 않게 탭 줄만 움직인다 */
+  const cur = view.querySelector('nav.tabs [aria-current="page"]');
+  if (cur && cur.parentElement.scrollWidth > cur.parentElement.clientWidth) {
+    const nav = cur.parentElement, a = cur.getBoundingClientRect(), n = nav.getBoundingClientRect();
+    if (a.right > n.right) nav.scrollLeft += a.right - n.right + 8;
+    else if (a.left < n.left) nav.scrollLeft -= n.left - a.left + 8;
+  }
   if (!opts || !opts.keepScroll) window.scrollTo(0, 0);
   const h1 = view.querySelector('.h1');
   if (h1 && state.navigated) h1.focus({ preventScroll: true });
@@ -659,10 +792,13 @@ function errorBox(e, retry) {
     h('p', { style: 'margin:0 0 10px' }, errText(e)),
     retry ? h('button', { class: 'btn btn-ghost', type: 'button', onclick: retry }, '다시 불러오기') : null);
 }
+/* 게시판 탭 + 맨 끝에 전적. 게시판 주소와 겹치지 않게 전적은 STATS_TAB(':stats')로 표시한다 */
+const STATS_TAB = ':stats';
 function tabs(active) {
-  if (!state.boards.length) return null;
-  return h('nav', { class: 'tabs', 'aria-label': '게시판' },
-    state.boards.map((b) => h('a', { href: `#/b/${b.slug}`, 'aria-current': b.slug === active ? 'page' : null }, b.name)));
+  const items = state.boards.map((b) => h('a', { href: `#/b/${b.slug}`, 'aria-current': b.slug === active ? 'page' : null }, b.name));
+  if (state.me) items.push(h('a', { href: '#/stats', 'aria-current': active === STATS_TAB ? 'page' : null }, '전적'));
+  if (!items.length) return null;
+  return h('nav', { class: 'tabs', 'aria-label': '클럽 공간 메뉴' }, items);
 }
 function badge(text, kind) { return h('span', { class: `badge b-${kind}` }, text); }
 function authorName(a) { return [h('span', { class: 'name' }, a.name), a.is_staff ? badge('운영진', 'staff') : null]; }
@@ -688,12 +824,14 @@ function route() {
   const seq = ++state.seq;
   const hsh = location.hash || '#/';
   let m;
+  document.body.classList.toggle('tall', hsh === '#/stats' && !!state.me);
   if (hsh === '#/privacy') return renderPrivacy();
   if (!state.me) return renderLogin();
   if (hsh === '#/' || hsh === '#') {
     if (state.boards[0]) return renderBoard(state.boards[0].slug, seq);
-    return show([h('h1', { class: 'h1', tabindex: '-1' }, '클럽 공간'), h('p', { class: 'desc' }, '아직 볼 수 있는 게시판이 없어요.')]);
+    return show([tabs(null), h('h1', { class: 'h1', tabindex: '-1' }, '클럽 공간'), h('p', { class: 'desc' }, '아직 볼 수 있는 게시판이 없어요.')]);
   }
+  if (hsh === '#/stats') return renderStats(seq);
   if ((m = hsh.match(/^#\/b\/([a-z0-9-]{2,20})$/))) return renderBoard(m[1], seq);
   if ((m = hsh.match(/^#\/p\/(\d{1,15})$/))) return renderPost(+m[1], seq);
   if ((m = hsh.match(/^#\/write\/([a-z0-9-]{2,20})$/))) return renderWrite(m[1], null, seq);
@@ -1100,6 +1238,360 @@ async function renderReceipts(id, seq) {
     tablist, panel]);
 }
 
+/* ---------- 전적(넥슨 Open API) ---------- */
+/* 배지 그림은 실제 게임 마크를 옮긴 네 가지뿐이다. 다른 디비전은 그림 없이 글자로만 보여 준다 */
+/* 게임 사진으로 그린 배지만 쓴다. 챌린저1(tb-cr)은 사진 없이 그린 임시본이라 사진을 받을 때까지 글자로 보인다 */
+const TIER_ART = { 800: 'tb-superchamp', 900: 'tb-champ', 1000: 'tb-superchal' };
+const LINK_SOURCE = { auto: '디스코드 닉네임으로 자동 연결', self: '직접 입력', admin: '운영진이 입력' };
+const LINK_STATE = { none: '확인 전', not_found: '못 찾음', off: '연결 안 함' };
+const STATS_ERR = {
+  nickname_required: '게임 닉네임을 적어 주세요.',
+  nickname_bad: '닉네임에 쓸 수 없는 글자가 있거나 너무 길어요. 게임에 보이는 그대로 적어 주세요.',
+  nexon_not_found: '그 닉네임을 찾지 못했어요. 게임에 보이는 닉네임과 똑같은지 확인해 주세요.',
+  nexon_busy: '넥슨 쪽에 요청이 몰려 있어요. 잠시 뒤 다시 해 주세요.',
+  rate: '짧은 시간에 너무 여러 번 했어요. 잠시 뒤 다시 해 주세요.',
+  nexon_unavailable: '지금은 넥슨에서 기록을 받아 오지 못해요. 잠시 뒤 다시 해 주세요.',
+  nexon_disabled: '지금은 전적 기능이 꺼져 있어요. 운영진에게 물어봐 주세요.',
+  forbidden: '운영진만 고칠 수 있어요.',
+  not_found: '그 멤버를 찾지 못했어요. 화면을 새로 불러와 주세요.',
+  sync_running: '이미 새로 받는 중이에요. 조금 뒤에 다시 확인해 주세요.',
+};
+const statsErr = (e) => STATS_ERR[e && e.code] || errText(e);
+const SYNC_STOP = { budget: '오늘 쓸 수 있는 호출을 다 써서 중간에 멈췄어요', rate: '넥슨 호출 제한에 걸려 중간에 멈췄어요', error: '넥슨 쪽 오류로 중간에 멈췄어요' };
+const STAT_ROWS = [['possession', '점유율', '%'], ['shots', '슈팅', ''], ['on_target', '유효 슈팅', ''], ['pass_pct', '패스 성공률', '%'], ['rating', '평점', '']];
+const MATCH_PAGE = 10;
+
+function tierSvg(div) {
+  const s = document.createElementNS(NS, 'svg');
+  s.setAttribute('class', 'tb'); s.setAttribute('viewBox', '0 0 120 120'); s.setAttribute('aria-hidden', 'true'); s.setAttribute('focusable', 'false');
+  const u = document.createElementNS(NS, 'use');
+  u.setAttribute('href', '#' + TIER_ART[div]); u.setAttribute('width', '120'); u.setAttribute('height', '120');
+  s.append(u);
+  return s;
+}
+const linkKey = (link) => (link ? link.status : 'none');
+/* 티어 글자: 그림이 있는 네 디비전은 색 글자, 나머지는 글자 알약, 연결 전·실패는 점선 알약 */
+function tierLabel(link, divs) {
+  if (!link || link.status !== 'ok') return badge(LINK_STATE[linkKey(link)] || LINK_STATE.none, 'state');
+  const dv = link.best_division;
+  if (dv == null) return badge('티어 기록 없음', 'state');
+  const name = divs.get(dv) || `디비전 ${dv}`;
+  return TIER_ART[dv] ? h('span', { class: `tn tn-${dv}` }, name) : badge(name, 'div');
+}
+/* 글줄 안에서 ' · '로 잇는다(줄바꿈은 띄어쓰기에서) */
+function dotted(items) {
+  const out = [];
+  items.filter(Boolean).forEach((x, i) => { if (i) out.push(' · '); out.push(x); });
+  return out;
+}
+function fmtDay(ms) { return typeof ms === 'number' && isFinite(ms) ? fmtDate(ms) : null; }
+function signed(n) { return n > 0 ? `+${n}` : String(n); }
+function syncSummary(r) {
+  const n = (x) => (typeof x === 'number' ? x.toLocaleString('ko-KR') : '0');
+  const s = `새로 받았어요. 연결 ${n(r.linked)}명 · 못 찾음 ${n(r.not_found)}명 · 티어 ${n(r.tiers)}명 · 경기 ${n(r.scanned)}개 확인 · 상세 ${n(r.details)}개 · 호출 ${n(r.used)}회.`;
+  return r.stopped ? `${s} ${SYNC_STOP[r.stopped] || '중간에 멈췄어요'}.` : s;
+}
+
+/* 닉네임 입력 폼(내 칸, 운영진 고치기 공용). save()가 실패하면 폼 안에 이유를 보여 준다 */
+function nickForm(o) {
+  const id = 'nk-' + o.key;
+  const input = h('input', { class: 'input', id, maxlength: 30, autocomplete: 'off', autocapitalize: 'off', spellcheck: 'false', enterkeyhint: 'done', placeholder: '게임에 보이는 닉네임' });
+  input.value = o.value || '';
+  const err = h('p', { class: 'alert form-err', role: 'alert' });
+  const submit = h('button', { class: 'btn btn-primary', type: 'submit' }, '저장');
+  const form = h('form', { class: o.cls, novalidate: true, 'aria-label': o.label },
+    h('div', { class: 'field' }, h('label', { for: id }, '게임 닉네임'), input),
+    o.hint ? h('p', { class: 'hint' }, o.hint) : null,
+    err,
+    h('div', { class: 'actions' }, submit,
+      o.onCancel ? h('button', { class: 'btn btn-ghost', type: 'button', onclick: o.onCancel }, '취소') : null, o.extra || null));
+  form.addEventListener('submit', async (ev) => {
+    ev.preventDefault();
+    err.textContent = '';
+    const v = input.value.trim();
+    if (!v) { err.textContent = STATS_ERR.nickname_required; input.focus(); return; }
+    submit.disabled = true;
+    try { await o.save(v); } catch (e) {
+      if (e.handled) return;
+      err.textContent = statsErr(e);
+      submit.disabled = false;
+      input.focus();
+    }
+  });
+  return form;
+}
+
+function statsHead() { return [h('p', { class: 'idx' }, 'STATS'), h('h1', { class: 'h1', tabindex: '-1' }, '전적')]; }
+function statsClosed() {
+  return show([tabs(STATS_TAB), statsHead(), h('p', { class: 'info', style: 'margin-top:18px' }, '전적 메뉴는 준비 중이에요. 조금만 기다려 주세요.')]);
+}
+async function renderStats(seq, keep) {
+  setTitle('전적');
+  if (!keep) show([tabs(STATS_TAB), statsHead(), loadingEl()]);
+  let d;
+  try { d = await api('/api/stats'); } catch (e) {
+    if (e.handled || stale(seq)) return;
+    if (keep) return toast(statsErr(e));
+    if (e.status === 404) return statsClosed();
+    return show([tabs(STATS_TAB), statsHead(), h('div', { style: 'margin-top:18px' }, errorBox(e, () => renderStats(++state.seq)))]);
+  }
+  if (stale(seq)) return;
+  if (!d || !d.enabled) return statsClosed();
+
+  const ui = (keep && keep.ui) || { shown: MATCH_PAGE, open: new Set(), edit: null, meEdit: false, result: null };
+  const reload = (focus) => renderStats(++state.seq, { ui, focus });
+  const divs = new Map(d.divisions || []);
+  const members = d.members || [];
+  const mine = members.find((m) => m.discord_id === d.me_id) || null;
+
+  /* --- 갱신 시각과 관리자 버튼 --- */
+  const ls = d.last_sync;
+  const meta = h('div', { class: 'st-meta' },
+    h('p', null, ls && ls.at ? ['마지막 갱신 ', h('b', null, timeEl(ls.at)), d.can_sync && ls.stopped ? ` · ${SYNC_STOP[ls.stopped] || '중간에 멈췄어요'}` : ''] : '아직 넥슨에서 받은 기록이 없어요.'),
+    d.can_sync ? h('button', { class: 'btn btn-ghost', type: 'button', id: 'st-sync', onclick: doSync }, '지금 새로 받기') : null,
+    ui.result ? h('p', { role: 'status', style: 'flex-basis:100%' }, ui.result) : null);
+  async function doSync(ev) {
+    const btn = ev.currentTarget;
+    btn.disabled = true;
+    btn.textContent = '받는 중이에요';
+    try {
+      const r = await api('/api/admin/nexon/sync', { method: 'POST' });
+      ui.result = syncSummary((r && r.result) || {});
+      toast(ui.result);
+      await reload('#st-sync');
+    } catch (e) {
+      if (e.handled) return;
+      toast(statsErr(e));
+      btn.disabled = false;
+      btn.textContent = '지금 새로 받기';
+    }
+  }
+
+  /* --- 내 게임 닉네임 --- */
+  function myBox() {
+    const link = mine ? mine.link : null;
+    const linked = !!(link && link.status === 'ok');
+    const box = h('section', { class: 'panel hud st-me', 'aria-labelledby': 'st-me-h' }, h('h2', { class: 'h2', id: 'st-me-h' }, '내 게임 닉네임'));
+    const save = async (v) => {
+      await api('/api/me/nexon', { method: 'PUT', body: { nickname: v } });
+      ui.meEdit = false;
+      toast(linked ? '게임 닉네임을 바꿨어요.' : '게임 닉네임을 연결했어요.');
+      await reload('#st-me-now');
+    };
+    if (linked) {
+      const dv = link.best_division;
+      box.append(h('div', { class: 'st-id', id: 'st-me-now', tabindex: '-1' },
+        TIER_ART[dv] ? tierSvg(dv) : null,
+        h('div', { style: 'min-width:0' },
+          h('p', { class: 'st-nick' }, link.nickname || '닉네임 없음'),
+          h('p', { class: 'st-line' }, tierLabel(link, divs), link.level != null ? h('span', { class: 'lv' }, `Lv.${link.level}`) : null,
+            dv != null && fmtDay(link.best_at) ? h('span', { class: 'lv' }, `${fmtDay(link.best_at)} 달성`) : null),
+          h('p', { class: 'st-src' }, dotted([h('span', null, LINK_SOURCE[link.source] || '연결됨'), link.tier_at ? h('span', { class: 'nw' }, '티어 확인 ', timeEl(link.tier_at, true)) : null])))));
+      const toggle = h('button', {
+        class: 'btn btn-ghost', type: 'button', id: 'st-me-change', 'aria-expanded': ui.meEdit ? 'true' : 'false',
+        onclick: () => { ui.meEdit = !ui.meEdit; paintMe(); const el = ui.meEdit ? $('nk-me') : $('st-me-change'); if (el) el.focus(); },
+      }, '바꾸기');
+      const cut = h('button', {
+        class: 'btn-text danger', type: 'button', onclick: async (ev) => {
+          if (!confirm('게임 닉네임 연결을 끊을까요? 언제든 다시 연결할 수 있어요.')) return;
+          const b = ev.currentTarget;
+          b.disabled = true;
+          try { await api('/api/me/nexon', { method: 'DELETE' }); ui.meEdit = false; toast('연결을 끊었어요.'); await reload('#st-me-now'); }
+          catch (e) { if (!e.handled) { toast(statsErr(e)); b.disabled = false; } }
+        },
+      }, '연결 끊기');
+      box.append(h('div', { class: 'actions' }, toggle, cut));
+      if (ui.meEdit) {
+        box.append(nickForm({ key: 'me', cls: 'st-form', value: link.nickname, label: '게임 닉네임 바꾸기', save,
+          hint: '저장하면 바로 넥슨에서 찾아봐요.',
+          onCancel: () => { ui.meEdit = false; paintMe(); $('st-me-change').focus(); } }));
+      }
+    } else {
+      const k = linkKey(link);
+      let text;
+      if (k === 'not_found') {
+        text = link.source === 'auto'
+          ? '디스코드 닉네임으로는 게임 닉네임을 찾지 못했어요. 게임에 보이는 닉네임을 적어 주세요.'
+          : '연결해 둔 닉네임을 넥슨에서 찾지 못했어요. 게임에서 닉네임을 바꿨다면 새 닉네임을 적어 주세요.';
+      } else if (k === 'off') text = '연결을 끊어 둔 상태예요. 다시 연결하려면 게임 닉네임을 적어 주세요.';
+      else text = '아직 확인 전이에요. 다음에 새로 받을 때 디스코드 닉네임으로 찾아봐요. 바로 연결하려면 게임 닉네임을 적어 주세요.';
+      box.append(h('div', { id: 'st-me-now', tabindex: '-1' },
+        h('p', { class: 'st-state' }, text),
+        k === 'not_found' && link.nickname ? h('p', { class: 'st-src' }, `찾아 본 닉네임: ${link.nickname}`) : null));
+      box.append(nickForm({ key: 'me', cls: 'st-form', label: '게임 닉네임 연결', save, hint: '저장하면 바로 넥슨에서 찾아봐요.' }));
+    }
+    box.append(h('p', { class: 'st-src', style: 'margin-top:14px' }, '넥슨에서 받아 두는 정보는 ', h('a', { href: '#/privacy' }, '개인정보 안내'), '에 적어 뒀어요.'));
+    return box;
+  }
+  const meSlot = h('div');
+  const paintMe = () => meSlot.replaceChildren(myBox());
+  paintMe();
+
+  /* --- 클럽원 티어 --- */
+  const counts = { ok: 0, not_found: 0, none: 0, off: 0 };
+  for (const m of members) counts[linkKey(m.link)] = (counts[linkKey(m.link)] || 0) + 1;
+  const sumParts = [['연결', counts.ok, true], ['못 찾음', counts.not_found], ['확인 전', counts.none], ['연결 안 함', counts.off]]
+    .filter(([, n, always]) => always || n).map(([t, n]) => [t, ' ', h('b', null, `${n}명`)]);
+  const summary = h('p', { class: 'm-summary' }, dotted(sumParts.map((p) => h('span', { class: 'nw' }, p))));
+  const tierList = h('ul', { class: 'tl' });
+  const editBtn = (id) => tierList.querySelector(`[data-edit="${id}"]`);
+  function editPanel(m) {
+    const link = m.link;
+    const cut = link && link.status !== 'off' ? h('button', {
+      class: 'btn btn-danger', type: 'button', style: 'margin-left:auto', onclick: async (ev) => {
+        if (!confirm(`${m.name}님의 게임 닉네임 연결을 끊을까요?`)) return;
+        const b = ev.currentTarget;
+        b.disabled = true;
+        try { await api(`/api/nexon/links/${m.discord_id}`, { method: 'DELETE' }); ui.edit = null; toast(`${m.name}님 연결을 끊었어요.`); await reload(`[data-edit="${m.discord_id}"]`); }
+        catch (e) { if (!e.handled) { toast(statsErr(e)); b.disabled = false; } }
+      },
+    }, '끊기') : null;
+    return nickForm({
+      key: m.discord_id, cls: 'tl-edit', value: link && link.nickname, label: `${m.name} 게임 닉네임 고치기`, extra: cut,
+      hint: '저장하면 바로 넥슨에서 찾아봐요. ‘운영진이 입력’으로 남아요.',
+      onCancel: () => { ui.edit = null; paintTiers(); const b = editBtn(m.discord_id); if (b) b.focus(); },
+      save: async (v) => {
+        await api(`/api/nexon/links/${m.discord_id}`, { method: 'PUT', body: { nickname: v } });
+        ui.edit = null;
+        toast(`${m.name}님 게임 닉네임을 저장했어요.`);
+        await reload(`[data-edit="${m.discord_id}"]`);
+      },
+    });
+  }
+  function tierRow(m) {
+    const link = m.link;
+    const ok = !!(link && link.status === 'ok');
+    const isMe = m.discord_id === d.me_id;
+    const editing = ui.edit === m.discord_id;
+    const act = d.can_edit_links ? h('div', { class: 'tl-act' }, h('button', {
+      class: 'btn-text', type: 'button', 'data-edit': m.discord_id, 'aria-expanded': editing ? 'true' : 'false', 'aria-label': `${m.name} 게임 닉네임 고치기`,
+      onclick: () => { ui.edit = editing ? null : m.discord_id; paintTiers(); const el = editing ? editBtn(m.discord_id) : $(`nk-${m.discord_id}`); if (el) el.focus(); },
+    }, '고치기')) : null;
+    return h('li', { class: 'tl-row' + (isMe ? ' is-me' : '') },
+      h('div', { class: 'tl-art' }, ok && TIER_ART[link.best_division] ? tierSvg(link.best_division) : null),
+      h('div', { class: 'tl-id' },
+        h('div', { class: 'tl-name' }, h('span', null, m.name), m.is_staff ? badge('운영진', 'staff') : null, isMe ? badge('나', 'left') : null),
+        h('div', { class: 'tl-sub' }, tierLabel(link, divs), ok && link.nickname ? h('span', { class: 'nk' }, link.nickname) : null, ok && link.level != null ? h('span', { class: 'lv' }, `Lv.${link.level}`) : null)),
+      act,
+      editing ? editPanel(m) : null);
+  }
+  const paintTiers = () => tierList.replaceChildren(...(members.length ? members.map(tierRow) : [h('li', { class: 'empty' }, '아직 클럽원 목록이 없어요.')]));
+  paintTiers();
+
+  /* --- 내전 기록 --- */
+  const it = d.internal || {};
+  const matches = it.matches || [];
+  const tableRows = it.table || [];
+  const internal = [];
+  if (!matches.length && !tableRows.length) {
+    internal.push(h('div', { class: 'st-empty' },
+      h('p', null, '아직 찾은 내전이 없어요.'),
+      h('p', null, '두 사람 모두 게임 닉네임이 연결된 클럽원일 때 내전으로 기록돼요.')));
+  } else {
+    if (tableRows.length) {
+      const pts = (r) => r.win * 3 + r.draw;
+      const gd = (r) => r.gf - r.ga;
+      const rows = [...tableRows].sort((x, y) => pts(y) - pts(x) || gd(y) - gd(x) || y.gf - x.gf || x.played - y.played || String(x.name || '').localeCompare(String(y.name || ''), 'ko'));
+      let rank = 0;
+      const body = rows.map((r, i) => {
+        const p = rows[i - 1];
+        if (!p || pts(p) !== pts(r) || gd(p) !== gd(r) || p.gf !== r.gf) rank = i + 1;
+        return h('tr', null,
+          h('td', { class: 'c-rank' }, String(rank)),
+          h('th', { class: 'c-name', scope: 'row' }, h('b', null, r.name || r.nickname || '알 수 없음'), r.name && r.nickname ? h('small', null, r.nickname) : null),
+          [r.played, r.win, r.draw, r.lose, r.gf, r.ga].map((v) => h('td', null, String(v))),
+          h('td', null, signed(gd(r))));
+      });
+      internal.push(h('h3', { class: 'st-h3', id: 'st-tb-h' }, '순위'),
+        h('div', { class: 'st-scroll', role: 'region', 'aria-labelledby': 'st-tb-h', tabindex: '0' },
+          h('table', { class: 'st-table' },
+            h('thead', null, h('tr', null,
+              h('th', { class: 'c-rank', scope: 'col' }, '순위'), h('th', { class: 'c-name', scope: 'col' }, '이름'),
+              ['경기', '승', '무', '패', '득점', '실점', '득실'].map((t) => h('th', { scope: 'col' }, t)))),
+            h('tbody', null, body))),
+        h('p', { class: 'st-note' }, '승점(승 3, 무 1)이 높은 순이에요. 같으면 득실, 득점 순으로 가려요.'));
+    }
+    if (matches.length) {
+      const list = h('ul', { class: 'mt-list', 'aria-labelledby': 'st-mt-h' });
+      const more = h('div', { class: 'more' });
+      const moreBtn = h('button', { class: 'btn btn-ghost', type: 'button' });
+      const paintMore = () => {
+        const left = matches.length - list.children.length;
+        moreBtn.textContent = `더 보기 (${left}경기 남음)`;
+        more.hidden = left <= 0;
+      };
+      const addMatches = (from, to) => matches.slice(from, to).forEach((mt) => list.append(h('li', null, matchItem(mt))));
+      addMatches(0, ui.shown);
+      moreBtn.addEventListener('click', () => {
+        const from = list.children.length;
+        ui.shown = from + MATCH_PAGE;
+        addMatches(from, ui.shown);
+        paintMore();
+        const first = list.children[from] && list.children[from].querySelector('summary');
+        if (first) first.focus();
+      });
+      more.append(moreBtn);
+      paintMore();
+      internal.push(h('h3', { class: 'st-h3', id: 'st-mt-h' }, '최근 경기'), list, more);
+    }
+  }
+  function matchItem(mt) {
+    const A = mt.a || {}, B = mt.b || {};
+    const typeName = (d.match_types || {})[String(mt.match_type)] || '기타 경기';
+    const draw = A.result === '무' && B.result === '무';
+    const winner = A.result === '승' ? A : B.result === '승' ? B : null;
+    const side = (s, cls) => h('span', { class: `mt-side ${cls}${s.result === '승' ? ' win' : ''}` },
+      h('span', { class: 'mt-nick' }, s.nickname || '알 수 없음'),
+      s.name ? h('span', { class: 'mt-who' }, s.name) : null);
+    const goals = (s) => h('span', { class: s.result === '승' ? 'w' : s.result === '패' ? 'l' : null }, s.goals == null ? '-' : String(s.goals));
+    const det = h('details', { class: 'mt' });
+    if (ui.open.has(mt.match_id)) det.open = true;
+    det.addEventListener('toggle', () => { if (det.open) ui.open.add(mt.match_id); else ui.open.delete(mt.match_id); });
+    det.append(h('summary', null,
+      h('span', { class: 'mt-meta' },
+        h('span', null, timeEl(mt.played_at, true), ` · ${typeName}`, draw ? ' · 무승부' : ''),
+        h('span', { class: 'mt-more', 'aria-hidden': 'true' }, '자세히', icon('down'))),
+      h('span', { class: 'mt-score' },
+        side(A, 'a'),
+        h('span', { class: 'mt-goals' }, goals(A), h('span', { class: 'sep', 'aria-hidden': 'true' }, ':'), h('span', { class: 'sr-only' }, ' 대 '), goals(B)),
+        side(B, 'b')),
+      winner ? h('span', { class: 'sr-only' }, `, ${winner.nickname || ''} 승`) : null));
+    const as = A.stats || {}, bs = B.stats || {};
+    const val = (k, unit, v) => (v == null || !isFinite(v) ? '-' : k === 'rating' ? Number(v).toFixed(1) : `${Math.round(v)}${unit}`);
+    det.append(h('div', { class: 'mt-detail' },
+      h('table', { class: 'mt-stats' },
+        h('caption', { class: 'sr-only' }, `${A.nickname || ''} 대 ${B.nickname || ''} 경기 기록`),
+        h('thead', null, h('tr', null,
+          h('th', { class: 'sa', scope: 'col' }, A.nickname || '알 수 없음'),
+          h('th', { class: 'sl', scope: 'col' }, h('span', { class: 'sr-only' }, '항목')),
+          h('th', { class: 'sb', scope: 'col' }, B.nickname || '알 수 없음'))),
+        h('tbody', null, STAT_ROWS.map(([k, label, unit]) => {
+          const x = as[k], y = bs[k];
+          const both = isFinite(x) && isFinite(y) && x != null && y != null && x !== y;
+          return h('tr', null,
+            h('td', { class: 'sa' + (both && x > y ? ' hi' : '') }, val(k, unit, x)),
+            h('th', { class: 'sl', scope: 'row' }, label),
+            h('td', { class: 'sb' + (both && y > x ? ' hi' : '') }, val(k, unit, y)));
+        })))));
+    return det;
+  }
+
+  show([tabs(STATS_TAB), statsHead(),
+    h('p', { class: 'desc' }, 'FC 온라인 기록을 넥슨 Open API에서 받아 와요. 티어는 하루에 한 번, 내전 기록은 몇 시간마다 새로 받아요. 넥슨 쪽 반영이 2~3시간 늦을 수 있어요.'),
+    meta,
+    meSlot,
+    h('section', { class: 'st-sec', 'aria-labelledby': 'st-tier-h' },
+      h('h2', { class: 'h2', id: 'st-tier-h' }, '클럽원 티어'),
+      h('p', { class: 'hint' }, '넥슨 기록에 남은 최고 티어예요.'),
+      summary, tierList),
+    h('section', { class: 'st-sec', 'aria-labelledby': 'st-in-h' },
+      h('h2', { class: 'h2', id: 'st-in-h' }, '내전 기록'),
+      h('p', { class: 'hint' }, '클럽원끼리 한 경기만 모았어요.'),
+      internal),
+    h('p', { class: 'st-attr', lang: 'en' }, 'Data based on NEXON Open API')], { keepScroll: !!keep });
+  if (keep && keep.focus) { const el = view.querySelector(keep.focus); if (el) el.focus(); }
+}
+
 /* ---------- 개인정보 안내 ---------- */
 function renderPrivacy() {
   setTitle('개인정보 안내');
@@ -1118,6 +1610,8 @@ function renderPrivacy() {
         h('li', null, '관리자가 공지 읽음 집계에서 뺐다면 그 사유와 메모'),
         h('li', null, '로그인 상태를 지키는 값. 브라우저에 두고, 서버에는 알아볼 수 없게 바꾼 값만 둬요.')),
       h('p', null, h('strong', null, '이메일, IP 주소, 디스코드 로그인 토큰은 저장하지 않아요.'), ' 디스코드 토큰은 로그인 확인에만 쓰고 바로 없앱니다.'),
+      h('h2', null, '전적 메뉴'),
+      h('p', null, '전적 메뉴를 보여 주려고 넥슨 Open API에서 게임 닉네임, 넥슨 계정 식별값(ouid), 티어, 클럽원끼리 한 경기 기록을 받아 저장해요. 게임 닉네임 연결은 전적 메뉴에서 언제든 끊을 수 있어요. NV 디스코드 서버를 나가면 다른 정보와 함께 지워요.'),
       h('h2', null, '운영진과 관리자가 볼 수 있는 것'),
       h('ul', null,
         h('li', null, '공지마다 누가 열어 봤는지, 누가 확인했는지, 그 시각까지 볼 수 있어요.'),
@@ -1126,7 +1620,8 @@ function renderPrivacy() {
       h('h2', null, '처리하는 곳'),
       h('ul', null,
         h('li', null, h('strong', null, 'Discord'), ': 로그인, 서버 멤버와 역할 확인'),
-        h('li', null, h('strong', null, 'Cloudflare'), ': 서버와 데이터베이스(글, 댓글, 열람 기록)'),
+        h('li', null, h('strong', null, 'Cloudflare'), ': 서버와 데이터베이스(글, 댓글, 열람 기록, 전적)'),
+        h('li', null, h('strong', null, 'NEXON Open API'), ': 게임 닉네임, 티어, 경기 기록 조회'),
         h('li', null, h('strong', null, 'GitHub Pages'), ': 이 화면')),
       h('h2', null, '지우는 때'),
       h('ul', null,
@@ -1553,6 +2048,7 @@ async function consumeAuthFragment() {
 async function boot() {
   await consumeAuthFragment();
   if (!state.token) state.token = loadToken();
+  document.body.classList.toggle('tall', !!state.token && location.hash === '#/stats');
   if (state.token && !state.me) {
     show(loadingEl());
     try {
