@@ -1750,6 +1750,58 @@ const statsErr = (e) => STATS_ERR[e && e.code] || errText(e);
 const SYNC_STOP = { budget: '오늘 쓸 수 있는 호출을 다 써서 중간에 멈췄어요', rate: '넥슨 호출 제한에 걸려 중간에 멈췄어요', error: '넥슨 쪽 오류로 중간에 멈췄어요' };
 const STAT_ROWS = [['possession', '점유율', '%'], ['shots', '슈팅', ''], ['on_target', '유효 슈팅', ''], ['pass_pct', '패스 성공률', '%'], ['rating', '평점', '']];
 const MATCH_PAGE = 10;
+const STATS_WINDOW = 30; // 서버가 window로 알려 주는 최근 경기 수(받기 전 문구용)
+const winSize = (d) => (d && d.window && isNum(d.window.size) ? d.window.size : isNum(d && d.window) ? d.window : STATS_WINDOW);
+/* 30경기 기록을 다시 모으는 동안(서버 window.ready=false)은 옛 10경기 기준으로 보여 준다는 안내 */
+function refillNote(d, rule) {
+  const w = d && d.window;
+  if (!w || typeof w !== 'object' || w.ready !== false) return null;
+  const head = `최근 ${w.size}경기 기록을 다시 모으는 중이에요(${w.done ?? 0}/${w.total ?? 0}명).`;
+  return h('p', { class: 'pm-partial' }, rule
+    ? `${head} 대부분 모이면 ${w.size}경기 기준으로 바뀌고, 그때까지는 ${rule} 기준으로 보여 줘요.`
+    : `${head} 아직 10경기 기록인 클럽원도 섞여 있어요.`);
+}
+/* 개인 전적·검색: 서버는 한 번에 새 경기 10개까지만 받아 오고 남은 수를 pending으로 알려 준다. 두 번까지 이어 받는다 */
+async function fillPending(url, d, seq, repaint) {
+  /* 넥슨이 중간에 멈췄으면(stopped) 바로 다시 물어도 같으니 이어 받지 않는다. 고장 난 경기 몇 개를 건너뛴 것(skipped)은
+     나머지를 받는 데 지장이 없어 계속 이어 받는다. 이어 받기는 cont=1: 방금 낸 조회 횟수로 친다 */
+  const halted = (x) => (typeof x.stopped === 'boolean' ? x.stopped : !!x.partial);
+  const contUrl = `${url}${url.includes('?') ? '&' : '?'}cont=1`;
+  for (let i = 0; i < 2 && d && d.pending > 0 && !halted(d); i++) {
+    let next;
+    try { next = await api(contUrl); } catch (e) { return (e && e.code) || 'error'; }
+    if (stale(seq)) return 'stale';
+    const before = Array.isArray(d.matches) ? d.matches.length : 0;
+    const after = next && Array.isArray(next.matches) ? next.matches.length : 0;
+    if (!next || (after <= before && !(next.pending < d.pending))) break; // 더 못 받았으면 멈춘다
+    d = next;
+    await repaint(d);
+    if (stale(seq)) return 'stale';
+  }
+  return 'done';
+}
+/* 이어 받은 뒤 본문만 다시 그릴 때, 보던 자리(경기 줄의 라인업·상대 링크, 더 보기)에 포커스를 돌려 준다 */
+function keepFocusIn(box, redraw) {
+  const ae = document.activeElement;
+  /* 화면 위쪽에서 처음 보이는 경기 줄(없으면 제목)의 위치를 기억했다가, 다시 그린 뒤 같은 자리로 맞춘다 */
+  const anchorOf = (root) => [...root.querySelectorAll('li[data-mid], h2[id]')].find((el) => el.getBoundingClientRect().top >= 0) || null;
+  const a = anchorOf(box);
+  const aKey = a ? (a.dataset.mid ? `li[data-mid="${CSS.escape(a.dataset.mid)}"]` : `#${CSS.escape(a.id)}`) : null;
+  const aTop = a ? a.getBoundingClientRect().top : 0;
+  let key = null;
+  if (ae && box.contains(ae)) {
+    const li = ae.closest('li[data-mid]');
+    key = { mid: li ? li.dataset.mid : null, sel: ae.matches('summary') ? 'summary' : ae.matches('a') ? 'a' : ae.closest('.more') ? 'more' : null };
+  }
+  redraw();
+  const b = aKey ? box.querySelector(aKey) : null;
+  if (b) { const dy = b.getBoundingClientRect().top - aTop; if (Math.abs(dy) > 1) window.scrollBy(0, dy); }
+  if (!key) return;
+  let el = null;
+  if (key.sel === 'more') el = box.querySelector('.more button');
+  else if (key.mid) { const li = box.querySelector(`li[data-mid="${CSS.escape(key.mid)}"]`); el = li && key.sel ? li.querySelector(key.sel) : null; }
+  if (el) el.focus({ preventScroll: true });
+}
 
 function tierSvg(div) {
   const s = document.createElementNS(NS, 'svg');
@@ -1871,7 +1923,7 @@ async function renderStats(seq, keep) {
     const save = async (v) => {
       await api('/api/me/nexon', { method: 'PUT', body: { nickname: v } });
       ui.meEdit = false;
-      toast(`${linked ? '게임 닉네임을 바꿨어요.' : '게임 닉네임을 연결했어요.'} 랭킹·어워드·클럽 픽에는 10분 안에 반영돼요.`);
+      toast(`${linked ? '게임 닉네임을 바꿨어요.' : '게임 닉네임을 연결했어요.'} 랭킹·어워드·클럽 픽에는 30분쯤 안에 반영돼요.`);
       await reload('#st-me-now');
     };
     if (linked) {
@@ -1949,7 +2001,7 @@ async function renderStats(seq, keep) {
       save: async (v) => {
         await api(`/api/nexon/links/${m.discord_id}`, { method: 'PUT', body: { nickname: v } });
         ui.edit = null;
-        toast(`${m.name}님 게임 닉네임을 저장했어요. 랭킹·어워드·클럽 픽에는 10분 안에 반영돼요.`);
+        toast(`${m.name}님 게임 닉네임을 저장했어요. 랭킹·어워드·클럽 픽에는 30분쯤 안에 반영돼요.`);
         await reload(`[data-edit="${m.discord_id}"]`);
       },
     });
@@ -2309,10 +2361,11 @@ function detailBody(d, type, o) {
   const label = PM_TYPE_NAME.get(type) || '경기';
   const body = [];
   if (d.partial) body.push(h('p', { class: 'pm-partial' }, '몇 경기는 이번에 넥슨에서 받아 오지 못해 빠져 있어요.'));
+  if (d.pending > 0) body.push(h('p', { class: 'pm-partial', role: 'status' }, `나머지 ${d.pending}경기는 아직 받아 오지 못했어요. 잠시 뒤 다시 열면 보여요.`));
   if (!sm && !ms.length) {
     body.push(h('div', { class: 'st-empty', style: 'margin-top:24px' },
       h('p', null, `최근에 한 ${label} 경기가 없어요.`),
-      h('p', null, '넥슨 기록에서 최근 10경기까지 보여 줘요.')));
+      h('p', null, `넥슨 기록에서 최근 ${winSize(d)}경기까지 보여 줘요.`)));
     return body;
   }
   if (sm) body.push(summarySec(sm));
@@ -2325,9 +2378,31 @@ function detailBody(d, type, o) {
       h('ul', { class: 'pl-list' }, players.map(playerCard))));
   }
   if (ms.length) {
+    /* 30경기를 한 번에 펼치지 않고 10경기씩(내전 목록과 같은 '더 보기') */
+    const ui = o.ui || { shown: MATCH_PAGE };
+    const list = h('ul', { class: 'pm-list' });
+    const more = h('div', { class: 'more' });
+    const moreBtn = h('button', { class: 'btn btn-ghost', type: 'button' });
+    const paintMore = () => {
+      const left = ms.length - list.children.length;
+      moreBtn.textContent = `더 보기 (${left}경기 남음)`;
+      more.hidden = left <= 0;
+    };
+    const add = (from, to) => ms.slice(from, to).forEach((mt) => list.append(matchRow(mt, o)));
+    add(0, Math.max(MATCH_PAGE, ui.shown || 0));
+    moreBtn.addEventListener('click', () => {
+      const from = list.children.length;
+      ui.shown = from + MATCH_PAGE;
+      add(from, ui.shown);
+      paintMore();
+      const first = list.children[from] && list.children[from].querySelector('summary, a');
+      if (first) first.focus();
+    });
+    more.append(moreBtn);
+    paintMore();
     body.push(h('section', { class: 'st-sec', 'aria-labelledby': 'pm-mt-h' },
       h('h2', { class: 'h2', id: 'pm-mt-h' }, '최근 경기'),
-      h('ul', { class: 'pm-list' }, ms.map((mt) => matchRow(mt, o)))));
+      list, more));
   }
   return body;
 
@@ -2443,8 +2518,10 @@ function detailBody(d, type, o) {
     if (!lu.length) return null;
     const box = h('div', { class: 'lu-body' });
     const det = h('details', { class: 'pm-lu' }, h('summary', null, h('span', null, '라인업'), icon('down')), box);
+    const opened = o.ui && o.ui.open;
     let drawn = false;
     det.addEventListener('toggle', async () => {
+      if (opened) { if (det.open) opened.add(mt.match_id); else opened.delete(mt.match_id); }
       if (!det.open || drawn) return;
       drawn = true;
       box.replaceChildren(h('p', { class: 'lu-wait' }, '선수 이름을 불러오는 중이에요.'));
@@ -2454,6 +2531,7 @@ function detailBody(d, type, o) {
       box.replaceChildren(h('ul', { class: 'lu' }, starters.map(luRow)));
       if (subs.length) box.append(h('p', { class: 'lu-h' }, '교체'), h('ul', { class: 'lu' }, subs.map(luRow)));
     });
+    if (opened && opened.has(mt.match_id)) det.open = true; // 이어 받아 다시 그려도 펼친 라인업은 그대로
     return det;
   }
   /* 결과에 따라 줄 색을 달리한다(승 하늘색, 무 회색, 패 빨간색). 글자(승·무·패)도 함께 보여 색만으로 구분하지 않는다 */
@@ -2466,7 +2544,7 @@ function detailBody(d, type, o) {
       h('span', { class: 'pm-opp-l1' }, h('span', { class: 'pm-opp-nk' }, op.nickname || op.name || '알 수 없음'), ctrlIcon(op.controller)),
       h('span', { class: 'pm-opp-l2' }, tierTag(op.division), op.name ? h('span', { class: 'pm-opp-who' }, op.name) : null),
     ];
-    return h('li', { class: `pm r-${rc}` },
+    return h('li', { class: `pm r-${rc}`, 'data-mid': mt.match_id || null },
       h('div', { class: 'pm-top' },
         h('span', { class: 'pm-when' }, relTimeEl(mt.played_at), end ? badge(end, 'end') : null),
         h('span', { class: 'pm-myrt' }, ctrlIcon(me.controller), '내 평점 ', h('b', null, fx(me.rating, 1)))),
@@ -2517,14 +2595,25 @@ async function renderMemberStats(id, type, seq) {
     if (stale(seq)) return;
     cacheSet(key, d);
   }
-  pmHead.set(id, d);
+  const ui = { shown: MATCH_PAGE, open: new Set() };
+  const bodyBox = h('div', { class: 'pm-body' });
+  const fillBody = (dd) => { bodyBox.replaceChildren(); append(bodyBox, detailBody(dd, type, { oppHref: oppHrefFor(type), ui })); };
   /* 자주 쓴 선수와 최근 경기 선발 이름, 시즌 배지는 그리기 전에 받는다(늦으면 받는 대로 바꿔 끼운다) */
-  await waitAtMost(Promise.all([loadNames(detailSpids(d)), loadSeasons()]), 2500);
+  const prep = (dd) => { pmHead.set(id, dd); return waitAtMost(Promise.all([loadNames(detailSpids(dd)), loadSeasons()]), 2500); };
+  await prep(d);
   if (stale(seq)) return;
   const mb = d.member || {};
   setTitle(`${mb.name || '클럽원'} 전적`);
-  show([top(), memberHead(id, type, d), detailBody(d, type, { oppHref: oppHrefFor(type) }),
+  fillBody(d);
+  show([top(), memberHead(id, type, d), bodyBox,
     h('p', { class: 'st-attr', lang: 'en' }, 'Data based on NEXON Open API')], { keepScroll: !cached });
+  /* 남은 경기를 이어 받으면 본문만 바꾼다(제목·포커스·열린 라인업은 그대로) */
+  await fillPending(`/api/stats/members/${id}?type=${type}`, d, seq, async (nd) => {
+    cacheSet(key, nd);
+    await prep(nd);
+    if (stale(seq)) return;
+    keepFocusIn(bodyBox, () => fillBody(nd));
+  });
 }
 
 /* ---------- 랭킹(#/stats/rank/<경기 종류>) ---------- */
@@ -2552,7 +2641,7 @@ async function renderRanking(type, seq) {
   state.rankType = type;
   const cat = RANK_CATS.find((c) => c.key === state.rankCat) || RANK_CATS[0];
   const head = () => [tabs(STATS_TAB), statsNav('rank'), h('p', { class: 'idx' }, 'RANKING'), h('h1', { class: 'h1', tabindex: '-1' }, '랭킹'),
-    h('p', { class: 'desc' }, '클럽원마다 최근 10경기로 겨뤄요. 줄을 누르면 그 클럽원 전적으로 가요.'),
+    h('p', { class: 'desc' }, `클럽원마다 최근 ${STATS_WINDOW}경기로 겨뤄요. 줄을 누르면 그 클럽원 전적으로 가요.`),
     h('nav', { class: 'seg seg-2', 'aria-label': '경기 종류' }, RK_TYPES.map(([t, l]) => h('a', { href: `#/stats/rank/${t}`, 'aria-current': t === type ? 'page' : null }, l)))];
   const key = `rank:${type}`;
   let d = cacheGet(key);
@@ -2566,7 +2655,8 @@ async function renderRanking(type, seq) {
     cacheSet(key, d);
   }
   const members = Array.isArray(d.members) ? d.members : [];
-  const minGames = isNum(d.min_games) ? d.min_games : 5;
+  const minGames = isNum(d.min_games) ? d.min_games : 15;
+  const W = winSize(d);
   for (const m of members) {
     if (state.statsMembers && state.statsMembers.has(m.discord_id)) continue;
     if (!state.statsMembers) state.statsMembers = new Map();
@@ -2647,10 +2737,10 @@ async function renderRanking(type, seq) {
     fillBox(
       inList.length
         ? h('ol', { class: 'rk-list' }, ranked(inList, (a, b) => current.v(a.stats) === current.v(b.stats) && (!current.t || current.t(a.stats) === current.t(b.stats))).map(([r, m]) => row(r, m, current.fmt(m.stats), current.sub(m.stats), gamesText(m))))
-        : h('div', { class: 'st-empty' }, h('p', null, `아직 ${minGames}경기 넘게 한 클럽원이 없어요.`)),
+        : h('div', { class: 'st-empty' }, h('p', null, `아직 최근 ${W}경기 중 ${minGames}경기 이상 한 클럽원이 없어요.`)),
       out.length ? [
         h('h2', { class: 'st-h3', id: 'rk-out-h' }, `경기 수 부족 · ${out.length}명`),
-        h('p', { class: 'hint', style: 'margin:0 0 8px' }, `최근 ${minGames}경기 이상 한 클럽원만 순위에 넣어요.`),
+        h('p', { class: 'hint', style: 'margin:0 0 8px' }, `최근 ${W}경기 중 ${minGames}경기 이상 한 클럽원만 순위에 넣어요.`),
         h('ul', { class: 'rk-list rk-out', 'aria-labelledby': 'rk-out-h' }, out.map((m) => row(null, m, '-', null, gamesText(m))))] : null);
   }
   const cov = d.coverage || {};
@@ -2658,6 +2748,7 @@ async function renderRanking(type, seq) {
     h('p', { class: 'rk-cov' },
       h('span', null, isNum(cov.linked) ? `연결된 ${cov.linked}명 중 ${cov.collected ?? 0}명 기록을 모았어요. 10분마다 조금씩 더 모아요.` : '10분마다 조금씩 기록을 모아요.'),
       h('span', null, d.updated_at ? ['갱신 ', timeEl(d.updated_at, true)] : '아직 모은 기록이 없어요')),
+    refillNote(d, `${minGames}경기 이상`),
     cats, listBox, statsAttr()]);
   paintCats();
   await paintList();
@@ -2729,8 +2820,9 @@ async function renderPicks(type, seq) {
   paint();
   show([head(),
     h('p', { class: 'rk-cov' },
-      h('span', null, `클럽원 ${d.members_counted ?? 0}명의 최근 10경기 선발을 모았어요.`),
+      h('span', null, `클럽원 ${d.members_counted ?? 0}명의 최근 ${winSize(d)}경기 선발을 모았어요.`),
       h('span', null, d.updated_at ? ['갱신 ', timeEl(d.updated_at, true)] : '아직 모은 기록이 없어요')),
+    refillNote(d, null),
     h('p', { class: 'hint pk-explain' }, '랭커 평점은 TOP 10,000 랭커가 이 선수를 쓴 20경기의 평균이에요. NV 평점은 클럽원 선발 경기의 평균이에요.'),
     d.ranker_partial ? h('p', { class: 'pm-partial' }, '몇몇 선수는 이번에 랭커 기록을 다 받지 못했어요.') : null,
     players.length ? [chips, list] : h('div', { class: 'st-empty', style: 'margin-top:18px' }, h('p', null, '아직 모은 선수가 없어요.'), h('p', null, '클럽원 기록을 모으면 여기에 보여요.')),
@@ -2765,7 +2857,8 @@ async function renderAwards(type, seq) {
   }
   const aw = d.awards || {};
   const rules = d.rules || {};
-  const minApps = isNum(rules.min_apps) ? rules.min_apps : 5;
+  const minApps = isNum(rules.min_apps) ? rules.min_apps : 15;
+  const W = winSize(d);
   const lists = AWARD_CATS.map((c) => (aw[c.key] && Array.isArray(aw[c.key].list) ? aw[c.key].list : []));
   const all = lists.flat();
   await waitAtMost(Promise.all([loadNames(all.map((e) => e.spid)), loadSeasons()]), 2500);
@@ -2809,9 +2902,9 @@ async function renderAwards(type, seq) {
     goals: `선발 ${minApps}경기 이상 뛰고 골을 넣은 선수가 아직 없어요.`,
     assists: `선발 ${minApps}경기 이상 뛰고 도움을 한 선수가 아직 없어요.`,
     tackle: d.tackle_data
-      ? `선발 ${minApps}경기 이상, 태클 ${rules.min_tackles ?? 10}번 이상 한 수비수가 아직 없어요.`
+      ? `선발 ${minApps}경기 이상, 태클 ${rules.min_tackles ?? 30}번 이상 한 수비수가 아직 없어요.`
       : '선수별 태클 수는 새로 모은 경기부터 세요. 기록이 쌓이면 여기에 보여요.',
-    save: `골키퍼로 선발 ${minApps}경기 이상, 유효슈팅 ${rules.min_faced ?? 10}개 이상 받은 선수가 아직 없어요.`,
+    save: `골키퍼로 선발 ${minApps}경기 이상, 유효슈팅 ${rules.min_faced ?? 30}개 이상 받은 선수가 아직 없어요.`,
   };
   function section(c, list) {
     const box = h('section', { class: 'aw', 'aria-labelledby': `aw-${c.key}` },
@@ -2833,14 +2926,15 @@ async function renderAwards(type, seq) {
   const any = lists.some((l) => l.length);
   show([head(),
     h('p', { class: 'rk-cov' },
-      h('span', null, `클럽원 ${d.members_counted ?? 0}명의 최근 10경기 선발 기록이에요.`),
+      h('span', null, `클럽원 ${d.members_counted ?? 0}명의 최근 ${W}경기 선발 기록이에요.`),
       h('span', null, d.updated_at ? ['갱신 ', timeEl(d.updated_at, true)] : '아직 모은 기록이 없어요')),
+    refillNote(d, `선발 ${minApps}경기 이상`),
     d.members_counted ? null : h('div', { class: 'st-empty', style: 'margin-top:18px' }, h('p', null, '아직 모은 기록이 없어요.'), h('p', null, '클럽원 기록을 모으면 여기에 보여요.')),
     d.members_counted ? h('div', { class: 'aw-grid' }, AWARD_CATS.map((c, i) => section(c, lists[i]))) : null,
     any || d.members_counted ? h('ul', { class: 'aw-rules' },
-      h('li', null, `클럽원마다 최근 10경기에서 선발로 ${minApps}경기 이상 뛴 선수만 넣어요. 같은 선수라도 쓴 클럽원이 다르면 따로 세요.`),
-      h('li', null, `수비왕은 수비수(DF) 자리에서 태클을 ${rules.min_tackles ?? 10}번 이상 한 선수의 태클 성공률이에요.`),
-      h('li', null, `선방왕은 골키퍼로 상대 유효슈팅을 ${rules.min_faced ?? 10}개 이상 받은 선수가 골을 내주지 않은 비율이에요.`)) : null,
+      h('li', null, `클럽원마다 최근 ${W}경기에서 선발로 ${minApps}경기 이상 뛴 선수만 넣어요. 같은 선수라도 쓴 클럽원이 다르면 따로 세요.`),
+      h('li', null, `수비왕은 수비수(DF) 자리에서 태클을 ${rules.min_tackles ?? 30}번 이상 한 선수의 태클 성공률이에요.`),
+      h('li', null, `선방왕은 골키퍼로 상대 유효슈팅을 ${rules.min_faced ?? 30}개 이상 받은 선수가 골을 내주지 않은 비율이에요.`)) : null,
     statsAttr()]);
   restorePlace();
 }
@@ -2890,22 +2984,34 @@ async function renderSearch(nick, type, seq) {
     if (stale(seq)) return;
     cacheSet(key, d);
   }
-  await waitAtMost(Promise.all([loadNames(detailSpids(d)), loadSeasons()]), 2500);
+  const toMember = () => rememberPlace('검색');
+  const ui = { shown: MATCH_PAGE, open: new Set() };
+  const bodyBox = h('div', { class: 'pm-body' });
+  const fillBody = (dd) => { bodyBox.replaceChildren(); append(bodyBox, detailBody(dd, type, { oppHref: oppHrefFor(type), onOpp: toMember, ui })); };
+  const prep = (dd) => waitAtMost(Promise.all([loadNames(detailSpids(dd)), loadSeasons()]), 2500);
+  await prep(d);
   if (stale(seq)) return;
   const pl = d.player || {};
   const cm = d.club_member;
-  const toMember = () => rememberPlace('검색');
+  fillBody(d);
   show([head(), recent(),
     h('section', { class: 'sr-res', 'aria-labelledby': 'sr-res-h' },
       detailHead({
         tag: 'h2', id: 'sr-res-h', title: pl.nickname || nick, level: pl.level, hd: d, type, hrefFor: (t) => `#/stats/search/${enc}/${t}`,
         extra: cm && cm.discord_id ? h('p', { class: 'sr-club' }, 'NV 클럽원이에요. ', h('a', { class: 'sr-club-link', href: `#/stats/m/${cm.discord_id}/${type}`, onclick: toMember }, `${cm.name || '클럽원'} 페이지로`)) : null,
       }),
-      detailBody(d, type, { oppHref: oppHrefFor(type), onOpp: toMember })),
+      bodyBox),
     statsAttr()], { keepScroll: waited });
   const hEl = $('sr-res-h');
   if (hEl && state.navigated) hEl.focus({ preventScroll: true });
   restorePlace();
+  /* 이어 받으면 결과 본문만 바꾼다. 검색창에 다음 닉네임을 치는 중이어도 끊기지 않는다 */
+  await fillPending(`/api/stats/search?nickname=${enc}&type=${type}`, d, seq, async (nd) => {
+    cacheSet(key, nd);
+    await prep(nd);
+    if (stale(seq)) return;
+    keepFocusIn(bodyBox, () => fillBody(nd));
+  });
 }
 
 /* ---------- 개인정보 안내 ---------- */
