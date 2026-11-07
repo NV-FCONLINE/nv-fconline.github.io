@@ -168,6 +168,32 @@
   .anon-box p { margin: 4px 0 0; font-size: 15px; line-height: 1.65; color: var(--ink-mid); }
   .anon-name { display: inline-flex; align-items: center; gap: 5px; color: #8fd3ea; }
   .anon-name svg { width: 15px; height: 15px; flex: none; }
+  .intro { margin: 8px 0 0; font-size: 16.5px; line-height: 1.6; font-weight: 600; color: var(--ink-hi); max-width: 40em; }
+  /* 메모 벽 */
+  .memo-new { margin: 0 0 22px; padding: 18px 20px; }
+  .memo-label { display: block; margin: 0 0 8px; font-size: 14px; font-weight: 700; color: var(--ink-mid); }
+  .memo-input { min-height: 96px; }
+  .memo-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 10px; }
+  .memo-wall { list-style: none; margin: 0; padding: 0; columns: 3 240px; column-gap: 14px; }
+  .memo {
+    --tone: 230, 74, 88;
+    break-inside: avoid; display: flex; flex-direction: column; gap: 12px; margin: 0 0 14px; padding: 16px 16px 12px;
+    background: linear-gradient(180deg, rgba(var(--tone), 0.16), rgba(var(--tone), 0.07));
+    border: 1px solid rgba(var(--tone), 0.38); border-top: 3px solid rgba(var(--tone), 0.85); border-radius: 4px;
+  }
+  .memo.tone-1 { --tone: 68, 160, 192; }
+  .memo.tone-2 { --tone: 230, 207, 143; }
+  .memo.tone-3 { --tone: 120, 200, 140; }
+  .memo.tone-4 { --tone: 190, 150, 240; }
+  .memo.is-hidden { opacity: 0.55; border-style: dashed; }
+  .memo-marks { display: flex; gap: 6px; }
+  .memo-body { margin: 0; font-size: 16px; line-height: 1.65; color: #fff; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .memo-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 10px; font-size: 13px; color: var(--ink-dim); }
+  .memo-who { display: inline-flex; align-items: center; gap: 6px; min-width: 0; color: var(--ink-mid); font-weight: 600; }
+  .memo-me { font-size: 11.5px; font-weight: 700; padding: 1px 6px; border-radius: 999px; background: rgba(255, 255, 255, 0.12); color: #fff; }
+  .memo-tools { display: flex; justify-content: flex-end; gap: 14px; margin-top: -4px; }
+  .memo-empty { column-span: all; padding: 36px 6px; color: var(--ink-dim); font-size: 15px; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
+  @media (max-width: 520px) { .memo-wall { columns: 1; } }
   .b-staff { height: 20px; padding: 0 6px; font-size: 11.5px; color: var(--red-soft); border-color: rgba(230, 74, 88, 0.4); }
   .b-left { height: 20px; padding: 0 6px; font-size: 11.5px; color: var(--ink-dim); }
 
@@ -425,7 +451,7 @@
   .h3 { margin: 0; font-size: 18px; font-weight: 700; color: var(--ink-hi); }
   .b-meta { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--ink-dim); }
   .b-grid { display: grid; grid-template-columns: minmax(0, 1fr) 112px; gap: 12px; }
-  .b-grid .f-slug { grid-column: 1 / -1; }
+  .b-grid .f-slug, .b-grid .f-wide { grid-column: 1 / -1; }
   .b-pols { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; align-items: start; }
   .select {
     appearance: none; -webkit-appearance: none; padding-right: 38px; cursor: pointer;
@@ -1233,10 +1259,13 @@ const readersLabel = (b) => (b.read_policy === 'admin' ? '관리자' : b.read_po
 const ownOnly = (b) => !!(b && b.private_own && !b.can_read_all);
 const latLabel = (slug) => slug.toUpperCase().replace(/-/g, ' ');
 const boardBy = (slug) => state.boards.find((b) => b.slug === slug);
+const MEMO_MAX = 300;
 function boardDesc(b) {
-  const d = boardDesc0(b);
+  let d = boardDesc0(b);
+  if (b.layout === 'memo') d = `제목 없이 ${MEMO_MAX}자까지 짧게 써요. ${d}`;
   return b.public_titles ? `${d} 글 제목은 홈페이지에도 보여요.` : d;
 }
+const introEl = (b) => (b && b.intro ? h('p', { class: 'intro' }, b.intro) : null);
 function boardDesc0(b) {
   if (b.anonymous && ownOnly(b)) return `${readersLabel(b)}에게 전할 말을 익명으로 남겨 주세요.`;
   if (b.anonymous && b.private_own) return '멤버들이 익명으로 남긴 글이에요. 댓글로 답하면 쓴 사람만 볼 수 있어요.';
@@ -1294,11 +1323,13 @@ async function renderBoard(slug, seq) {
   if (stale(seq)) return;
   const b = data.board;
   setTitle(b.name);
+  if (b.layout === 'memo') return renderMemoWall(slug, b, data, seq);
   const inlineOwn = ownOnly(b) && b.can_write;
   const head = h('div', { class: 'head' },
     h('div', null,
       h('p', { class: 'idx' }, latLabel(b.slug)),
       h('h1', { class: 'h1', tabindex: '-1' }, b.name),
+      introEl(b),
       h('p', { class: 'desc' }, boardDesc(b))),
     b.can_write && !inlineOwn ? h('a', { class: 'btn btn-primary', href: `#/write/${b.slug}` }, writeLabel(b)) : null);
 
@@ -1332,6 +1363,86 @@ async function renderBoard(slug, seq) {
   }
   parts.push(list, more);
   show(parts);
+}
+
+/* ---------- 메모 벽: 제목 없이 짧게 남기는 게시판(관리 페이지에서 '모양: 메모') ---------- */
+function memoCard(p, reload) {
+  const me = state.me;
+  const tools = [];
+  if (me.is_staff) {
+    const hide = p.status !== 'hidden';
+    tools.push(h('button', { class: 'btn-text', type: 'button', onclick: () => act(() => api(`/api/posts/${p.id}`, { method: 'PATCH', body: { status: hide ? 'hidden' : 'visible' } }), hide ? '메모를 숨겼어요.' : '메모를 다시 보이게 했어요.', reload) }, hide ? '숨기기' : '보이기'));
+  }
+  if (p.can_delete) {
+    tools.push(h('button', { class: 'btn-text danger', type: 'button', onclick: () => {
+      if (!confirm('이 메모를 지울까요?')) return;
+      act(() => api(`/api/posts/${p.id}`, { method: 'DELETE' }), '메모를 지웠어요.', reload);
+    } }, '지우기'));
+  }
+  const marks = [p.pinned ? badge('고정', 'pin') : null, p.status === 'hidden' ? badge('숨김', 'hidden') : null].filter(Boolean);
+  return h('li', { class: `memo tone-${p.id % 5}` + (p.status === 'hidden' ? ' is-hidden' : '') + (p.mine ? ' mine' : '') },
+    marks.length ? h('div', { class: 'memo-marks' }, marks) : null,
+    h('p', { class: 'memo-body' }, linkify(p.body || p.title)),
+    h('div', { class: 'memo-foot' },
+      h('span', { class: 'memo-who' }, authorName(p.author), p.mine && !p.author.anonymous ? h('span', { class: 'memo-me' }, '나') : null),
+      timeEl(p.created_at, true)),
+    tools.length ? h('div', { class: 'memo-tools' }, tools) : null);
+}
+function memoComposer(b, done) {
+  const ta = h('textarea', { class: 'textarea memo-input', id: 'memo-new', maxlength: MEMO_MAX, rows: 3, placeholder: `짧게 적어 주세요. ${MEMO_MAX}자까지 써요.` });
+  const err = h('p', { class: 'alert form-err', role: 'alert' });
+  const submit = h('button', { class: 'btn btn-primary', type: 'submit' }, b.anonymous ? '익명으로 붙이기' : '메모 붙이기');
+  const form = h('form', { class: 'memo-new panel hud', novalidate: true, 'aria-label': '새 메모' },
+    h('label', { class: 'memo-label', for: 'memo-new' }, '새 메모'),
+    ta,
+    h('div', { class: 'memo-row' }, counter(ta, MEMO_MAX), submit),
+    err);
+  ta.addEventListener('keydown', (ev) => { if (ev.key === 'Enter' && (ev.ctrlKey || ev.metaKey)) { ev.preventDefault(); form.requestSubmit(); } });
+  form.addEventListener('submit', async (ev) => {
+    ev.preventDefault();
+    err.textContent = '';
+    const t = ta.value.trim();
+    if (!t) { err.textContent = '메모를 써 주세요.'; ta.focus(); return; }
+    if ([...t].length > MEMO_MAX) { err.textContent = `메모는 ${MEMO_MAX}자까지 쓸 수 있어요.`; ta.focus(); return; }
+    submit.disabled = true;
+    try {
+      await api(`/api/boards/${b.slug}/posts`, { method: 'POST', body: { body: t } });
+      toast(b.anonymous ? '익명으로 붙였어요.' : '메모를 붙였어요.');
+      done();
+    } catch (e) {
+      if (e.handled) return;
+      err.textContent = e.code === 'body_too_long' ? `메모는 ${MEMO_MAX}자까지 쓸 수 있어요.` : errText(e);
+      submit.disabled = false;
+    }
+  });
+  return form;
+}
+function renderMemoWall(slug, b, data, seq) {
+  const reload = () => renderBoard(slug, ++state.seq);
+  const head = h('div', { class: 'head' },
+    h('div', null,
+      h('p', { class: 'idx' }, latLabel(b.slug)),
+      h('h1', { class: 'h1', tabindex: '-1' }, b.name),
+      introEl(b),
+      h('p', { class: 'desc' }, boardDesc(b))));
+  const wall = h('ul', { class: 'memo-wall', 'aria-label': `${b.name} 메모` });
+  data.posts.forEach((p) => wall.append(memoCard(p, reload)));
+  if (!data.posts.length) wall.append(h('li', { class: 'memo-empty' }, b.can_write ? '아직 메모가 없어요. 첫 메모를 붙여 주세요.' : '아직 메모가 없어요.'));
+  const more = h('div', { class: 'more' });
+  let before = data.next_before;
+  const moreBtn = h('button', { class: 'btn btn-ghost', type: 'button' }, '더 보기');
+  moreBtn.addEventListener('click', async () => {
+    moreBtn.disabled = true;
+    try {
+      const next = await api(`/api/boards/${slug}/posts?before=${before}`);
+      next.posts.forEach((p) => wall.append(memoCard(p, reload)));
+      before = next.next_before;
+      if (!before) more.remove();
+    } catch (e) { if (!e.handled) toast(errText(e)); }
+    moreBtn.disabled = false;
+  });
+  if (before) more.append(moreBtn);
+  show([tabs(slug), head, anonBox(b), b.can_write ? memoComposer(b, reload) : null, wall, more]);
 }
 
 /* ---------- 글쓰기 폼 ---------- */
@@ -1482,7 +1593,7 @@ async function renderPost(id, seq, opts) {
   }
 
   const manage = [];
-  if (d.can.edit) manage.push(h('a', { class: 'btn-text', href: `#/edit/${p.id}` }, '고치기'));
+  if (d.can.edit && p.board.layout !== 'memo') manage.push(h('a', { class: 'btn-text', href: `#/edit/${p.id}` }, '고치기'));
   if (d.can.pin) {
     manage.push(h('button', { class: 'btn-text', type: 'button', onclick: () => act(() => api(`/api/posts/${p.id}`, { method: 'PATCH', body: { pinned: !p.pinned } }), p.pinned ? '고정을 풀었어요.' : '맨 위에 고정했어요.', reload) }, p.pinned ? '고정 풀기' : '맨 위에 고정'));
   }
@@ -2866,6 +2977,11 @@ const ADMIN_ERR = {
   bad_public_titles: '홈페이지 제목 공개 값이 잘못됐어요. 화면을 새로 불러와 주세요.',
   anonymous_with_receipts: '익명 글과 읽음 확인 집계는 같이 켤 수 없어요. 읽음 현황에 쓴 사람이 나오기 때문이에요.',
   bad_anonymous: '익명 글 값이 잘못됐어요. 화면을 새로 불러와 주세요.',
+  bad_layout: '모양 값이 잘못됐어요. 화면을 새로 불러와 주세요.',
+  memo_with_receipts: '메모 게시판에서는 읽음 확인 집계를 쓸 수 없어요. 메모에는 제목이 없어서 공지로 쓰기 어려워요.',
+  memo_with_public_titles: '메모 게시판은 홈페이지 제목 공개를 켤 수 없어요. 메모 첫 줄이 그대로 밖에 보이게 돼요.',
+  intro_too_long: '소개 문구는 120자까지 쓸 수 있어요.',
+  bad_intro: '소개 문구 값이 잘못됐어요. 화면을 새로 불러와 주세요.',
   no_staff_roles: '운영진 역할을 하나 이상 골라 주세요.',
   self_exclude: '나 자신은 집계에서 뺄 수 없어요.',
   confirm_staff: '운영진 계정이에요. 확인 칸을 눌러 주세요.',
@@ -3118,13 +3234,17 @@ function toggle(cb, title, help) {
   return h('label', { class: 'check tgl' }, cb, h('span', null, title, h('small', null, help)));
 }
 function boardEditor(b, roles, isNew, reload) {
-  const d = b || { slug: '', name: '', read_policy: 'members', read_roles: [], write_policy: 'members', write_roles: [], comment_policy: 'members', comment_roles: [], private_own: false, receipts_enabled: false, public_titles: false, anonymous: false, sort_order: '', hidden: false, post_count: 0 };
+  const d = b || { slug: '', name: '', read_policy: 'members', read_roles: [], write_policy: 'members', write_roles: [], comment_policy: 'members', comment_roles: [], private_own: false, receipts_enabled: false, public_titles: false, anonymous: false, layout: 'list', intro: '', sort_order: '', hidden: false, post_count: 0 };
   const uid = isNew ? 'new' : d.slug;
   const slug = isNew ? h('input', { class: 'input', id: `bs-${uid}`, maxlength: 20, autocomplete: 'off', autocapitalize: 'off', spellcheck: 'false', placeholder: '예: league' }) : null;
   const name = h('input', { class: 'input', id: `bn-${uid}`, maxlength: 20, autocomplete: 'off' });
   name.value = d.name;
   const order = h('input', { class: 'input', id: `bo-${uid}`, type: 'number', min: 0, max: 999, inputmode: 'numeric' });
   order.value = d.sort_order === '' ? '' : String(d.sort_order);
+  const layout = h('select', { class: 'input select', id: `bl-${uid}` }, [['list', '목록 (제목·내용)'], ['memo', '메모 (제목 없이 짧게)']].map(([v, l]) => h('option', { value: v }, l)));
+  layout.value = d.layout || 'list';
+  const intro = h('input', { class: 'input', id: `bi-${uid}`, maxlength: 120, autocomplete: 'off', placeholder: '게시판 이름 아래 보일 한 줄. 비워 둬도 돼요' });
+  intro.value = d.intro || '';
   const pols = ['read', 'write', 'comment'].map((k) => policyField(k, d, roles, uid));
   const own = h('input', { type: 'checkbox' }); own.checked = !!d.private_own;
   const rc = h('input', { type: 'checkbox' }); rc.checked = !!d.receipts_enabled;
@@ -3137,11 +3257,13 @@ function boardEditor(b, roles, isNew, reload) {
   const form = h('form', { class: 'panel b-edit' + (d.hidden ? ' is-hidden' : ''), novalidate: true, 'aria-labelledby': `bh-${uid}` },
     h('div', { class: 'b-head' },
       h('h3', { class: 'h3', id: `bh-${uid}` }, isNew ? '새 게시판 만들기' : d.name),
-      isNew ? null : h('span', { class: 'b-meta' }, `#/b/${d.slug} · 글 ${d.post_count}개`, d.public_titles ? badge('홈페이지 공개', 'pub') : null, d.anonymous ? badge('익명', 'anon') : null, d.hidden ? badge('숨김', 'hidden') : null)),
+      isNew ? null : h('span', { class: 'b-meta' }, `#/b/${d.slug} · 글 ${d.post_count}개`, d.public_titles ? badge('홈페이지 공개', 'pub') : null, d.anonymous ? badge('익명', 'anon') : null, d.layout === 'memo' ? badge('메모', 'pub') : null, d.hidden ? badge('숨김', 'hidden') : null)),
     h('div', { class: 'b-grid' },
       slug ? h('div', { class: 'field f-slug' }, h('label', { for: slug.id }, '주소 (영어 소문자·숫자·-, 2~20자)'), slug) : null,
       h('div', { class: 'field' }, h('label', { for: name.id }, '이름'), name),
-      h('div', { class: 'field' }, h('label', { for: order.id }, '순서'), order)),
+      h('div', { class: 'field' }, h('label', { for: order.id }, '순서'), order),
+      h('div', { class: 'field f-wide' }, h('label', { for: layout.id }, '모양'), layout),
+      h('div', { class: 'field f-wide' }, h('label', { for: intro.id }, '소개 문구 (120자까지)'), intro)),
     h('div', { class: 'b-pols' }, pols.map((p) => p.el)),
     h('div', { class: 'b-toggles' },
       toggle(own, '작성자 본인 글은 볼 수 있음', '읽기가 막혀 있어도 쓴 사람은 자기 글과 답을 봐요. 건의사항이 이렇게 돼 있어요.'),
@@ -3154,7 +3276,7 @@ function boardEditor(b, roles, isNew, reload) {
   form.addEventListener('submit', async (ev) => {
     ev.preventDefault();
     err.textContent = '';
-    const body = { name: name.value.trim(), private_own: own.checked, receipts_enabled: rc.checked, public_titles: pub.checked, anonymous: anon.checked };
+    const body = { name: name.value.trim(), private_own: own.checked, receipts_enabled: rc.checked, public_titles: pub.checked, anonymous: anon.checked, layout: layout.value, intro: intro.value.trim() };
     if (order.value !== '') body.sort_order = Number(order.value);
     for (const p of pols) Object.assign(body, p.get());
     if (hid) body.hidden = hid.checked;
