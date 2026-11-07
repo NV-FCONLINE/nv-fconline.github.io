@@ -803,6 +803,42 @@
   .pb-v { text-align: right; color: var(--ink-hi); font-variant-numeric: tabular-nums; }
   .pb-none, .pb-rk-st { margin: 0; font-size: 12px; line-height: 1.5; color: var(--ink-dim); }
 
+  /* ---------- 최고의 선수 ---------- */
+  .aw-grid { display: grid; gap: 14px; }
+  .aw { padding: 14px 14px 6px; background: rgba(255, 255, 255, 0.02); border: 1px solid var(--rule); border-radius: 2px; }
+  .aw-h { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 2px 10px; margin-bottom: 10px; }
+  .aw-h h2 { margin: 0; font-size: 19px; font-weight: 700; line-height: 1.3; color: var(--ink-hi); }
+  .aw-h span { font-size: 12.5px; color: var(--ink-dim); }
+  .aw-win { display: grid; grid-template-columns: 68px minmax(0, 1fr) auto; align-items: center; column-gap: 12px; margin: 0 -14px; padding: 12px 14px; color: inherit; text-decoration: none;
+    background: linear-gradient(90deg, rgba(230, 207, 143, 0.13), rgba(230, 207, 143, 0) 80%); box-shadow: inset 3px 0 0 #e6cf8f; }
+  .pf.pf-aw { width: 68px; height: 68px; }
+  .aw-id { display: grid; min-width: 0; }
+  .aw-1 { font-size: 12px; font-weight: 700; line-height: 1.4; color: #e6cf8f; }
+  .aw-gm { font-size: 12px; color: var(--ink-dim); }
+  .aw-own { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 6px; margin-top: 3px; font-size: 13px; line-height: 1.45; color: var(--ink-dim); min-width: 0; }
+  .aw-own b { font-weight: 600; color: var(--ink); overflow-wrap: anywhere; }
+  .aw-own .nk { overflow-wrap: anywhere; min-width: 0; }
+  .aw-val { display: grid; justify-items: end; text-align: right; max-width: 120px; }
+  .aw-val b { font-size: 23px; font-weight: 700; line-height: 1.2; color: #e6cf8f; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .aw-val small { margin-top: 2px; font-size: 11.5px; line-height: 1.4; color: var(--ink-dim); }
+  .aw-list { list-style: none; margin: 0; padding: 0; }
+  .aw-row { display: grid; grid-template-columns: 20px 38px minmax(0, 1fr) auto; align-items: center; column-gap: 10px; min-height: 58px; padding: 7px 0; border-top: 1px solid rgba(216, 216, 214, 0.07); color: inherit; text-decoration: none; }
+  a.aw-row:hover, a.aw-win:hover { background-color: rgba(230, 74, 88, 0.06); }
+  a.aw-row:focus-visible, a.aw-win:focus-visible { outline-offset: -2px; }
+  .aw-n { text-align: center; font-size: 14px; font-weight: 700; color: var(--ink-dim); font-variant-numeric: tabular-nums; }
+  .aw-n.aw-n1 { color: #e6cf8f; }
+  .aw-row .pl-name { font-size: 14.5px; }
+  .aw-row .aw-own { margin-top: 1px; font-size: 12.5px; }
+  .aw-rv { display: grid; justify-items: end; text-align: right; max-width: 130px; }
+  .aw-rv b { font-size: 15.5px; font-weight: 700; line-height: 1.3; color: var(--ink-hi); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .aw-rv small { font-size: 11px; line-height: 1.4; color: var(--ink-dim); }
+  .aw-more { display: block; width: 100%; min-height: 44px; margin: 0; padding: 0; background: none; border: 0; border-top: 1px solid rgba(216, 216, 214, 0.07);
+    font: inherit; font-size: 13.5px; font-weight: 600; color: var(--ink-mid); cursor: pointer; }
+  .aw-more:hover { color: var(--ink-hi); }
+  .aw-empty { margin: 0 0 10px; font-size: 13.5px; line-height: 1.6; color: var(--ink-dim); }
+  .aw-rules { margin: 16px 0 0; padding-left: 18px; font-size: 12.5px; line-height: 1.7; color: var(--ink-dim); }
+  @media (min-width: 761px) { .aw-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; } }
+
   /* ---------- 검색 ---------- */
   .sr-form { display: grid; gap: 8px; margin: 18px 0 0; max-width: 560px; }
   .sr-row { display: flex; gap: 8px; }
@@ -834,7 +870,8 @@
     .pkr-bars { grid-column: 2 / -1; margin-top: 10px; }
   }
   @media (max-width: 560px) {
-    .snav { margin-top: -8px; }
+    .snav { margin-top: -8px; gap: 4px; }
+    .snav a { padding: 0 12px; }
     .pt-row { gap: 6px; }
     .pt { grid-template-columns: minmax(0, 1fr); justify-items: center; align-content: start; row-gap: 6px; min-height: 0; padding: 10px 6px; text-align: center; }
     .pt-art { width: 40px; height: 40px; }
@@ -1137,6 +1174,7 @@ function route() {
   if ((m = hsh.match(/^#\/stats\/m\/(\d{5,25})(?:\/(50|52|40))?$/))) return renderMemberStats(m[1], m[2] ? +m[2] : 50, seq);
   if ((m = hsh.match(/^#\/stats\/rank(?:\/(50|52))?$/))) return renderRanking(m[1] ? +m[1] : 50, seq);
   if ((m = hsh.match(/^#\/stats\/picks(?:\/(50|52))?$/))) return renderPicks(m[1] ? +m[1] : 50, seq);
+  if ((m = hsh.match(/^#\/stats\/best(?:\/(50|52))?$/))) return renderAwards(m[1] ? +m[1] : 50, seq);
   if ((m = hsh.match(/^#\/stats\/search(?:\/([^/]{1,240})(?:\/(50|52|40))?)?$/))) {
     let q = '';
     try { q = m[1] ? decodeURIComponent(m[1]).trim() : ''; } catch (e) { return renderNotFound(); }
@@ -1922,11 +1960,12 @@ async function renderStats(seq, keep) {
 
 /* ---------- 전적 하위 메뉴: 개요 · 랭킹 · 클럽 픽 · 검색 ---------- */
 /* 클럽원 상세는 개요에서 들어가는 화면이라 개요를 '상위'(aria-current=true)로 표시한다 */
-const STATS_NAV = [['overview', '개요'], ['rank', '랭킹'], ['picks', '클럽 픽'], ['search', '검색']];
+const STATS_NAV = [['overview', '개요'], ['rank', '랭킹'], ['best', '어워드'], ['picks', '클럽 픽'], ['search', '검색']];
 function statsNav(active, parent) {
   const href = {
     overview: '#/stats',
     rank: state.rankType === 52 ? '#/stats/rank/52' : '#/stats/rank',
+    best: state.bestType === 52 ? '#/stats/best/52' : '#/stats/best',
     picks: state.picksType === 52 ? '#/stats/picks/52' : '#/stats/picks',
     search: '#/stats/search',
   };
@@ -2553,6 +2592,114 @@ async function renderPicks(type, seq) {
     d.ranker_partial ? h('p', { class: 'pm-partial' }, '몇몇 선수는 이번에 랭커 기록을 다 받지 못했어요.') : null,
     players.length ? [chips, list] : h('div', { class: 'st-empty', style: 'margin-top:18px' }, h('p', null, '아직 모은 선수가 없어요.'), h('p', null, '클럽원 기록을 모으면 여기에 보여요.')),
     statsAttr()]);
+}
+
+/* ---------- 최고의 선수(#/stats/best/<경기 종류>) ---------- */
+/* 클럽원 + 선수 카드 한 장이 한 줄. 같은 카드라도 클럽원이 다르면 따로 센다 */
+const AWARD_CATS = [
+  { key: 'goals', title: '득점왕', what: '선발 1경기당 골', val: (e) => `${fx(e.goals / e.apps, 2)}골`, sub: (e) => `${e.apps}경기 ${e.goals}골` },
+  { key: 'assists', title: '도움왕', what: '선발 1경기당 도움', val: (e) => `${fx(e.assists / e.apps, 2)}도움`, sub: (e) => `${e.apps}경기 ${e.assists}도움` },
+  { key: 'tackle', title: '수비왕', what: '수비수 태클 성공률', val: (e) => pctText((e.tackle * 100) / e.tackle_try), sub: (e) => `태클 ${e.tackle_try}번 중 ${e.tackle}번` },
+  { key: 'save', title: '선방왕', what: '골키퍼 선방률', val: (e) => pctText((e.saved * 100) / e.faced), sub: (e) => `유효슈팅 ${e.faced}개 중 ${e.saved}개` },
+];
+const AW_SHOW = 5;
+async function renderAwards(type, seq) {
+  setTitle('최고의 선수');
+  state.bestType = type;
+  const head = () => [tabs(STATS_TAB), statsNav('best'), h('p', { class: 'idx' }, 'AWARDS'), h('h1', { class: 'h1', tabindex: '-1' }, '최고의 선수'),
+    h('p', { class: 'desc' }, '클럽원들이 최근 경기에서 선발로 쓴 선수 중에서 부문별로 뽑아요. 줄을 누르면 그 클럽원 전적으로 가요.'),
+    h('nav', { class: 'seg seg-2', 'aria-label': '경기 종류' }, RK_TYPES.map(([t, l]) => h('a', { href: `#/stats/best/${t}`, 'aria-current': t === type ? 'page' : null }, l)))];
+  const key = `best:${type}`;
+  let d = cacheGet(key);
+  if (!d) {
+    show([head(), loadingEl()]);
+    try { d = await api(`/api/stats/awards?type=${type}`); } catch (e) {
+      if (e.handled || stale(seq)) return;
+      return show([head(), h('div', { style: 'margin-top:18px' }, errorBox({ code: e.code }, () => renderAwards(type, ++state.seq))), statsAttr()]);
+    }
+    if (stale(seq)) return;
+    cacheSet(key, d);
+  }
+  const aw = d.awards || {};
+  const rules = d.rules || {};
+  const minApps = isNum(rules.min_apps) ? rules.min_apps : 5;
+  const lists = AWARD_CATS.map((c) => (aw[c.key] && Array.isArray(aw[c.key].list) ? aw[c.key].list : []));
+  const all = lists.flat();
+  await waitAtMost(Promise.all([loadNames(all.map((e) => e.spid)), loadSeasons()]), 2500);
+  if (stale(seq)) return;
+  for (const e of all) {
+    const mb = e.member || {};
+    if (!mb.discord_id) continue;
+    if (!state.statsMembers) state.statsMembers = new Map();
+    if (!state.statsMembers.has(mb.discord_id)) state.statsMembers.set(mb.discord_id, { discord_id: mb.discord_id, name: mb.name, link: { nickname: mb.nickname } });
+  }
+  const onRow = () => rememberPlace('최고의 선수');
+  /* 디스코드 이름에 게임 닉네임이 이미 들어 있으면 닉네임은 다시 쓰지 않는다 */
+  const owner = (mb) => h('span', { class: 'aw-own' }, h('b', null, mb.name || mb.nickname || '클럽원'),
+    mb.nickname && !String(mb.name || '').includes(mb.nickname) ? h('span', { class: 'nk' }, mb.nickname) : null);
+  const link = (mb, cls, kids) => (mb && mb.discord_id
+    ? h('a', { class: cls, href: `#/stats/m/${mb.discord_id}/${type}`, onclick: onRow }, kids)
+    : h('div', { class: cls }, kids));
+  const games = (c, e) => `${c.key === 'save' ? e.gk_apps : e.apps}경기`;
+  function winner(c, e, tied) {
+    const mb = e.member || {};
+    return link(mb, 'aw-win', [
+      faceEl(e.spid, 'pf-aw'),
+      h('div', { class: 'aw-id' },
+        h('span', { class: 'aw-1' }, tied ? '공동 1위' : '1위'),
+        h('div', { class: 'pl-name' }, seasonEl(e.spid), nameEl(e.spid)),
+        h('div', { class: 'pl-tags' }, posChip(e.pos), gradeChip(e.grade), h('span', { class: 'aw-gm' }, games(c, e))),
+        owner(mb)),
+      h('div', { class: 'aw-val' }, h('b', null, c.val(e)), h('small', null, c.sub(e)))]);
+  }
+  function runner(c, e) {
+    const mb = e.member || {};
+    return h('li', null, link(mb, 'aw-row', [
+      h('span', { class: 'aw-n' + (e.rank === 1 ? ' aw-n1' : '') }, String(e.rank)),
+      faceEl(e.spid, 'pf-sm'),
+      h('div', { class: 'aw-id' },
+        h('div', { class: 'pl-name' }, seasonEl(e.spid), nameEl(e.spid)),
+        owner(mb)),
+      h('div', { class: 'aw-rv' }, h('b', null, c.val(e)), h('small', null, c.sub(e)))]));
+  }
+  const empty = {
+    goals: `선발 ${minApps}경기 이상 뛰고 골을 넣은 선수가 아직 없어요.`,
+    assists: `선발 ${minApps}경기 이상 뛰고 도움을 한 선수가 아직 없어요.`,
+    tackle: d.tackle_data
+      ? `선발 ${minApps}경기 이상, 태클 ${rules.min_tackles ?? 10}번 이상 한 수비수가 아직 없어요.`
+      : '선수별 태클 수는 새로 모은 경기부터 세요. 기록이 쌓이면 여기에 보여요.',
+    save: `골키퍼로 선발 ${minApps}경기 이상, 유효슈팅 ${rules.min_faced ?? 10}개 이상 받은 선수가 아직 없어요.`,
+  };
+  function section(c, list) {
+    const box = h('section', { class: 'aw', 'aria-labelledby': `aw-${c.key}` },
+      h('div', { class: 'aw-h' }, h('h2', { id: `aw-${c.key}` }, c.title), h('span', null, c.what)));
+    if (!list.length) { append(box, [h('p', { class: 'aw-empty' }, empty[c.key])]); return box; }
+    const rest = list.slice(1);
+    const ol = h('ol', { class: 'aw-list' });
+    let open = false;
+    const more = rest.length > AW_SHOW - 1 ? h('button', { class: 'aw-more', type: 'button', 'aria-expanded': 'false' }) : null;
+    const paint = () => {
+      ol.replaceChildren(...(open ? rest : rest.slice(0, AW_SHOW - 1)).map((e) => runner(c, e)));
+      if (more) { more.textContent = open ? '접기' : `${list.length}위까지 보기`; more.setAttribute('aria-expanded', open ? 'true' : 'false'); }
+    };
+    if (more) more.addEventListener('click', () => { open = !open; paint(); });
+    paint();
+    append(box, [winner(c, list[0], rest.length > 0 && rest[0].rank === 1), rest.length ? ol : null, more]);
+    return box;
+  }
+  const any = lists.some((l) => l.length);
+  show([head(),
+    h('p', { class: 'rk-cov' },
+      h('span', null, `클럽원 ${d.members_counted ?? 0}명의 최근 10경기 선발 기록이에요.`),
+      h('span', null, d.updated_at ? ['갱신 ', timeEl(d.updated_at, true)] : '아직 모은 기록이 없어요')),
+    d.members_counted ? null : h('div', { class: 'st-empty', style: 'margin-top:18px' }, h('p', null, '아직 모은 기록이 없어요.'), h('p', null, '클럽원 기록을 모으면 여기에 보여요.')),
+    d.members_counted ? h('div', { class: 'aw-grid' }, AWARD_CATS.map((c, i) => section(c, lists[i]))) : null,
+    any || d.members_counted ? h('ul', { class: 'aw-rules' },
+      h('li', null, `클럽원마다 최근 10경기에서 선발로 ${minApps}경기 이상 뛴 선수만 넣어요. 같은 선수라도 쓴 클럽원이 다르면 따로 세요.`),
+      h('li', null, `수비왕은 수비수(DF) 자리에서 태클을 ${rules.min_tackles ?? 10}번 이상 한 선수의 태클 성공률이에요.`),
+      h('li', null, `선방왕은 골키퍼로 상대 유효슈팅을 ${rules.min_faced ?? 10}개 이상 받은 선수가 골을 내주지 않은 비율이에요.`)) : null,
+    statsAttr()]);
+  restorePlace();
 }
 
 /* ---------- 검색(#/stats/search/<닉네임>/<경기 종류>) ---------- */
