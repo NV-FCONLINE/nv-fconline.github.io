@@ -516,6 +516,14 @@
   .tn-800 { color: #e6cf8f; }
   .tn-900 { color: #d7a2f2; }
   .tn-1000 { color: #6fe0d9; }
+  /* 공식 그림 18개의 색 계열에 맞춘 이름 색 */
+  .tn-1100, .tn-1200, .tn-1300 { color: #7fd8e3; }
+  .tn-1700, .tn-1800, .tn-1900 { color: #72dc95; }
+  .tn-2000, .tn-2100, .tn-2200 { color: #b9a2ff; }
+  .tn-2300, .tn-2400, .tn-2500 { color: #ffbd5c; }
+  .tn-2600, .tn-2700, .tn-2800 { color: #93c2ff; }
+  .tn-2900, .tn-3000, .tn-3100 { color: #e9a684; }
+  img.tb-img { object-fit: contain; }
   .tn-1100 { color: #c4cfdc; }
   .b-div { color: var(--ink-hi); border-color: rgba(216, 216, 214, 0.32); background: rgba(216, 216, 214, 0.06); }
   .b-state { color: var(--ink-dim); border-style: dashed; border-color: rgba(216, 216, 214, 0.22); font-weight: 500; }
@@ -1730,8 +1738,11 @@ async function renderReceipts(id, seq) {
 }
 
 /* ---------- 전적(넥슨 Open API) ---------- */
-/* 게임 사진으로 그린 배지만 쓴다. 챌린저1(tb-cr)은 사진 없이 그린 임시본이라 사진을 받을 때까지 글자로 보인다 */
+/* 위 세 디비전은 게임 사진을 보고 그린 SVG 배지. 슈퍼 챌린지 아래 18개는 FC온라인 데이터센터가 쓰는 공식 그림
+   (ssl.nexon.com …/rank/large/update_2026/ico_rank3~20.png, 80×80)을 club/tiers/<디비전>.png로 받아 둔 것 */
 const TIER_ART = { 800: 'tb-superchamp', 900: 'tb-champ', 1000: 'tb-superchal' };
+const TIER_IMG = new Set([1100, 1200, 1300, 1700, 1800, 1900, 2000, 2100, 2200, 2300, 2400, 2500, 2600, 2700, 2800, 2900, 3000, 3100]);
+const hasTierArt = (dv) => !!TIER_ART[dv] || TIER_IMG.has(dv);
 const LINK_SOURCE = { auto: '디스코드 닉네임으로 자동 연결', self: '직접 입력', admin: '운영진이 입력' };
 const LINK_STATE = { none: '확인 전', not_found: '못 찾음', off: '연결 안 함' };
 const STATS_ERR = {
@@ -1804,6 +1815,7 @@ function keepFocusIn(box, redraw) {
 }
 
 function tierSvg(div) {
+  if (!TIER_ART[div] && TIER_IMG.has(div)) return h('img', { class: 'tb tb-img', src: `tiers/${div}.png`, alt: '', width: 80, height: 80, decoding: 'async' });
   const s = document.createElementNS(NS, 'svg');
   s.setAttribute('class', 'tb'); s.setAttribute('viewBox', '0 0 120 120'); s.setAttribute('aria-hidden', 'true'); s.setAttribute('focusable', 'false');
   const u = document.createElementNS(NS, 'use');
@@ -1818,7 +1830,7 @@ function tierLabel(link, divs) {
   const dv = link.best_division;
   if (dv == null) return badge('티어 기록 없음', 'state');
   const name = divs.get(dv) || `디비전 ${dv}`;
-  return TIER_ART[dv] ? h('span', { class: `tn tn-${dv}` }, name) : badge(name, 'div');
+  return hasTierArt(dv) ? h('span', { class: `tn tn-${dv}` }, name) : badge(name, 'div');
 }
 /* 글줄 안에서 ' · '로 잇는다(줄바꿈은 띄어쓰기에서) */
 function dotted(items) {
@@ -1929,7 +1941,7 @@ async function renderStats(seq, keep) {
     if (linked) {
       const dv = link.best_division;
       box.append(h('div', { class: 'st-id', id: 'st-me-now', tabindex: '-1' },
-        TIER_ART[dv] ? tierSvg(dv) : null,
+        hasTierArt(dv) ? tierSvg(dv) : null,
         h('div', { style: 'min-width:0' },
           h('p', { class: 'st-nick' }, link.nickname || '닉네임 없음'),
           h('p', { class: 'st-line' }, tierLabel(link, divs), link.level != null ? h('span', { class: 'lv' }, `Lv.${link.level}`) : null,
@@ -2017,7 +2029,7 @@ async function renderStats(seq, keep) {
     }, '고치기')) : null;
     /* 연결된 클럽원은 줄 전체가 상세 화면 링크. 고치기는 링크 밖에 따로 둔다 */
     const main = [
-      h('div', { class: 'tl-art' }, ok && TIER_ART[link.best_division] ? tierSvg(link.best_division) : null),
+      h('div', { class: 'tl-art' }, ok && hasTierArt(link.best_division) ? tierSvg(link.best_division) : null),
       h('div', { class: 'tl-id' },
         h('div', { class: 'tl-name' }, h('span', null, m.name), m.is_staff ? badge('운영진', 'staff') : null, isMe ? badge('나', 'left') : null),
         h('div', { class: 'tl-sub' }, tierLabel(link, divs), ok && link.nickname ? h('span', { class: 'nk' }, link.nickname) : null, ok && link.level != null ? h('span', { class: 'lv' }, `Lv.${link.level}`) : null)),
@@ -2275,7 +2287,7 @@ const divName = (dv) => (state.divNames && state.divNames.get(dv)) || DIVISION_N
 function tierTag(dv) {
   if (!isNum(dv)) return null;
   const nm = divName(dv);
-  if (!TIER_ART[dv]) return h('span', { class: 'badge b-div b-mini' }, nm);
+  if (!hasTierArt(dv)) return h('span', { class: 'badge b-div b-mini' }, nm);
   const s = tierSvg(dv);
   s.classList.add('tb-mini');
   return h('span', { class: 'tmini' }, s, h('span', { class: `tn tn-${dv}` }, nm));
@@ -2320,8 +2332,8 @@ function tierCards(hd, type) {
     let art = null, text = ' ';
     if (it.dv === null) text = badge('기록 없음', 'state');
     else if (isNum(it.dv)) {
-      art = TIER_ART[it.dv] ? tierSvg(it.dv) : null;
-      text = TIER_ART[it.dv] ? h('span', { class: `tn tn-${it.dv}` }, divName(it.dv)) : badge(divName(it.dv), 'div');
+      art = hasTierArt(it.dv) ? tierSvg(it.dv) : null;
+      text = hasTierArt(it.dv) ? h('span', { class: `tn tn-${it.dv}` }, divName(it.dv)) : badge(divName(it.dv), 'div');
     }
     return h('div', { class: 'pt' + (it.now ? ' pt-now' : '') },
       h('span', { class: 'pt-art' }, art),
@@ -2671,7 +2683,7 @@ async function renderRanking(type, seq) {
   }, c.label)));
   const onRow = () => rememberPlace('랭킹');
   function row(rank, m, value, sub, games, noTag) {
-    const art = isNum(m.current_division) && TIER_ART[m.current_division] ? m.current_division : isNum(m.best_division) && TIER_ART[m.best_division] && !isNum(m.current_division) ? m.best_division : null;
+    const art = isNum(m.current_division) && hasTierArt(m.current_division) ? m.current_division : isNum(m.best_division) && hasTierArt(m.best_division) && !isNum(m.current_division) ? m.best_division : null;
     const tdv = isNum(m.current_division) ? m.current_division : m.best_division;
     const inner = [
       h('span', { class: 'rk-n' + (rank && rank <= 3 ? ` top top${rank}` : '') }, rank ? String(rank) : '–'),
