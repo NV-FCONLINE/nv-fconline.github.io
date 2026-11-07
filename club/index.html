@@ -158,6 +158,16 @@
   .b-pin { color: var(--red-soft); border-color: rgba(230, 74, 88, 0.5); background: rgba(160, 7, 30, 0.2); }
   .b-todo { color: #8fd3ea; border-color: rgba(68, 160, 192, 0.6); background: rgba(68, 160, 192, 0.1); }
   .b-hidden { color: var(--ink-dim); border-style: dashed; }
+  .b-pub { color: #e6cf8f; border-color: rgba(230, 207, 143, 0.5); background: rgba(230, 207, 143, 0.08); }
+  .pub-hint { color: #e6cf8f; }
+  .b-anon { color: #8fd3ea; border-color: rgba(68, 160, 192, 0.6); background: rgba(68, 160, 192, 0.1); }
+  .anon-box { display: grid; grid-template-columns: 28px minmax(0, 1fr); column-gap: 14px; align-items: start; margin: 0 0 22px; padding: 18px 20px;
+    border: 1px solid rgba(68, 160, 192, 0.55); border-left-width: 4px; background: rgba(68, 160, 192, 0.1); }
+  .anon-box > svg { width: 28px; height: 28px; color: #8fd3ea; margin-top: 1px; }
+  .anon-box strong { display: block; font-size: 18px; line-height: 1.4; color: #fff; }
+  .anon-box p { margin: 4px 0 0; font-size: 15px; line-height: 1.65; color: var(--ink-mid); }
+  .anon-name { display: inline-flex; align-items: center; gap: 5px; color: #8fd3ea; }
+  .anon-name svg { width: 15px; height: 15px; flex: none; }
   .b-staff { height: 20px; padding: 0 6px; font-size: 11.5px; color: var(--red-soft); border-color: rgba(230, 74, 88, 0.4); }
   .b-left { height: 20px; padding: 0 6px; font-size: 11.5px; color: var(--ink-dim); }
 
@@ -1014,7 +1024,7 @@ function icon(kind) {
   s.setAttribute('viewBox', '0 0 24 24'); s.setAttribute('aria-hidden', 'true'); s.setAttribute('fill', 'none');
   s.setAttribute('stroke', 'currentColor'); s.setAttribute('stroke-width', '2'); s.setAttribute('stroke-linecap', 'round'); s.setAttribute('stroke-linejoin', 'round');
   const p = document.createElementNS(NS, 'path');
-  p.setAttribute('d', kind === 'check' ? 'M4 12.5l5 5L20 6.5' : kind === 'down' ? 'M6 9l6 6 6-6' : kind === 'next' ? 'M9 5l7 7-7 7' : 'M15 5l-7 7 7 7');
+  p.setAttribute('d', kind === 'lock' ? 'M5 11h14v10H5z M8 11V8a4 4 0 0 1 8 0v3' : kind === 'check' ? 'M4 12.5l5 5L20 6.5' : kind === 'down' ? 'M6 9l6 6 6-6' : kind === 'next' ? 'M9 5l7 7-7 7' : 'M15 5l-7 7 7 7');
   s.append(p);
   return s;
 }
@@ -1138,7 +1148,10 @@ function tabs(active) {
   return h('nav', { class: 'tabs', 'aria-label': '클럽 공간 메뉴' }, items);
 }
 function badge(text, kind) { return h('span', { class: `badge b-${kind}` }, text); }
-function authorName(a) { return [h('span', { class: 'name' }, a.name), a.is_staff ? badge('운영진', 'staff') : null]; }
+function authorName(a) {
+  if (a.anonymous) return h('span', { class: 'name anon-name' }, icon('lock'), a.name);
+  return [h('span', { class: 'name' }, a.name), a.is_staff ? badge('운영진', 'staff') : null];
+}
 
 function renderWho() {
   const me = state.me;
@@ -1221,6 +1234,12 @@ const ownOnly = (b) => !!(b && b.private_own && !b.can_read_all);
 const latLabel = (slug) => slug.toUpperCase().replace(/-/g, ' ');
 const boardBy = (slug) => state.boards.find((b) => b.slug === slug);
 function boardDesc(b) {
+  const d = boardDesc0(b);
+  return b.public_titles ? `${d} 글 제목은 홈페이지에도 보여요.` : d;
+}
+function boardDesc0(b) {
+  if (b.anonymous && ownOnly(b)) return `${readersLabel(b)}에게 전할 말을 익명으로 남겨 주세요.`;
+  if (b.anonymous && b.private_own) return '멤버들이 익명으로 남긴 글이에요. 댓글로 답하면 쓴 사람만 볼 수 있어요.';
   if (ownOnly(b)) return `${readersLabel(b)}에게 전할 말을 남겨 주세요. 쓴 글은 나와 ${readersLabel(b)}만 볼 수 있어요.`;
   if (b.private_own) return `멤버들이 남긴 글이에요. 댓글로 답하면 쓴 사람과 ${readersLabel(b)}만 볼 수 있어요.`;
   if (b.receipts) {
@@ -1230,7 +1249,18 @@ function boardDesc(b) {
   if (b.read_policy === 'members' && b.write_policy === 'members') return '클럽 멤버라면 누구나 쓰고 읽을 수 있어요.';
   return `읽기: ${WHO_LONG[b.read_policy]} · 쓰기: ${WHO_LONG[b.write_policy]}`;
 }
-function writeLabel(b) { return b.receipts ? '공지 쓰기' : ownOnly(b) ? '새 글 남기기' : '글쓰기'; }
+/* 익명 게시판 안내: 쓰는 사람에게는 '이름이 안 보인다'를, 운영진에게는 '익명 글'임을 크게 보여 준다 */
+function anonBox(b) {
+  if (!b || !b.anonymous) return null;
+  const writer = !b.can_read_all;
+  return h('div', { class: 'anon-box', role: 'note' }, icon('lock'),
+    h('div', null,
+      h('strong', null, writer ? '익명으로 남겨져요' : '익명 게시판이에요'),
+      h('p', null, writer
+        ? `${readersLabel(b)}과 관리자에게도 쓴 사람 이름이 보이지 않아요. 모두 ‘익명’으로만 보여요. 내가 쓴 글과 받은 답변은 나만 볼 수 있어요.`
+        : '쓴 사람은 운영진과 관리자에게도 ‘익명’으로만 보여요. 쓴 사람이 단 댓글은 ‘작성자’로 보여요.')));
+}
+function writeLabel(b) { return b.receipts ? '공지 쓰기' : ownOnly(b) ? (b.anonymous ? '익명으로 남기기' : '새 글 남기기') : b.anonymous ? '익명 글쓰기' : '글쓰기'; }
 function postRow(p, b) {
   const top = [];
   if (p.pinned) top.push(badge('고정', 'pin'));
@@ -1293,10 +1323,10 @@ async function renderBoard(slug, seq) {
   });
   if (before) more.append(moreBtn);
 
-  const parts = [tabs(slug), head];
+  const parts = [tabs(slug), head, anonBox(b)];
   if (inlineOwn) {
     parts.push(h('section', { class: 'panel hud', 'aria-labelledby': 'own-h' },
-      h('h2', { class: 'h2', id: 'own-h' }, '새 글 남기기'),
+      h('h2', { class: 'h2', id: 'own-h' }, b.anonymous ? '익명으로 남기기' : '새 글 남기기'),
       postForm({ board: b, inline: true, seq })));
     parts.push(h('h2', { class: 'sub-h' }, '내가 남긴 글'));
   }
@@ -1321,11 +1351,12 @@ function postForm({ board, post, inline, seq }) {
   if (post) { title.value = post.title; body.value = post.body; }
   const pin = !post && state.me.is_staff ? h('input', { type: 'checkbox', name: 'pinned' }) : null;
   const err = h('p', { class: 'alert form-err', role: 'alert' });
-  const submit = h('button', { class: 'btn btn-primary', type: 'submit' }, post ? '고친 내용 저장' : inline ? '보내기' : b.receipts ? '공지 올리기' : '올리기');
+  const submit = h('button', { class: 'btn btn-primary', type: 'submit' }, post ? '고친 내용 저장' : b.anonymous ? (inline ? '익명으로 보내기' : '익명으로 올리기') : inline ? '보내기' : b.receipts ? '공지 올리기' : '올리기');
   const form = h('form', { class: 'form', novalidate: true },
     h('div', { class: 'field' }, h('label', { for: title.id }, '제목'), title, counter(title, 80)),
     h('div', { class: 'field' }, h('label', { for: body.id }, '내용'), body, counter(body, 5000)),
     pin ? h('label', { class: 'check' }, pin, b.receipts ? '공지 목록 맨 위에 고정' : '목록 맨 위에 고정') : null,
+    b.public_titles ? h('p', { class: 'hint pub-hint' }, '이 게시판은 글 제목이 홈페이지에 공개돼요. 내용과 쓴 사람은 클럽원만 봐요.') : null,
     h('p', { class: 'hint' }, '줄바꿈과 링크는 그대로 보여요. 사진은 아직 올릴 수 없어요.'),
     err,
     h('div', { class: 'actions' }, submit, inline ? null : h('a', { class: 'btn btn-ghost', href: post ? `#/p/${post.id}` : `#/b/${b.slug}` }, '취소')));
@@ -1344,7 +1375,7 @@ function postForm({ board, post, inline, seq }) {
       } else {
         const r = await api(`/api/boards/${b.slug}/posts`, { method: 'POST', body: { title: t, body: bd, pinned: pin ? pin.checked : undefined } });
         if (r.audience) toast(`올렸어요. 클럽 멤버 ${r.audience.count}명을 기준으로 셉니다.`);
-        else toast(inline ? '보냈어요.' : '글을 올렸어요.');
+        else toast(b.anonymous ? (inline ? '익명으로 보냈어요.' : '익명으로 올렸어요.') : inline ? '보냈어요.' : '글을 올렸어요.');
         if (inline) renderBoard(b.slug, ++state.seq); else go(`#/p/${r.id}`);
       }
     } catch (e) {
@@ -1367,6 +1398,7 @@ function renderWrite(slug, _unused, seq) {
   }
   show([tabs(slug),
     h('a', { class: 'back', href: `#/b/${slug}` }, icon('back'), `${b.name} 목록`),
+    anonBox(b),
     h('section', { class: 'panel hud', 'aria-labelledby': 'w-h' },
       h('p', { class: 'idx' }, latLabel(slug)),
       h('h1', { class: 'h1', id: 'w-h', tabindex: '-1', style: 'margin-bottom:20px' }, writeLabel(b)),
@@ -2830,6 +2862,10 @@ const ADMIN_ERR = {
   name_required: '이름을 써 주세요.',
   name_too_long: '이름은 20자까지 쓸 수 있어요.',
   bad_sort_order: '순서는 0부터 999까지 숫자로 써 주세요.',
+  public_titles_needs_open_board: '홈페이지 제목 공개는 읽기가 ‘클럽원 전체’이고 ‘작성자 본인 글은 볼 수 있음’이 꺼진 게시판만 켤 수 있어요. 먼저 제목 공개를 꺼 주세요.',
+  bad_public_titles: '홈페이지 제목 공개 값이 잘못됐어요. 화면을 새로 불러와 주세요.',
+  anonymous_with_receipts: '익명 글과 읽음 확인 집계는 같이 켤 수 없어요. 읽음 현황에 쓴 사람이 나오기 때문이에요.',
+  bad_anonymous: '익명 글 값이 잘못됐어요. 화면을 새로 불러와 주세요.',
   no_staff_roles: '운영진 역할을 하나 이상 골라 주세요.',
   self_exclude: '나 자신은 집계에서 뺄 수 없어요.',
   confirm_staff: '운영진 계정이에요. 확인 칸을 눌러 주세요.',
@@ -3082,7 +3118,7 @@ function toggle(cb, title, help) {
   return h('label', { class: 'check tgl' }, cb, h('span', null, title, h('small', null, help)));
 }
 function boardEditor(b, roles, isNew, reload) {
-  const d = b || { slug: '', name: '', read_policy: 'members', read_roles: [], write_policy: 'members', write_roles: [], comment_policy: 'members', comment_roles: [], private_own: false, receipts_enabled: false, sort_order: '', hidden: false, post_count: 0 };
+  const d = b || { slug: '', name: '', read_policy: 'members', read_roles: [], write_policy: 'members', write_roles: [], comment_policy: 'members', comment_roles: [], private_own: false, receipts_enabled: false, public_titles: false, anonymous: false, sort_order: '', hidden: false, post_count: 0 };
   const uid = isNew ? 'new' : d.slug;
   const slug = isNew ? h('input', { class: 'input', id: `bs-${uid}`, maxlength: 20, autocomplete: 'off', autocapitalize: 'off', spellcheck: 'false', placeholder: '예: league' }) : null;
   const name = h('input', { class: 'input', id: `bn-${uid}`, maxlength: 20, autocomplete: 'off' });
@@ -3092,6 +3128,8 @@ function boardEditor(b, roles, isNew, reload) {
   const pols = ['read', 'write', 'comment'].map((k) => policyField(k, d, roles, uid));
   const own = h('input', { type: 'checkbox' }); own.checked = !!d.private_own;
   const rc = h('input', { type: 'checkbox' }); rc.checked = !!d.receipts_enabled;
+  const pub = h('input', { type: 'checkbox' }); pub.checked = !!d.public_titles;
+  const anon = h('input', { type: 'checkbox' }); anon.checked = !!d.anonymous;
   const hid = isNew ? null : h('input', { type: 'checkbox' });
   if (hid) hid.checked = !!d.hidden;
   const err = h('p', { class: 'alert form-err', role: 'alert' });
@@ -3099,7 +3137,7 @@ function boardEditor(b, roles, isNew, reload) {
   const form = h('form', { class: 'panel b-edit' + (d.hidden ? ' is-hidden' : ''), novalidate: true, 'aria-labelledby': `bh-${uid}` },
     h('div', { class: 'b-head' },
       h('h3', { class: 'h3', id: `bh-${uid}` }, isNew ? '새 게시판 만들기' : d.name),
-      isNew ? null : h('span', { class: 'b-meta' }, `#/b/${d.slug} · 글 ${d.post_count}개`, d.hidden ? badge('숨김', 'hidden') : null)),
+      isNew ? null : h('span', { class: 'b-meta' }, `#/b/${d.slug} · 글 ${d.post_count}개`, d.public_titles ? badge('홈페이지 공개', 'pub') : null, d.anonymous ? badge('익명', 'anon') : null, d.hidden ? badge('숨김', 'hidden') : null)),
     h('div', { class: 'b-grid' },
       slug ? h('div', { class: 'field f-slug' }, h('label', { for: slug.id }, '주소 (영어 소문자·숫자·-, 2~20자)'), slug) : null,
       h('div', { class: 'field' }, h('label', { for: name.id }, '이름'), name),
@@ -3108,13 +3146,15 @@ function boardEditor(b, roles, isNew, reload) {
     h('div', { class: 'b-toggles' },
       toggle(own, '작성자 본인 글은 볼 수 있음', '읽기가 막혀 있어도 쓴 사람은 자기 글과 답을 봐요. 건의사항이 이렇게 돼 있어요.'),
       toggle(rc, '읽음 확인 집계', '‘확인했어요’ 버튼과 읽음 현황을 써요. 공지사항이 이렇게 돼 있어요.'),
+      toggle(anon, '익명 글', '쓴 사람 이름 대신 ‘익명’으로 보여요. 운영진과 관리자에게도 이름이 보이지 않고, 쓴 사람만 ‘나’로 보여요. 건의사항이 이렇게 돼 있어요. 읽음 확인 집계와는 같이 못 써요.'),
+      toggle(pub, '홈페이지에 제목 공개', '로그인하지 않은 사람도 홈페이지 ‘클럽 소식’에서 최근 글 제목과 날짜를 봐요. 내용과 쓴 사람은 클럽원만 봐요. 읽기가 ‘클럽원 전체’인 게시판만 켤 수 있어요.'),
       hid ? toggle(hid, '숨기기', '탭에서 빠져요. 글은 지우지 않아요.') : null),
     err,
     h('div', { class: 'actions' }, submit));
   form.addEventListener('submit', async (ev) => {
     ev.preventDefault();
     err.textContent = '';
-    const body = { name: name.value.trim(), private_own: own.checked, receipts_enabled: rc.checked };
+    const body = { name: name.value.trim(), private_own: own.checked, receipts_enabled: rc.checked, public_titles: pub.checked, anonymous: anon.checked };
     if (order.value !== '') body.sort_order = Number(order.value);
     for (const p of pols) Object.assign(body, p.get());
     if (hid) body.hidden = hid.checked;

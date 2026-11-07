@@ -509,6 +509,37 @@
   }
   .staff-foot p { margin: 0; max-width: 40em; font-size: 15px; line-height: 1.75; color: var(--ink-mid); }
 
+  /* ---------- 클럽 소식(제목만 공개한 게시판의 최근 글, 글이 있을 때만 보임) ---------- */
+  .sec[hidden], .nav li[hidden] { display: none; }
+  .news-grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: 24px; align-items: start; }
+  .news-text { grid-column: 1 / span 4; }
+  .news-text .lead { margin-bottom: 34px; }
+  .news { grid-column: 6 / span 7; list-style: none; margin: 0; padding: 6px clamp(18px, 2.4vw, 32px); }
+  .nw + .nw { border-top: 1px solid rgba(216, 216, 214, 0.1); }
+  .nw a {
+    display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 16px; align-items: center;
+    min-height: 76px; padding: 16px 0; text-decoration: none; color: inherit;
+  }
+  .nw-t { display: block; font-size: 18px; font-weight: 700; line-height: 1.45; color: var(--ink-hi); overflow-wrap: anywhere; }
+  .nw-m { display: block; margin-top: 4px; font-size: 13.5px; line-height: 1.5; color: var(--ink-dim); }
+  .nw-b { color: var(--sky); font-weight: 600; }
+  .nw-go { font-family: var(--f-lat); font-size: 13px; color: var(--ink-dim); transition: transform 0.25s ease, color 0.25s ease; }
+  .nw a:hover .nw-t, .nw a:focus-visible .nw-t { color: #fff; text-decoration: underline; text-decoration-color: rgba(230, 74, 88, 0.8); text-underline-offset: 4px; }
+  .nw a:hover .nw-go { color: var(--red-bot); transform: translateX(3px); }
+  .news-note { margin: 16px 0 0; font-size: 13.5px; line-height: 1.6; color: var(--ink-dim); text-shadow: 0 0 14px rgba(0, 0, 0, 0.95); }
+  .reduce .sec-news, .nogl .sec-news { background: radial-gradient(ellipse 50% 60% at 30% 50%, rgba(160, 7, 30, 0.12), transparent 70%); }
+  @media (max-width: 900px) {
+    .news-text, .news { grid-column: 1 / -1; }
+    .news-text { margin-bottom: 36px; }
+  }
+  @media (max-width: 700px) {
+    .nav li.nav-news { display: none; }
+    .news { padding: 4px 16px; }
+    .nw a { min-height: 68px; padding: 14px 0; column-gap: 10px; }
+    .nw-t { font-size: 16.5px; }
+    .news-text .btn { width: 100%; }
+  }
+
   /* ---------- 가입 안내 ---------- */
   .join-grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: 24px; align-items: start; }
   .join-side { grid-column: 1 / span 5; position: sticky; top: calc(var(--nav-h) + 40px); }
@@ -691,6 +722,7 @@
         <li><a href="#about">소개</a></li>
         <li><a href="#staff">운영진</a></li>
         <li><a href="#league">내전 리그</a></li>
+        <li class="nav-news" id="navNews" hidden><a href="#news">클럽 소식</a></li>
         <li><a href="#join">가입 안내</a></li>
         <li><a class="nav-club" href="club/">클럽 공간</a></li>
       </ul>
@@ -790,6 +822,21 @@
     </div>
   </section>
 
+  <section class="sec sec-news" id="news" aria-labelledby="news-h" hidden>
+    <div class="wrap news-grid">
+      <div class="news-text">
+        <div class="sec-title rv">
+          <div class="idx" aria-hidden="true">NEWS</div>
+          <h2 id="news-h">클럽 소식</h2>
+        </div>
+        <p class="lead rv d1" id="newsLead">클럽 게시판에 올라온 최근 글입니다.</p>
+        <a class="btn btn-ghost rv d2" id="newsMore" href="club/">클럽 공간에서 보기</a>
+        <p class="news-note rv d2">글 내용은 클럽원이 디스코드로 로그인해서 볼 수 있습니다.</p>
+      </div>
+      <ol class="news panel hud" id="newsList" aria-label="최근 글"></ol>
+    </div>
+  </section>
+
   <section class="sec sec-join" id="join" aria-labelledby="join-h">
     <div class="wrap join-grid">
       <div class="join-side">
@@ -862,6 +909,64 @@
     } else {
       els.forEach(function (el) { el.classList.add('in'); });
     }
+  })();
+</script>
+
+<script>
+  /* 클럽 소식: 관리 페이지에서 '홈페이지에 제목 공개'를 켠 게시판의 최근 글 제목·날짜·댓글 수만 받는다.
+     글이 없거나 서버에 닿지 않으면 섹션과 메뉴를 숨긴 채 둔다. 제목은 textContent로만 넣는다 */
+  (function () {
+    var API = 'https://nv-api.e2jinsoopark.workers.dev';
+    var host = location.hostname;
+    if (host === 'localhost' || host === '127.0.0.1') {
+      var q = new URLSearchParams(location.search).get('api');
+      if (q && /^https?:\/\/(localhost|127\.0\.0\.1)(:\d{1,5})?$/.test(q)) API = q;
+    }
+    var sec = document.getElementById('news');
+    var list = document.getElementById('newsList');
+    if (!sec || !list || !window.fetch) return;
+    var day = new Intl.DateTimeFormat('ko-KR', { timeZone: 'Asia/Seoul', month: 'long', day: 'numeric' });
+    function el(tag, cls, text) {
+      var e = document.createElement(tag);
+      if (cls) e.className = cls;
+      if (text != null) e.textContent = text;
+      return e;
+    }
+    fetch(API + '/api/public/news', { credentials: 'omit' })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (d) {
+        if (!d || !Array.isArray(d.posts) || !d.posts.length || !Array.isArray(d.boards)) return;
+        var names = {};
+        d.boards.forEach(function (b) { names[b.slug] = b.name; });
+        d.posts.slice(0, 8).forEach(function (p) {
+          if (!p || typeof p.title !== 'string' || !/^\d+$/.test(String(p.id))) return;
+          var a = el('a');
+          a.href = 'club/#/p/' + p.id;
+          var main = el('span');
+          main.appendChild(el('span', 'nw-t', p.title));
+          var meta = el('span', 'nw-m');
+          if (names[p.board]) { meta.appendChild(el('span', 'nw-b', names[p.board])); meta.appendChild(document.createTextNode(' · ')); }
+          var bits = [];
+          if (typeof p.created_at === 'number') bits.push(day.format(new Date(p.created_at)));
+          if (p.comment_count > 0) bits.push('댓글 ' + p.comment_count);
+          meta.appendChild(document.createTextNode(bits.join(' · ')));
+          main.appendChild(meta);
+          a.appendChild(main);
+          a.appendChild(el('span', 'nw-go', '›'));
+          a.lastChild.setAttribute('aria-hidden', 'true');
+          var li = el('li', 'nw');
+          li.appendChild(a);
+          list.appendChild(li);
+        });
+        if (!list.children.length) return;
+        var used = d.boards.filter(function (b) { return d.posts.some(function (p) { return p.board === b.slug; }); });
+        if (used.length) document.getElementById('newsLead').textContent = used.map(function (b) { return b.name; }).join(' · ') + ' 게시판에 올라온 최근 글입니다.';
+        if (used.length === 1 && /^[a-z0-9-]{2,20}$/.test(used[0].slug)) document.getElementById('newsMore').href = 'club/#/b/' + used[0].slug;
+        sec.hidden = false;
+        var nav = document.getElementById('navNews');
+        if (nav) nav.hidden = false;
+      })
+      .catch(function () {});
   })();
 </script>
 
