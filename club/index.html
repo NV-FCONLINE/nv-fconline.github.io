@@ -1103,7 +1103,7 @@ function toast(msg) {
   t.textContent = msg;
   t.classList.add('on');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('on'), 3200);
+  toastTimer = setTimeout(() => t.classList.remove('on'), Math.max(3200, [...msg].length * 90)); // longer messages stay longer
 }
 async function copyText(text) {
   try { await navigator.clipboard.writeText(text); return true; } catch (e) {}
@@ -1760,7 +1760,7 @@ async function renderStats(seq, keep) {
     const save = async (v) => {
       await api('/api/me/nexon', { method: 'PUT', body: { nickname: v } });
       ui.meEdit = false;
-      toast(linked ? '게임 닉네임을 바꿨어요.' : '게임 닉네임을 연결했어요.');
+      toast(`${linked ? '게임 닉네임을 바꿨어요.' : '게임 닉네임을 연결했어요.'} 랭킹·어워드·클럽 픽에는 10분 안에 반영돼요.`);
       await reload('#st-me-now');
     };
     if (linked) {
@@ -1838,7 +1838,7 @@ async function renderStats(seq, keep) {
       save: async (v) => {
         await api(`/api/nexon/links/${m.discord_id}`, { method: 'PUT', body: { nickname: v } });
         ui.edit = null;
-        toast(`${m.name}님 게임 닉네임을 저장했어요.`);
+        toast(`${m.name}님 게임 닉네임을 저장했어요. 랭킹·어워드·클럽 픽에는 10분 안에 반영돼요.`);
         await reload(`[data-edit="${m.discord_id}"]`);
       },
     });
