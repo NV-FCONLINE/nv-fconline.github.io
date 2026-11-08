@@ -831,6 +831,7 @@
   .rk-val small { font-size: 11.5px; line-height: 1.4; color: var(--ink-dim); }
   .rk-out .rk { background: none; }
   .rk-out .rk-nm { color: var(--ink); }
+  .rk-mine-go { margin: 12px 0; }
 
   /* ---------- 클럽 픽 ---------- */
   .pk-explain { margin: 0 0 4px; }
@@ -881,6 +882,15 @@
   .aw-more:hover { color: var(--ink-hi); }
   .aw-empty { margin: 0 0 10px; font-size: 13.5px; line-height: 1.6; color: var(--ink-dim); }
   .aw-rules { margin: 16px 0 0; padding-left: 18px; font-size: 12.5px; line-height: 1.7; color: var(--ink-dim); }
+  /* 로그인한 본인은 순서를 바꾸지 않고 배지와 행 색으로 표시한다. */
+  .b-me { height: 20px; margin-left: 2px; padding: 0 6px; font-size: 11.5px; color: #a5e5f5; border-color: rgba(68, 160, 192, 0.65); background: rgba(68, 160, 192, 0.14); vertical-align: middle; }
+  .rk.is-me, .rk-out .rk.is-me, .aw-win.is-me, .aw-row.is-me,
+  a.rk.is-me:hover, a.aw-win.is-me:hover, a.aw-row.is-me:hover {
+    background: linear-gradient(90deg, rgba(68, 160, 192, 0.2), rgba(68, 160, 192, 0.05));
+    box-shadow: inset 3px 0 0 var(--sky);
+  }
+  .st-table tr.is-me > * { background: #0d2027; }
+  .st-table tr.is-me .c-rank { box-shadow: inset 3px 0 0 var(--sky); }
   @media (min-width: 761px) { .aw-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; } }
 
   /* ---------- 검색 ---------- */
@@ -2031,7 +2041,7 @@ async function renderStats(seq, keep) {
     const main = [
       h('div', { class: 'tl-art' }, ok && hasTierArt(link.best_division) ? tierSvg(link.best_division) : null),
       h('div', { class: 'tl-id' },
-        h('div', { class: 'tl-name' }, h('span', null, m.name), m.is_staff ? badge('운영진', 'staff') : null, isMe ? badge('나', 'left') : null),
+        h('div', { class: 'tl-name' }, h('span', null, m.name), m.is_staff ? badge('운영진', 'staff') : null, statsMeBadge(m)),
         h('div', { class: 'tl-sub' }, tierLabel(link, divs), ok && link.nickname ? h('span', { class: 'nk' }, link.nickname) : null, ok && link.level != null ? h('span', { class: 'lv' }, `Lv.${link.level}`) : null)),
     ];
     return h('li', { class: 'tl-row' + (isMe ? ' is-me' : '') },
@@ -2060,10 +2070,10 @@ async function renderStats(seq, keep) {
       const body = rows.map((r, i) => {
         const p = rows[i - 1];
         if (!p || pts(p) !== pts(r) || gd(p) !== gd(r) || p.gf !== r.gf) rank = i + 1;
-        return h('tr', null,
+        return h('tr', { class: isStatsMe(r) ? 'is-me' : null },
           h('td', { class: 'c-rank' }, String(rank)),
           h('th', { class: 'c-name', scope: 'row' }, (() => {
-            const inner = [h('b', null, r.name || r.nickname || '알 수 없음'), r.name && r.nickname ? h('small', null, r.nickname) : null];
+            const inner = [h('b', null, r.name || r.nickname || '알 수 없음', statsMeBadge(r)), r.name && r.nickname ? h('small', null, r.nickname) : null];
             return r.discord_id ? h('a', { class: 'c-link', href: memberHref(r.discord_id), onclick: keepPlace }, inner) : inner;
           })()),
           [r.played, r.win, r.draw, r.lose, r.gf, r.ga].map((v) => h('td', null, String(v))),
@@ -2168,6 +2178,9 @@ async function renderStats(seq, keep) {
 /* ---------- 전적 하위 메뉴: 개요 · 랭킹 · 클럽 픽 · 검색 ---------- */
 /* 클럽원 상세는 개요에서 들어가는 화면이라 개요를 '상위'(aria-current=true)로 표시한다 */
 const STATS_NAV = [['overview', '개요'], ['rank', '랭킹'], ['best', '어워드'], ['picks', '클럽 픽'], ['search', '검색']];
+/* 이름이 같거나 닉네임을 바꿔도 로그인 계정 번호로 본인을 구분한다. */
+function isStatsMe(member) { return !!(state.me && state.me.id && member && member.discord_id === state.me.id); }
+function statsMeBadge(member) { return isStatsMe(member) ? badge('나', 'me') : null; }
 function statsNav(active, parent) {
   const href = {
     overview: '#/stats',
@@ -2346,7 +2359,7 @@ function detailHead(o) {
     o.tag === 'h1' ? h('p', { class: 'idx' }, 'STATS') : null,
     h(o.tag, { class: (o.tag === 'h1' ? 'h1' : 'h2 pm-h2') + ' pm-name', id: o.id || null, tabindex: '-1' }, o.title),
     h('p', { class: 'pm-sub' }, o.nickname ? h('b', null, o.nickname) : null,
-      isNum(o.level) ? h('span', { class: 'lv' }, `Lv.${o.level}`) : null, o.isMe ? badge('나', 'left') : null, o.nickname || isNum(o.level) ? null : ' '),
+      isNum(o.level) ? h('span', { class: 'lv' }, `Lv.${o.level}`) : null, o.isMe ? badge('나', 'me') : null, o.nickname || isNum(o.level) ? null : ' '),
     o.extra || null,
     tierCards(hd, o.type),
     h('p', { class: 'pm-fetch' },
@@ -2677,6 +2690,14 @@ async function renderRanking(type, seq) {
   let current = cat;
   const cats = h('div', { class: 'rk-cats', role: 'group', 'aria-label': '부문' });
   const listBox = h('div');
+  const myButton = h('button', { class: 'btn btn-ghost rk-mine-go', type: 'button', hidden: true,
+    onclick: () => {
+      const mine = listBox.querySelector('.rk.is-me');
+      if (!mine) return;
+      mine.scrollIntoView({ block: 'center', behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+      mine.focus({ preventScroll: true });
+    },
+  }, '내 기록 찾기');
   const paintCats = () => cats.replaceChildren(...RANK_CATS.map((c) => h('button', {
     class: 'chip', type: 'button', 'aria-pressed': c.key === current.key ? 'true' : 'false',
     onclick: () => { current = c; state.rankCat = c.key; paintCats(); paintList(); const b = cats.querySelector('[aria-pressed="true"]'); if (b) b.focus(); },
@@ -2689,12 +2710,12 @@ async function renderRanking(type, seq) {
       h('span', { class: 'rk-n' + (rank && rank <= 3 ? ` top top${rank}` : '') }, rank ? String(rank) : '–'),
       h('span', { class: 'rk-art' }, art ? tierSvg(art) : null),
       h('span', { class: 'rk-id' },
-        h('span', { class: 'rk-nm' }, m.name || m.nickname || '알 수 없음', m.is_staff ? badge('운영진', 'staff') : null),
+        h('span', { class: 'rk-nm' }, m.name || m.nickname || '알 수 없음', m.is_staff ? badge('운영진', 'staff') : null, statsMeBadge(m)),
         h('span', { class: 'rk-sub' }, !art && !noTag && isNum(tdv) ? tierTag(tdv) : null, m.nickname ? h('span', { class: 'nk' }, m.nickname) : null, h('span', { class: 'lv' }, games))),
       h('span', { class: 'rk-val' }, h('b', null, value), sub ? h('small', null, sub) : null),
     ];
     return h('li', null, m.discord_id
-      ? h('a', { class: 'rk' + (rank && rank <= 3 ? ' rk-top' : ''), href: `#/stats/m/${m.discord_id}/${type}`, onclick: onRow }, inner)
+      ? h('a', { class: 'rk' + (rank && rank <= 3 ? ' rk-top' : '') + (isStatsMe(m) ? ' is-me' : ''), href: `#/stats/m/${m.discord_id}/${type}`, onclick: onRow }, inner)
       : h('div', { class: 'rk' }, inner));
   }
   const gamesText = (m) => (m.stats ? `${m.stats.played}경기` : '기록 모으는 중');
@@ -2704,7 +2725,10 @@ async function renderRanking(type, seq) {
     return list.map((x, i) => { if (!i || !same(list[i - 1], x)) r = i + 1; return [r, x]; });
   }
   /* replaceChildren은 배열·null을 글자로 넣어 버리니 append 도우미로 채운다 */
-  const fillBox = (...kids) => { listBox.replaceChildren(); append(listBox, kids); };
+  const fillBox = (...kids) => {
+    listBox.replaceChildren(); append(listBox, kids);
+    myButton.hidden = !listBox.querySelector('.rk.is-me');
+  };
   async function paintList() {
     const k = current.key;
     if (k === 'internal') {
@@ -2761,7 +2785,7 @@ async function renderRanking(type, seq) {
       h('span', null, isNum(cov.linked) ? `연결된 ${cov.linked}명 중 ${cov.collected ?? 0}명 기록을 모았어요. 10분마다 조금씩 더 모아요.` : '10분마다 조금씩 기록을 모아요.'),
       h('span', null, d.updated_at ? ['갱신 ', timeEl(d.updated_at, true)] : '아직 모은 기록이 없어요')),
     refillNote(d, `${minGames}경기 이상`),
-    cats, listBox, statsAttr()]);
+    cats, myButton, listBox, statsAttr()]);
   paintCats();
   await paintList();
   if (stale(seq)) return;
@@ -2883,10 +2907,10 @@ async function renderAwards(type, seq) {
   }
   const onRow = () => rememberPlace('최고의 선수');
   /* 디스코드 이름에 게임 닉네임이 이미 들어 있으면 닉네임은 다시 쓰지 않는다 */
-  const owner = (mb) => h('span', { class: 'aw-own' }, h('b', null, mb.name || mb.nickname || '클럽원'),
+  const owner = (mb) => h('span', { class: 'aw-own' }, h('b', null, mb.name || mb.nickname || '클럽원'), statsMeBadge(mb),
     mb.nickname && !String(mb.name || '').includes(mb.nickname) ? h('span', { class: 'nk' }, mb.nickname) : null);
   const link = (mb, cls, kids) => (mb && mb.discord_id
-    ? h('a', { class: cls, href: `#/stats/m/${mb.discord_id}/${type}`, onclick: onRow }, kids)
+    ? h('a', { class: cls + (isStatsMe(mb) ? ' is-me' : ''), href: `#/stats/m/${mb.discord_id}/${type}`, onclick: onRow }, kids)
     : h('div', { class: cls }, kids));
   const games = (c, e) => `${c.key === 'save' ? e.gk_apps : e.apps}경기`;
   function winner(c, e, tied) {
@@ -3009,7 +3033,7 @@ async function renderSearch(nick, type, seq) {
   show([head(), recent(),
     h('section', { class: 'sr-res', 'aria-labelledby': 'sr-res-h' },
       detailHead({
-        tag: 'h2', id: 'sr-res-h', title: pl.nickname || nick, level: pl.level, hd: d, type, hrefFor: (t) => `#/stats/search/${enc}/${t}`,
+        tag: 'h2', id: 'sr-res-h', title: pl.nickname || nick, level: pl.level, isMe: isStatsMe(cm), hd: d, type, hrefFor: (t) => `#/stats/search/${enc}/${t}`,
         extra: cm && cm.discord_id ? h('p', { class: 'sr-club' }, 'NV 클럽원이에요. ', h('a', { class: 'sr-club-link', href: `#/stats/m/${cm.discord_id}/${type}`, onclick: toMember }, `${cm.name || '클럽원'} 페이지로`)) : null,
       }),
       bodyBox),
