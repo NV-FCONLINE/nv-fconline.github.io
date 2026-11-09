@@ -896,6 +896,130 @@
   .st-table tr.is-me .c-rank { box-shadow: inset 3px 0 0 var(--sky); }
   @media (min-width: 761px) { .aw-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; } }
 
+  /* ---------- 2대2 로컬 시안 ---------- */
+  .duo-cover { display: grid; grid-template-columns: minmax(0, 1fr) 270px; gap: 28px; position: relative; isolation: isolate; overflow: hidden; padding: 34px; border: 1px solid rgba(230,74,88,.3); background: #0e090d; }
+  .duo-cover::before { content: ''; position: absolute; z-index: -1; inset: 0; background: radial-gradient(ellipse at 5% 0%, rgba(160,7,30,.26), transparent 60%), linear-gradient(115deg, transparent 58%, rgba(68,160,192,.1) 58%, transparent 94%); }
+  .duo-eyebrow { margin: 0 0 14px; font-family: var(--f-lat); font-size: 10px; letter-spacing: .16em; color: var(--red-soft); line-height: 1.6; }
+  .duo-title { margin: 0; font-size: clamp(48px, 7vw, 76px); font-weight: 700; line-height: 1.1; letter-spacing: -.07em; color: #fff; }
+  .duo-lead { margin: 14px 0 20px; font-size: 17px; color: var(--ink-mid); }
+  .duo-demo { display: inline-flex; align-items: center; gap: 8px; margin: 0; font-size: 12px; color: var(--ink-dim); line-height: 1.6; }
+  .duo-demo-dot { flex: none; width: 6px; height: 6px; border-radius: 50%; background: #e6cf8f; box-shadow: 0 0 12px rgba(230,207,143,.4); }
+  .duo-mine { display: grid; align-content: center; padding-left: 28px; border-left: 1px solid var(--rule); }
+  .duo-mine .duo-eyebrow { color: #8fd3ea; margin-bottom: 10px; }
+  .duo-mine-label { font-size: 13px; color: var(--ink-mid); }
+  .duo-big-rate { margin: 2px 0 8px; font-size: 54px; letter-spacing: -.06em; line-height: 1.15; font-variant-numeric: tabular-nums; color: #fff; }
+  .duo-muted { margin: 0; font-size: 13px; color: var(--ink-dim); line-height: 1.7; }
+  .duo-wdl { display: flex; gap: 3px; width: 100%; height: 4px; margin-top: 13px; overflow: hidden; }
+  .duo-wdl i { display: block; height: 100%; border-radius: 2px; }
+  .duo-wdl-w { background: #59b9d6; } .duo-wdl-d { background: #a7a9b2; } .duo-wdl-l { background: #c54759; }
+  .duo-best { display: grid; grid-template-columns: minmax(0, 1fr) 156px 140px; align-items: center; gap: 18px; margin: 16px 0 38px; padding: 26px 30px; border: 1px solid rgba(68,160,192,.3); background: radial-gradient(ellipse at 55% 100%, rgba(68,160,192,.12), transparent 65%), #080e12; }
+  .duo-best .duo-eyebrow { margin-bottom: 8px; color: #8fd3ea; }
+  .duo-best h2 { margin: 0 0 10px; font-size: 14px; font-weight: 500; color: var(--ink-mid); }
+  .duo-pair-names { display: flex; flex-wrap: wrap; align-items: center; gap: 3px 8px; min-width: 0; font-size: 16px; font-weight: 600; line-height: 1.5; color: var(--ink-hi); }
+  .duo-person { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 4px; min-width: 0; overflow-wrap: anywhere; }
+  .duo-plus { color: var(--ink-dim); font-size: 13px; font-weight: 400; }
+  .duo-best-copy > .duo-pair-names { margin-bottom: 6px; font-size: 18px; }
+  .duo-together { position: relative; display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 94px; }
+  .duo-together::before { content: ''; position: absolute; width: 94px; height: 94px; border: 1px solid rgba(68,160,192,.22); border-radius: 50%; transform: rotate(-25deg) scaleX(1.5); }
+  .duo-avatar { display: inline-flex; flex: none; align-items: center; justify-content: center; width: 52px; height: 60px; border: 1px solid rgba(230,74,88,.6); background: linear-gradient(150deg, #492027, #160e15); font-size: 23px; font-weight: 700; color: #ffd9dc; clip-path: polygon(0 0, 100% 0, 100% 80%, 50% 100%, 0 80%); }
+  .duo-avatar-1 { border-color: rgba(68,160,192,.55); background: linear-gradient(150deg, #204250, #09141e); color: #c2edfa; }
+  .duo-connection { position: absolute; padding: 0 3px; background: #101a23; color: #8fd3ea; font-size: 14px; }
+  .duo-best-rate { display: grid; justify-items: end; gap: 3px; text-align: right; }
+  .duo-best-rate strong { font-size: 38px; letter-spacing: -.05em; color: #a5e5f5; line-height: 1.3; font-variant-numeric: tabular-nums; }
+  .duo-best-rate > span { font-size: 11.5px; color: var(--ink-dim); }
+  .duo-section-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px; margin-bottom: 20px; }
+  .duo-section-head h2 { margin: 0; font-size: 23px; font-weight: 600; color: var(--ink-hi); }
+  .duo-section-head > span { font-size: 12px; color: var(--ink-dim); }
+  .duo-controls { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px; }
+  .duo-view-switch { display: flex; padding: 4px; gap: 4px; border: 1px solid var(--rule); border-radius: 4px; background: #0a0a0d; }
+  .duo-view-switch button { min-height: 44px; padding: 0 20px; border: 1px solid transparent; border-radius: 2px; background: transparent; color: var(--ink-dim); font-size: 14px; font-weight: 600; cursor: pointer; }
+  .duo-view-switch [aria-pressed='true'] { border-color: rgba(230,74,88,.45); background: rgba(160,7,30,.17); color: #fff; box-shadow: inset 0 -2px 0 var(--red-bot); }
+  .duo-filter-row { display: flex; align-items: center; gap: 16px; }
+  .duo-only-mine { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0; border: 0; background: none; font-size: 13px; color: var(--ink-mid); cursor: pointer; }
+  .duo-switch-track { width: 29px; height: 17px; padding: 3px; border: 1px solid #41414c; border-radius: 20px; background: #1b1b22; }
+  .duo-switch-track i { display: block; width: 9px; height: 9px; border-radius: 50%; background: #92929b; transition: transform .15s; }
+  .duo-only-mine[aria-checked='true'] .duo-switch-track { border-color: var(--sky); background: rgba(68,160,192,.25); }
+  .duo-only-mine[aria-checked='true'] .duo-switch-track i { transform: translateX(11px); background: #9fe0f4; }
+  .duo-sort { min-height: 44px; max-width: 140px; padding: 0 8px; border: 1px solid var(--rule); border-radius: 3px; background: #0b0b10; font-size: 12px; }
+  .duo-list-status { margin: 18px 0 10px; font-size: 12px; color: var(--ink-dim); }
+  .duo-board { border: 1px solid var(--rule); background: linear-gradient(180deg, #0c0b10, #050508); }
+  .duo-table-head, .duo-record { display: grid; grid-template-columns: 32px minmax(0, 1fr) 120px; column-gap: 18px; align-items: center; padding: 12px 20px; }
+  .duo-table-head { font-size: 11px; color: var(--ink-dim); border-bottom: 1px solid var(--rule); }
+  .duo-table-head > :last-child { text-align: right; }
+  .duo-rows { list-style: none; margin: 0; padding: 0; }
+  .duo-record { width: 100%; min-height: 104px; border: 0; border-bottom: 1px solid var(--rule); background: none; text-align: left; cursor: pointer; }
+  .duo-rows > li:last-child .duo-record { border-bottom: 0; }
+  .duo-record:hover { background: rgba(216,216,214,.025); }
+  .duo-record.is-me { box-shadow: inset 3px 0 0 var(--sky); background: linear-gradient(90deg, rgba(68,160,192,.1), transparent 80%); }
+  .duo-record:focus-visible { outline-offset: -3px; }
+  .duo-rank { text-align: center; font-family: var(--f-lat); font-size: 14px; color: var(--ink-dim); }
+  .duo-rank.podium-1 { color: #e6cf8f; font-size: 22px; } .duo-rank.podium-2 { color: #d6dde6; } .duo-rank.podium-3 { color: #e0a57c; }
+  .duo-record-main { min-width: 0; }
+  .duo-record-identity { display: flex; align-items: center; gap: 12px; min-width: 0; }
+  .duo-small-avatars { display: flex; flex: none; padding-right: 3px; }
+  .duo-small-avatars .duo-avatar { width: 28px; height: 32px; font-size: 13px; }
+  .duo-small-avatars .duo-avatar + .duo-avatar { margin-left: -8px; }
+  .duo-record .duo-pair-names { font-size: 14px; }
+  .duo-record-sub { display: flex; flex-wrap: wrap; gap: 3px 8px; margin-top: 6px; font-size: 11.5px; color: var(--ink-dim); }
+  .duo-record .duo-wdl { max-width: 170px; height: 3px; margin-top: 9px; }
+  .duo-reference { color: #bba87c; }
+  .duo-record-value { display: grid; justify-items: end; gap: 7px; }
+  .duo-record-value > strong { font-size: 24px; line-height: 1.2; font-weight: 600; color: var(--ink-hi); font-variant-numeric: tabular-nums; letter-spacing: -.04em; }
+  .duo-recent { display: flex; gap: 4px; }
+  .duo-result { display: inline-flex; flex: none; align-items: center; justify-content: center; width: 22px; height: 22px; border: 1px solid var(--rule); border-radius: 3px; font-size: 10px; font-weight: 600; line-height: 1; }
+  .duo-result.w { color: #9bdaed; border-color: rgba(68,160,192,.35); background: rgba(68,160,192,.13); }
+  .duo-result.l { color: #db8b99; border-color: rgba(230,74,88,.25); background: rgba(160,7,30,.11); }
+  .duo-result.d { color: #aaaab2; background: rgba(216,216,214,.07); }
+  .duo-rules { margin: 14px 0 0; max-width: 65em; font-size: 12px; color: var(--ink-dim); line-height: 1.85; }
+  .duo-detail { margin-top: 22px; padding: 22px; border: 1px solid rgba(68,160,192,.4); background: #090f13; scroll-margin-top: 85px; }
+  .duo-detail-head { display: flex; align-items: start; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+  .duo-detail-head .duo-eyebrow { color: #8fd3ea; margin-bottom: 6px; }
+  .duo-detail-head h2 { margin: 0; font-size: 18px; }
+  .duo-detail-head button { flex: none; }
+  .duo-games { list-style: none; padding: 0; margin: 18px 0 0; }
+  .duo-game { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; align-items: center; column-gap: 12px; min-height: 64px; padding: 12px 0; border-top: 1px solid var(--rule); }
+  .duo-game .duo-result { width: 28px; height: 28px; font-size: 12px; }
+  .duo-game-who { display: grid; gap: 3px; min-width: 0; }
+  .duo-game-who b { font-size: 13px; font-weight: 500; color: var(--ink-mid); overflow-wrap: anywhere; }
+  .duo-game-who time { font-size: 11px; color: var(--ink-dim); }
+  .duo-score { font-size: 19px; white-space: nowrap; color: #fff; font-variant-numeric: tabular-nums; }
+  .duo-empty { padding: 38px 18px; font-size: 14px; text-align: center; color: var(--ink-dim); }
+  @media (max-width: 640px) {
+    .duo-cover { grid-template-columns: 1fr; gap: 24px; padding: 24px; }
+    .duo-cover-copy { min-width: 0; }
+    .duo-eyebrow { font-size: 9px; }
+    .duo-title { font-size: 56px; }
+    .duo-lead { margin: 10px 0 15px; font-size: 15px; }
+    .duo-mine { padding: 20px 0 0; border-left: 0; border-top: 1px solid var(--rule); grid-template-columns: 1fr auto; align-items: end; column-gap: 14px; }
+    .duo-mine .duo-eyebrow { grid-column: 1; margin: 0 0 5px; }
+    .duo-mine-label { grid-column: 1; font-size: 12px; }
+    .duo-mine .duo-big-rate { grid-column: 2; grid-row: 1 / span 2; margin: 0; font-size: 42px; }
+    .duo-mine .duo-muted { grid-column: 1 / -1; margin-top: 10px; font-size: 12px; }
+    .duo-mine .duo-wdl { grid-column: 1 / -1; }
+    .duo-best { grid-template-columns: minmax(0, 1fr) auto; gap: 12px; margin-bottom: 30px; padding: 20px; }
+    .duo-best-copy { grid-column: 1; }
+    .duo-best-copy > .duo-pair-names { font-size: 15px; }
+    .duo-best .duo-muted { font-size: 11px; }
+    .duo-together { display: none; }
+    .duo-best-rate { grid-column: 2; grid-row: 1; max-width: 92px; }
+    .duo-best-rate strong { font-size: 30px; }
+    .duo-best-rate > span { font-size: 10px; }
+    .duo-section-head h2 { font-size: 20px; }
+    .duo-section-head > span { font-size: 11px; }
+    .duo-controls { align-items: stretch; }
+    .duo-filter-row { flex: 1; justify-content: space-between; }
+    .duo-table-head, .duo-record { grid-template-columns: 20px minmax(0, 1fr) 78px; column-gap: 10px; padding: 12px 10px; }
+    .duo-small-avatars { display: none; }
+    .duo-record .duo-pair-names { font-size: 13px; gap: 1px 5px; }
+    .duo-record-value > strong { font-size: 21px; }
+    .duo-recent { gap: 2px; }
+    .duo-record-value .duo-result { width: 14px; height: 18px; font-size: 8px; border-radius: 2px; }
+    .duo-record-sub { font-size: 10.5px; }
+    .duo-rank { font-size: 11px; }
+    .duo-rank.podium-1 { font-size: 17px; }
+    .duo-detail { padding: 16px; }
+  }
+
   /* ---------- 검색 ---------- */
   .sr-form { display: grid; gap: 8px; margin: 18px 0 0; max-width: 560px; }
   .sr-row { display: flex; gap: 8px; }
@@ -1010,6 +1134,8 @@ const API_BASE = (function () {
 })();
 
 const TOKEN_KEY = 'nv_club_session';
+// 자동 수집 지원이 확인되기 전에는 로컬 시안에서만 2대2 메뉴를 연다.
+const DUO_PREVIEW = ['localhost', '127.0.0.1', '[::1]'].includes(location.hostname) && new URLSearchParams(location.search).get('duo') === 'preview';
 const LOGIN_ERR = {
   denied: '디스코드 로그인을 취소했어요. 다시 해 주세요.',
   not_member: 'NV 디스코드 서버의 클럽 멤버만 들어올 수 있어요. 서버에 들어와 있는지, 클럽 역할이 있는지 운영진에게 물어봐 주세요.',
@@ -1231,6 +1357,7 @@ function route() {
     return show([tabs(null), h('h1', { class: 'h1', tabindex: '-1' }, '클럽 공간'), h('p', { class: 'desc' }, '아직 볼 수 있는 게시판이 없어요.')]);
   }
   if (hsh === '#/stats') return renderStats(seq);
+  if (DUO_PREVIEW && hsh === '#/stats/duo') return renderDuo(seq);
   if ((m = hsh.match(/^#\/stats\/m\/(\d{5,25})(?:\/(50|52|40))?$/))) return renderMemberStats(m[1], m[2] ? +m[2] : 50, seq);
   if ((m = hsh.match(/^#\/stats\/rank(?:\/(50|52))?$/))) return renderRanking(m[1] ? +m[1] : 50, seq);
   if ((m = hsh.match(/^#\/stats\/picks(?:\/(50|52))?$/))) return renderPicks(m[1] ? +m[1] : 50, seq);
@@ -2183,7 +2310,7 @@ async function renderStats(seq, keep) {
 
 /* ---------- 전적 하위 메뉴: 개요 · 랭킹 · 클럽 픽 · 검색 ---------- */
 /* 클럽원 상세는 개요에서 들어가는 화면이라 개요를 '상위'(aria-current=true)로 표시한다 */
-const STATS_NAV = [['overview', '개요'], ['rank', '랭킹'], ['best', '어워드'], ['picks', '클럽 픽'], ['search', '검색']];
+const STATS_NAV = [['overview', '개요'], ['rank', '랭킹'], ['duo', '2대2'], ['best', '어워드'], ['picks', '클럽 픽'], ['search', '검색']];
 /* 이름이 같거나 닉네임을 바꿔도 로그인 계정 번호로 본인을 구분한다. */
 function isStatsMe(member) { return !!(state.me && state.me.id && member && member.discord_id === state.me.id); }
 function statsMeBadge(member) { return isStatsMe(member) ? badge('나', 'me') : null; }
@@ -2191,12 +2318,13 @@ function statsNav(active, parent) {
   const href = {
     overview: '#/stats',
     rank: state.rankType === 52 ? '#/stats/rank/52' : '#/stats/rank',
+    duo: '#/stats/duo',
     best: state.bestType === 52 ? '#/stats/best/52' : '#/stats/best',
     picks: state.picksType === 52 ? '#/stats/picks/52' : '#/stats/picks',
     search: '#/stats/search',
   };
   return h('nav', { class: 'snav', 'aria-label': '전적 메뉴' },
-    STATS_NAV.map(([k, label]) => h('a', { href: href[k], 'aria-current': k === active ? (parent ? 'true' : 'page') : null }, label)));
+    STATS_NAV.filter(([k]) => k !== 'duo' || DUO_PREVIEW).map(([k, label]) => h('a', { href: href[k], 'aria-current': k === active ? (parent ? 'true' : 'page') : null }, label)));
 }
 /* 목록에서 상세로 갈 때 돌아올 곳과 보던 자리를 기억한다 */
 function rememberPlace(label) { state.statsBack = { href: location.hash || '#/stats', label, y: window.scrollY }; }
@@ -2645,6 +2773,185 @@ async function renderMemberStats(id, type, seq) {
     if (stale(seq)) return;
     keepFocusIn(bodyBox, () => fillBody(nd));
   });
+}
+
+/* DUO_MODEL_START
+ * 정규화된 입력: members=[{id,name}], matches=[{id,at,teams:[{ids:[id,id],score}, ...]}].
+ * 넥슨 응답 형식을 가정하지 않는다. 같은 편이 확인된 경기만 이 형식으로 변환할 수 있다.
+ * 계정별/조합별 최근 30경기, 최대 28일. 이름 대신 id로 조합을 만들고 모순된 중복은 제외한다.
+ */
+function buildDuoStats(input, { now = Date.now(), limit = 30, minGames = 5 } = {}) {
+  input = input && typeof input === 'object' ? input : {};
+  const people = new Map();
+  for (const p of Array.isArray(input.members) ? input.members : []) if (p && typeof p.id === 'string' && p.id && p.active !== false) {
+    people.set(p.id, { id: p.id, name: String(p.name || '클럽원') });
+  }
+  const seen = new Map(), conflicts = new Set();
+  let ignored = 0;
+  for (const m of Array.isArray(input.matches) ? input.matches : []) {
+    if (!m || typeof m.id !== 'string' || !m.id || !Number.isFinite(m.at) || m.at > now || m.at < now - 28 * 86400000 ||
+        !Array.isArray(m.teams) || m.teams.length !== 2) { ignored++; continue; }
+    const valid = m.teams.every(t => t && Array.isArray(t.ids) && t.ids.length === 2 &&
+      t.ids.every(id => typeof id === 'string' && id) && Number.isInteger(t.score) && t.score >= 0 && t.score <= 99);
+    if (!valid || new Set(m.teams.flatMap(t => t.ids)).size !== 4) { ignored++; continue; }
+    const teams = m.teams.map(t => ({ ids: t.ids.slice().sort(), score: t.score })).sort((a, b) => JSON.stringify(a.ids).localeCompare(JSON.stringify(b.ids)));
+    const normalized = { id: m.id, at: m.at, teams };
+    const old = seen.get(m.id);
+    if (old && JSON.stringify(old) !== JSON.stringify(normalized)) conflicts.add(m.id);
+    else seen.set(m.id, normalized);
+  }
+  const matches = [...seen.values()].filter(m => !conflicts.has(m.id) && m.teams.some(t => t.ids.some(id => people.has(id))))
+    .sort((a, b) => b.at - a.at || a.id.localeCompare(b.id));
+  const players = new Map(), pairs = new Map();
+  const add = (map, key, ids, game) => {
+    if (!map.has(key)) map.set(key, { key, ids, members: ids.map(id => people.get(id)), matches: [] });
+    map.get(key).matches.push(game);
+  };
+  for (const m of matches) m.teams.forEach((team, i) => {
+    const other = m.teams[1 - i];
+    const result = team.score > other.score ? 'w' : team.score < other.score ? 'l' : 'd';
+    const game = { id: m.id, at: m.at, result, gf: team.score, ga: other.score, own: team.ids, opponent: other.ids };
+    for (const id of team.ids) if (people.has(id)) add(players, id, [id], game);
+    if (team.ids.every(id => people.has(id))) add(pairs, JSON.stringify(team.ids), team.ids, game);
+  });
+  const finish = (entry) => {
+    const games = entry.matches.slice(0, limit);
+    const count = result => games.filter(m => m.result === result).length;
+    return { ...entry, matches: games, played: games.length, win: count('w'), draw: count('d'), lose: count('l'),
+      winRate: games.length ? Math.round(count('w') * 1000 / games.length) / 10 : null, eligible: games.length >= minGames };
+  };
+  const order = (a, b) => Number(b.eligible) - Number(a.eligible) || b.winRate - a.winRate || b.played - a.played || a.key.localeCompare(b.key);
+  const rank = (rows) => {
+    rows.sort(order);
+    let last = null, rankNo = 0, eligibleIndex = 0;
+    return rows.map(row => {
+      if (!row.eligible) return { ...row, rank: null };
+      eligibleIndex++;
+      if (!last || last.winRate !== row.winRate || last.played !== row.played) rankNo = eligibleIndex;
+      last = row;
+      return { ...row, rank: rankNo };
+    });
+  };
+  return { people, players: rank([...players.values()].map(finish)), pairs: rank([...pairs.values()].map(finish)),
+    matches, minGames, limit, ignored: ignored + conflicts.size };
+}
+/* DUO_MODEL_END */
+
+async function renderDuo(seq) {
+  setTitle('2대2');
+  const head = () => [tabs(STATS_TAB), statsNav('duo')];
+  show([head(), loadingEl('2대2 기록을 정리하고 있어요.')]);
+  let data;
+  try { data = await api('/api/stats/duo'); } catch (e) {
+    if (stale(seq) || e.handled) return;
+    return show([head(), h('h1', { class: 'h1', tabindex: '-1' }, '2대2'), errorBox(e, () => renderDuo(++state.seq))]);
+  }
+  if (stale(seq)) return;
+  // 이 경로는 로컬 예시 시안 전용. 실제 API 응답 변환기와 수집기는 아직 연결하지 않았다.
+  if (!DUO_PREVIEW || data?.source !== 'demo') return show([head(), h('p', { class: 'info' }, '2대2 기록을 연결할 준비 중이에요.')]);
+  const model = buildDuoStats(data);
+  const meId = state.me.id;
+  const mine = model.players.find(p => p.key === meId);
+  const myPairs = model.pairs.filter(p => p.ids.includes(meId));
+  const best = myPairs.find(p => p.eligible) || myPairs[0];
+  const name = id => model.people.get(id)?.name || '게스트';
+  const rate = n => n == null ? '—' : `${Number(n.toFixed(1))}%`;
+  const resultName = { w: '승', d: '무', l: '패' };
+  const person = id => h('span', { class: 'duo-person' }, name(id), id === meId ? badge('나', 'me') : null);
+  const names = ids => ids.map((id, i) => [i ? h('span', { class: 'duo-plus', 'aria-hidden': 'true' }, '+') : null, person(id)]);
+  const avatar = (id, i) => h('span', { class: `duo-avatar duo-avatar-${i}`, 'aria-hidden': 'true' }, name(id).replace(/^NV(?:예시)?/, '').slice(0, 1));
+  const record = row => `${row.win}승 ${row.draw}무 ${row.lose}패`;
+  const strip = row => h('span', { class: 'duo-wdl', role: 'img', 'aria-label': record(row) },
+    ['w', 'd', 'l'].map((key, i) => h('i', { class: `duo-wdl-${key}`, style: `width:${row[['win', 'draw', 'lose'][i]] * 100 / row.played}%` })));
+  const recent = row => h('span', { class: 'duo-recent', 'aria-label': '최근 경기, 최신순' },
+    row.matches.slice(0, 5).map(m => h('span', { class: `duo-result ${m.result}`, title: fmtFull(m.at) }, resultName[m.result])));
+  const cover = h('section', { class: 'duo-cover', 'aria-labelledby': 'duo-title' },
+    h('div', { class: 'duo-cover-copy' },
+      h('p', { class: 'duo-eyebrow' }, 'NV / TEAM PLAY'),
+      h('h1', { class: 'duo-title', id: 'duo-title', tabindex: '-1' }, '2대2'),
+      h('p', { class: 'duo-lead' }, '함께 뛰는 조합을 찾아보세요.'),
+      h('p', { class: 'duo-demo' }, h('span', { class: 'duo-demo-dot', 'aria-hidden': 'true' }), '예시 데이터 · 실제 전적이 아닙니다')),
+    h('div', { class: 'duo-mine' },
+      h('p', { class: 'duo-eyebrow' }, 'MY RECORD'),
+      h('span', { class: 'duo-mine-label' }, '내 2대2 승률'),
+      h('strong', { class: 'duo-big-rate' }, rate(mine?.winRate)),
+      h('span', { class: 'duo-muted' }, mine ? `${mine.played}경기 · ${record(mine)}` : '아직 기록이 없어요'),
+      mine ? strip(mine) : null));
+  const bestCard = best ? h('section', { class: 'duo-best', 'aria-labelledby': 'duo-best-title' },
+    h('div', { class: 'duo-best-copy' },
+      h('p', { class: 'duo-eyebrow' }, 'BEST PARTNER'),
+      h('h2', { id: 'duo-best-title' }, best.eligible ? '가장 잘 맞는 조합' : '함께 뛴 조합'),
+      h('div', { class: 'duo-pair-names' }, names(best.ids)),
+      h('p', { class: 'duo-muted' }, `${best.played}경기 · ${record(best)}`, !best.eligible ? ' · 참고 기록' : '')),
+    h('div', { class: 'duo-together', 'aria-hidden': 'true' }, best.ids.map(avatar), h('span', { class: 'duo-connection' }, '+')),
+    h('div', { class: 'duo-best-rate' }, h('strong', null, rate(best.winRate)), h('span', null, '함께한 경기 승률'))) : null;
+  const ui = { view: 'pairs', mine: false, sort: 'rate', selected: null };
+  const controls = h('div', { class: 'duo-controls' });
+  const list = h('div', { class: 'duo-board' });
+  const detail = h('div', { class: 'duo-detail-slot', 'aria-live': 'polite' });
+  const status = h('p', { class: 'duo-list-status', role: 'status' });
+  const isMine = row => row.ids.includes(meId);
+  const drawDetail = () => {
+    detail.replaceChildren();
+    if (!ui.selected) return;
+    const row = ui.selected;
+    const close = () => {
+      ui.selected = null; drawDetail();
+      [...list.querySelectorAll('[data-duo-row]')].find(n => n.dataset.duoRow === row.key)?.focus({ preventScroll: true });
+    };
+    const panel = h('section', { class: 'duo-detail', 'aria-labelledby': 'duo-detail-title', tabindex: '-1' },
+      h('div', { class: 'duo-detail-head' }, h('div', null,
+        h('p', { class: 'duo-eyebrow' }, 'MATCH HISTORY'), h('h2', { class: 'duo-pair-names', id: 'duo-detail-title' }, names(row.ids))),
+        h('button', { class: 'btn btn-ghost', type: 'button', onclick: close }, '닫기')),
+      h('p', { class: 'duo-muted' }, `${row.played}경기 · ${record(row)} · 승률 ${rate(row.winRate)}`),
+      h('ol', { class: 'duo-games' }, row.matches.map(m => h('li', { class: 'duo-game' },
+        h('span', { class: `duo-result ${m.result}` }, resultName[m.result]),
+        h('div', { class: 'duo-game-who' }, h('b', null, m.opponent.map(name).join(' + ')),
+          row.ids.length === 1 ? h('small', { class: 'duo-muted' }, '함께: ', m.own.filter(id => id !== row.ids[0]).map(name).join(' + ')) : null, timeEl(m.at, true)),
+        h('strong', { class: 'duo-score' }, `${m.gf} : ${m.ga}`)))));
+    detail.append(panel);
+    panel.scrollIntoView({ block: 'start', behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+    panel.focus({ preventScroll: true });
+  };
+  function paintList() {
+    let rows = (ui.view === 'pairs' ? model.pairs : model.players).filter(p => !ui.mine || isMine(p));
+    if (ui.sort === 'games') rows = rows.slice().sort((a, b) => b.played - a.played || b.winRate - a.winRate || a.key.localeCompare(b.key));
+    status.textContent = `${ui.mine ? '내 ' : ''}${ui.view === 'pairs' ? '조합' : '개인 기록'} ${rows.length}${ui.view === 'pairs' ? '팀' : '명'}`;
+    list.replaceChildren();
+    if (!rows.length) { list.append(h('p', { class: 'duo-empty' }, '조건에 맞는 기록이 아직 없어요.')); return; }
+    const heading = h('div', { class: 'duo-table-head', 'aria-hidden': 'true' }, h('span', null, '순위'), h('span', null, ui.view === 'pairs' ? '팀 조합' : '클럽원'), h('span', null, '승률'));
+    const ol = h('ol', { class: 'duo-rows' });
+    rows.forEach(row => {
+      const open = () => { ui.selected = row; drawDetail(); };
+      ol.append(h('li', null, h('button', { class: 'duo-record' + (isMine(row) ? ' is-me' : ''), type: 'button',
+        'data-duo-row': row.key, 'aria-label': `${row.ids.map(name).join(' + ')}, ${row.played}경기, 승률 ${rate(row.winRate)}, 경기 목록 보기`, onclick: open },
+        h('span', { class: `duo-rank${row.rank && row.rank <= 3 ? ` podium-${row.rank}` : ''}` }, row.rank || '—'),
+        h('div', { class: 'duo-record-main' },
+          h('div', { class: 'duo-record-identity' }, h('span', { class: 'duo-small-avatars', 'aria-hidden': 'true' }, row.ids.map(avatar)),
+            h('span', { class: 'duo-pair-names' }, names(row.ids))),
+          h('div', { class: 'duo-record-sub' }, `${row.played}경기 · ${record(row)}`, !row.eligible ? h('span', { class: 'duo-reference' }, '참고 기록') : null),
+          strip(row)),
+        h('span', { class: 'duo-record-value' }, h('strong', null, rate(row.winRate)), recent(row)))));
+    });
+    list.append(heading, ol);
+  }
+  function paintControls() {
+    const switchView = mode => { ui.view = mode; ui.selected = null; paintControls(); paintList(); drawDetail(); controls.querySelector('[aria-pressed="true"]')?.focus({ preventScroll: true }); };
+    const mine = h('button', { class: 'duo-only-mine', type: 'button', role: 'switch', 'aria-checked': String(ui.mine),
+      onclick: () => { ui.mine = !ui.mine; ui.selected = null; paintControls(); paintList(); drawDetail(); controls.querySelector('[role="switch"]')?.focus({ preventScroll: true }); } },
+      h('span', { class: 'duo-switch-track', 'aria-hidden': 'true' }, h('i')), ui.view === 'pairs' ? '내 조합만' : '내 기록만');
+    const select = h('select', { class: 'duo-sort', 'aria-label': '2대2 정렬', onchange: ev => { ui.sort = ev.target.value; paintList(); } },
+      h('option', { value: 'rate', selected: ui.sort === 'rate' }, '승률순'), h('option', { value: 'games', selected: ui.sort === 'games' }, '경기 수순'));
+    controls.replaceChildren(h('div', { class: 'duo-view-switch', role: 'group', 'aria-label': '2대2 기록 보기' },
+      ['pairs', 'players'].map(mode => h('button', { type: 'button', 'aria-pressed': String(ui.view === mode), onclick: () => switchView(mode) }, mode === 'pairs' ? '조합 기록' : '개인 기록'))),
+      h('div', { class: 'duo-filter-row' }, mine, select));
+  }
+  show([head(), cover, bestCard,
+    h('section', { class: 'duo-ranking', 'aria-labelledby': 'duo-ranking-title' },
+      h('div', { class: 'duo-section-head' }, h('h2', { id: 'duo-ranking-title' }, '같이 뛴 기록'), h('span', null, '개인·조합별 최근 30경기')),
+      controls, status, list, detail,
+      h('p', { class: 'duo-rules' }, `순위는 승률 기준이며, 무승부를 포함한 전체 경기에서 이긴 비율로 계산해요. ${model.minGames}경기 미만은 참고 기록으로 표시해요. 같은 경기는 한 번만 세고, A+B와 B+A는 같은 조합이에요.`))]);
+  paintControls(); paintList();
 }
 
 /* ---------- 랭킹(#/stats/rank/<경기 종류>) ---------- */
