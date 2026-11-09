@@ -192,6 +192,9 @@
   .memo-who { display: inline-flex; align-items: center; gap: 6px; min-width: 0; color: var(--ink-mid); font-weight: 600; }
   .memo-me { font-size: 11.5px; font-weight: 700; padding: 1px 6px; border-radius: 999px; background: rgba(255, 255, 255, 0.12); color: #fff; }
   .memo-tools { display: flex; justify-content: flex-end; gap: 14px; margin-top: -4px; }
+  .memo-discuss { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 44px; padding: 8px 0; border-top: 1px solid rgba(var(--tone), 0.3); font-size: 13.5px; font-weight: 600; color: var(--ink-hi); text-decoration: none; }
+  .memo-discuss:hover { color: #fff; text-decoration: underline; text-underline-offset: 3px; }
+  .memo-discuss svg { flex: none; width: 16px; height: 16px; }
   .memo-empty { column-span: all; padding: 36px 6px; color: var(--ink-dim); font-size: 15px; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
   @media (max-width: 520px) { .memo-wall { columns: 1; } }
   .b-staff { height: 20px; padding: 0 6px; font-size: 11.5px; color: var(--red-soft); border-color: rgba(230, 74, 88, 0.4); }
@@ -1404,6 +1407,8 @@ function memoCard(p, reload) {
     h('div', { class: 'memo-foot' },
       h('span', { class: 'memo-who' }, authorName(p.author), p.mine && !p.author.anonymous ? h('span', { class: 'memo-me' }, '나') : null),
       timeEl(p.created_at, true)),
+    h('a', { class: 'memo-discuss', href: `#/p/${p.id}`, 'aria-label': `댓글 ${p.comment_count || 0}개, 메모 보기: ${p.title || p.body || '메모'}` },
+      h('span', null, `댓글 ${p.comment_count || 0}개 · 댓글 남기기`), icon('next')),
     tools.length ? h('div', { class: 'memo-tools' }, tools) : null);
 }
 function memoComposer(b, done) {
@@ -1442,7 +1447,7 @@ function renderMemoWall(slug, b, data, seq) {
       h('p', { class: 'idx' }, latLabel(b.slug)),
       h('h1', { class: 'h1', tabindex: '-1' }, b.name),
       introEl(b),
-      h('p', { class: 'desc' }, boardDesc(b))));
+      h('p', { class: 'desc' }, boardDesc(b), ' 메모 아래 댓글을 눌러 의견을 주고받을 수 있어요.')));
   const wall = h('ul', { class: 'memo-wall', 'aria-label': `${b.name} 메모` });
   data.posts.forEach((p) => wall.append(memoCard(p, reload)));
   if (!data.posts.length) wall.append(h('li', { class: 'memo-empty' }, b.can_write ? '아직 메모가 없어요. 첫 메모를 붙여 주세요.' : '아직 메모가 없어요.'));
@@ -1563,7 +1568,8 @@ async function renderPost(id, seq, opts) {
   }
   if (stale(seq)) return;
   const p = d.post, slug = p.board.slug, me = state.me;
-  setTitle(p.title);
+  const isMemo = p.board.layout === 'memo';
+  setTitle(isMemo ? `${p.board.name} 메모` : p.title);
   const reload = () => renderPost(id, ++state.seq, { keep: true });
 
   const badges = [];
@@ -1573,7 +1579,7 @@ async function renderPost(id, seq, opts) {
 
   const article = h('article', { class: 'panel hud', 'aria-labelledby': 'p-h' },
     badges.length ? h('div', { class: 'post-badges' }, badges) : null,
-    h('h1', { class: 'h1 post-title', id: 'p-h', tabindex: '-1' }, p.title),
+    h('h1', { class: 'h1 post-title', id: 'p-h', tabindex: '-1' }, isMemo ? '메모' : p.title),
     h('p', { class: 'post-meta' }, authorName(p.author), h('span', { 'aria-hidden': 'true' }, '·'), timeEl(p.created_at),
       edited ? [h('span', { 'aria-hidden': 'true' }, '·'), h('span', null, '수정 ', timeEl(p.updated_at))] : null),
     h('div', { class: 'post-body' }, linkify(p.body)));
