@@ -48,14 +48,53 @@ const server = createServer(async (req, res) => {
     }
     if (url.pathname === '/api/stats/awards') {
       const type = Number(url.searchParams.get('type') || 50);
+      if (scenario === 'awards-error') return json(res, 503, { error: 'server' });
       const list = scenario === 'empty' ? [] : members.map((member, i) => ({
         rank: i < 2 ? 1 : i + 1, member: { discord_id: member.id, name: member.name, nickname: member.name, is_staff: false },
         played: 30 - i, avg_possession: (type === 52 ? [61, 61, 57, 55, 52, 50, 48, 0] : [65.2, 65.2, 60.4, 58.2, 55, 52, 45.1, 0])[i]
       }));
-      return json(res, 200, { type, updated_at: now, members_counted: 0, possession_members_counted: list.length,
+      const raw = members.map((member, i) => ({
+        member: { discord_id: member.id, name: member.name, nickname: member.name, is_staff: false }, played: 30,
+        draw: [6, 6, 3, 8, 9, 3, 2, 1][i], shots: [450, 450, 420, 360, 480, 300, 300, 270][i],
+        gf: [90, 75, 87, 60, 80, 40, 45, 33][i] + (type === 52 ? 6 : 0),
+        ga: [60, 75, 30, 45, 30, 18, 18, 21][i] + (type === 52 ? 3 : 0),
+        heading_goals: [12, 12, 11, 7, 6, 3, 4, 2][i], heading_games: 30
+      }));
+      const memberList = (value, extras, low = false, digits = 2) => {
+        const rows = scenario === 'empty' ? [] : raw.map(row => ({ member: row.member, played: row.played,
+          value: Number(value(row).toFixed(digits)), ...extras(row) }))
+          .sort((a, b) => (low ? a.value - b.value : b.value - a.value) || a.member.discord_id.localeCompare(b.member.discord_id));
+        let rank = 0;
+        return { count: rows.length, list: rows.map((row, i) => {
+          if (!i || row.value !== rows[i - 1].value) rank = i + 1;
+          return { ...row, rank };
+        }) };
+      };
+      const awards = Object.fromEntries(['goals', 'assists', 'tackle', 'save', 'possession'].map(key => [key, { count: key === 'possession' ? list.length : 0, list: key === 'possession' ? list : [] }]));
+      Object.assign(awards, {
+        peace: memberList(r => r.draw * 100 / r.played, r => ({ draw: r.draw }), false, 1),
+        shots: memberList(r => r.shots / r.played, r => ({ shots: r.shots })),
+        heading: ['heading-pending', 'heading-empty'].includes(scenario) ? { count: 0, list: [] }
+          : memberList(r => r.heading_goals / r.heading_games, r => ({ heading_goals: r.heading_goals, heading_games: r.heading_games })),
+        bonfrere: memberList(r => (r.gf + r.ga) / r.played, r => ({ gf: r.gf, ga: r.ga })),
+        low_conceded: memberList(r => r.ga / r.played, r => ({ ga: r.ga }), true)
+      });
+      if (scenario === 'cards') {
+        const card = { rank: 1, spid: 101000190, pos: 25, grade: 8, apps: 30, goals: 20, assists: 12,
+          tackle_try: 40, tackle: 30, gk_apps: 30, faced: 80, saved: 60, member: raw[0].member };
+        for (const key of ['goals', 'assists', 'tackle', 'save']) awards[key] = { count: 1, list: [{ ...card, pos: key === 'save' ? 0 : key === 'tackle' ? 5 : 25 }] };
+      }
+      const payload = { type, updated_at: now, members_counted: scenario === 'cards' ? 1 : 0, possession_members_counted: list.length,
+        member_awards_counted: list.length, min_member_games: 15,
+        heading_coverage: { collected: scenario === 'heading-pending' ? 0 : list.length, total: list.length },
         min_possession_games: 15, rules: { min_apps: 15, min_tackles: 30, min_faced: 30, top: 10 },
         window: { size: 30, total: list.length, done: list.length, ready: true }, tackle_data: false,
-        awards: Object.fromEntries(['goals', 'assists', 'tackle', 'save', 'possession'].map(key => [key, { count: key === 'possession' ? list.length : 0, list: key === 'possession' ? list : [] }])) });
+        awards };
+      if (scenario === 'old-awards') {
+        for (const key of ['peace', 'shots', 'heading', 'bonfrere', 'low_conceded']) delete payload.awards[key];
+        delete payload.member_awards_counted; delete payload.min_member_games; delete payload.heading_coverage;
+      }
+      return json(res, 200, payload);
     }
     const files = new Map([['/club/', ['club/index.html', 'text/html; charset=utf-8']],
       ['/club/index.html', ['club/index.html', 'text/html; charset=utf-8']],
