@@ -113,13 +113,26 @@ test('빈 입력은 오류 없이 빈 목록 반환', () => {
   }
 });
 
-test('로컬 시안 경로와 메뉴는 localhost + duo=preview 조건에서만 활성화', () => {
+test('가짜 API는 로컬에서만 사용하고 공개 경로는 준비 안내와 예시를 구분', () => {
   const gate = html.match(/const DUO_PREVIEW = ([\s\S]*?);/)[1];
   const check = (hostname, search) => vm.runInNewContext(gate, { location: { hostname, search }, URLSearchParams });
   assert.equal(check('127.0.0.1', '?duo=preview'), true);
   assert.equal(check('localhost', '?duo=preview'), true);
   assert.equal(check('nv-fconline.github.io', '?duo=preview'), false);
   assert.equal(check('localhost', ''), false);
-  assert.match(html, /if \(DUO_PREVIEW && hsh === '#\/stats\/duo'\)/);
-  assert.match(html, /filter\([^\n]*DUO_PREVIEW/);
+  assert.match(html, /if \(hsh === '#\/stats\/duo' \|\| hsh === '#\/stats\/duo\/demo'\)/);
+  assert.match(html, /if \(!demo && !DUO_PREVIEW\) return show/);
+  assert.match(html, /if \(DUO_PREVIEW && !demo\) data = await api/);
+  assert.match(html, /const meId = demo \? data.example_member_id : state.me.id/);
+});
+
+test('공개 예시 데이터는 가상 계정이며 상대 시각으로 매번 같은 범위 집계', () => {
+  const fixture = JSON.parse(readFileSync(new URL('../club/demo/duo.json', import.meta.url), 'utf8'));
+  assert.equal(fixture.source, 'demo');
+  assert.ok(fixture.members.every(m => m.name.startsWith('NV예시') && m.id.startsWith('example-')));
+  const matches = fixture.matches.map(m => ({ ...m, at: now - m.age_hours * 3600000 }));
+  const s = build({ ...fixture, matches }, { now });
+  assert.equal(s.ignored, 0);
+  assert.equal(s.matches.length, 51);
+  assert.equal(player(s, fixture.example_member_id).played, 26);
 });

@@ -896,7 +896,12 @@
   .st-table tr.is-me .c-rank { box-shadow: inset 3px 0 0 var(--sky); }
   @media (min-width: 761px) { .aw-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; } }
 
-  /* ---------- 2대2 로컬 시안 ---------- */
+  .aw-possession { grid-column: 1 / -1; }
+  .aw-possession .aw-win { grid-template-columns: 50px minmax(0, 1fr) auto; }
+  .aw-possession .aw-row { grid-template-columns: 20px minmax(0, 1fr) auto; }
+  .aw-club-mark { display: grid; place-items: center; width: 46px; height: 50px; border: 1px solid rgba(68,160,192,.4); background: rgba(68,160,192,.1); font: 600 16px var(--f-lat); color: #a5e5f5; clip-path: polygon(0 0, 100% 0, 100% 80%, 50% 100%, 0 80%); }
+  .aw-possession .aw-win .aw-own { margin: 5px 0; font-size: 16px; }
+  /* ---------- 2대2 ---------- */
   .duo-cover { display: grid; grid-template-columns: minmax(0, 1fr) 270px; gap: 28px; position: relative; isolation: isolate; overflow: hidden; padding: 34px; border: 1px solid rgba(230,74,88,.3); background: #0e090d; }
   .duo-cover::before { content: ''; position: absolute; z-index: -1; inset: 0; background: radial-gradient(ellipse at 5% 0%, rgba(160,7,30,.26), transparent 60%), linear-gradient(115deg, transparent 58%, rgba(68,160,192,.1) 58%, transparent 94%); }
   .duo-eyebrow { margin: 0 0 14px; font-family: var(--f-lat); font-size: 10px; letter-spacing: .16em; color: var(--red-soft); line-height: 1.6; }
@@ -984,7 +989,12 @@
   .duo-game-who time { font-size: 11px; color: var(--ink-dim); }
   .duo-score { font-size: 19px; white-space: nowrap; color: #fff; font-variant-numeric: tabular-nums; }
   .duo-empty { padding: 38px 18px; font-size: 14px; text-align: center; color: var(--ink-dim); }
+  .duo-coming { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 16px; }
+  .duo-feature { padding: 22px; border: 1px solid var(--rule); background: #090b10; }
+  .duo-feature h2 { margin: 0 0 8px; font-size: 16px; color: var(--ink-hi); }
+  .duo-preview-back { display: inline-flex; align-items: center; min-height: 44px; margin-bottom: 10px; color: var(--ink-mid); font-size: 13px; }
   @media (max-width: 640px) {
+    .duo-coming { grid-template-columns: 1fr; }
     .duo-cover { grid-template-columns: 1fr; gap: 24px; padding: 24px; }
     .duo-cover-copy { min-width: 0; }
     .duo-eyebrow { font-size: 9px; }
@@ -1134,7 +1144,7 @@ const API_BASE = (function () {
 })();
 
 const TOKEN_KEY = 'nv_club_session';
-// 자동 수집 지원이 확인되기 전에는 로컬 시안에서만 2대2 메뉴를 연다.
+// 개발용 가짜 API는 localhost에서만 사용. 공개 화면의 예시는 별도 정적 파일로 읽는다.
 const DUO_PREVIEW = ['localhost', '127.0.0.1', '[::1]'].includes(location.hostname) && new URLSearchParams(location.search).get('duo') === 'preview';
 const LOGIN_ERR = {
   denied: '디스코드 로그인을 취소했어요. 다시 해 주세요.',
@@ -1357,7 +1367,7 @@ function route() {
     return show([tabs(null), h('h1', { class: 'h1', tabindex: '-1' }, '클럽 공간'), h('p', { class: 'desc' }, '아직 볼 수 있는 게시판이 없어요.')]);
   }
   if (hsh === '#/stats') return renderStats(seq);
-  if (DUO_PREVIEW && hsh === '#/stats/duo') return renderDuo(seq);
+  if (hsh === '#/stats/duo' || hsh === '#/stats/duo/demo') return renderDuo(seq, hsh.endsWith('/demo'));
   if ((m = hsh.match(/^#\/stats\/m\/(\d{5,25})(?:\/(50|52|40))?$/))) return renderMemberStats(m[1], m[2] ? +m[2] : 50, seq);
   if ((m = hsh.match(/^#\/stats\/rank(?:\/(50|52))?$/))) return renderRanking(m[1] ? +m[1] : 50, seq);
   if ((m = hsh.match(/^#\/stats\/picks(?:\/(50|52))?$/))) return renderPicks(m[1] ? +m[1] : 50, seq);
@@ -2324,7 +2334,7 @@ function statsNav(active, parent) {
     search: '#/stats/search',
   };
   return h('nav', { class: 'snav', 'aria-label': '전적 메뉴' },
-    STATS_NAV.filter(([k]) => k !== 'duo' || DUO_PREVIEW).map(([k, label]) => h('a', { href: href[k], 'aria-current': k === active ? (parent ? 'true' : 'page') : null }, label)));
+    STATS_NAV.map(([k, label]) => h('a', { href: href[k], 'aria-current': k === active ? (parent ? 'true' : 'page') : null }, label)));
 }
 /* 목록에서 상세로 갈 때 돌아올 곳과 보던 자리를 기억한다 */
 function rememberPlace(label) { state.statsBack = { href: location.hash || '#/stats', label, y: window.scrollY }; }
@@ -2837,20 +2847,44 @@ function buildDuoStats(input, { now = Date.now(), limit = 30, minGames = 5 } = {
 }
 /* DUO_MODEL_END */
 
-async function renderDuo(seq) {
+async function renderDuo(seq, demo = false) {
   setTitle('2대2');
   const head = () => [tabs(STATS_TAB), statsNav('duo')];
+  if (!demo && !DUO_PREVIEW) return show([head(),
+    h('section', { class: 'duo-cover', 'aria-labelledby': 'duo-title' },
+      h('div', { class: 'duo-cover-copy' }, h('p', { class: 'duo-eyebrow' }, 'NV / TEAM PLAY'),
+        h('h1', { class: 'duo-title', id: 'duo-title', tabindex: '-1' }, '2대2'),
+        h('p', { class: 'duo-lead' }, '함께 뛰는 조합을 찾아보세요.'),
+        h('p', { class: 'duo-muted', style: 'margin-bottom:20px' }, '실제 전적 연동을 준비하고 있어요. 먼저 예시 화면을 둘러보세요.'),
+        h('a', { class: 'btn btn-primary', href: '#/stats/duo/demo' }, '예시 화면 보기')),
+      h('div', { class: 'duo-mine' }, h('p', { class: 'duo-eyebrow' }, 'COMING SOON'),
+        h('strong', { style: 'font-size:26px;color:var(--ink-hi)' }, '연동 준비 중'),
+        h('p', { class: 'duo-muted', style: 'margin-top:10px' }, '실제 기록은 연동을 마친 뒤 표시됩니다.'))),
+    h('div', { class: 'duo-coming' }, [
+      ['개인 승률', '2대2 승·무·패와 최근 경기 흐름을 살펴봐요.'],
+      ['조합 승률', '함께 뛴 파트너별로 기록을 비교해요.'],
+      ['내 조합 찾기', '본인 조합만 모아 경기 목록까지 확인해요.']
+    ].map(([title, text]) => h('section', { class: 'duo-feature' }, h('h2', null, title), h('p', { class: 'duo-muted' }, text))))]);
   show([head(), loadingEl('2대2 기록을 정리하고 있어요.')]);
   let data;
-  try { data = await api('/api/stats/duo'); } catch (e) {
+  try {
+    if (DUO_PREVIEW && !demo) data = await api('/api/stats/duo');
+    else {
+      const res = await fetch('demo/duo.json', { cache: 'no-store' });
+      if (!res.ok) throw new ApiError(res.status, 'server');
+      const fixture = await res.json();
+      if (fixture.source !== 'demo' || !Array.isArray(fixture.matches)) throw new ApiError(500, 'server');
+      const now = Date.now();
+      data = { ...fixture, matches: fixture.matches.map(m => ({ ...m, at: now - m.age_hours * 3600000 })) };
+    }
+  } catch (e) {
     if (stale(seq) || e.handled) return;
-    return show([head(), h('h1', { class: 'h1', tabindex: '-1' }, '2대2'), errorBox(e, () => renderDuo(++state.seq))]);
+    return show([head(), h('h1', { class: 'h1', tabindex: '-1' }, '2대2'), errorBox(e, () => renderDuo(++state.seq, demo))]);
   }
   if (stale(seq)) return;
-  // 이 경로는 로컬 예시 시안 전용. 실제 API 응답 변환기와 수집기는 아직 연결하지 않았다.
-  if (!DUO_PREVIEW || data?.source !== 'demo') return show([head(), h('p', { class: 'info' }, '2대2 기록을 연결할 준비 중이에요.')]);
+  if (data?.source !== 'demo') return show([head(), h('p', { class: 'info' }, '2대2 기록을 연결할 준비 중이에요.')]);
   const model = buildDuoStats(data);
-  const meId = state.me.id;
+  const meId = demo ? data.example_member_id : state.me.id;
   const mine = model.players.find(p => p.key === meId);
   const myPairs = model.pairs.filter(p => p.ids.includes(meId));
   const best = myPairs.find(p => p.eligible) || myPairs[0];
@@ -2870,10 +2904,10 @@ async function renderDuo(seq) {
       h('p', { class: 'duo-eyebrow' }, 'NV / TEAM PLAY'),
       h('h1', { class: 'duo-title', id: 'duo-title', tabindex: '-1' }, '2대2'),
       h('p', { class: 'duo-lead' }, '함께 뛰는 조합을 찾아보세요.'),
-      h('p', { class: 'duo-demo' }, h('span', { class: 'duo-demo-dot', 'aria-hidden': 'true' }), '예시 데이터 · 실제 전적이 아닙니다')),
+      h('p', { class: 'duo-demo' }, h('span', { class: 'duo-demo-dot', 'aria-hidden': 'true' }), demo ? `예시 계정: ${name(meId)} · 실제 전적이 아닙니다` : '예시 데이터 · 실제 전적이 아닙니다')),
     h('div', { class: 'duo-mine' },
       h('p', { class: 'duo-eyebrow' }, 'MY RECORD'),
-      h('span', { class: 'duo-mine-label' }, '내 2대2 승률'),
+      h('span', { class: 'duo-mine-label' }, demo ? '예시 계정의 2대2 승률' : '내 2대2 승률'),
       h('strong', { class: 'duo-big-rate' }, rate(mine?.winRate)),
       h('span', { class: 'duo-muted' }, mine ? `${mine.played}경기 · ${record(mine)}` : '아직 기록이 없어요'),
       mine ? strip(mine) : null));
@@ -2946,7 +2980,7 @@ async function renderDuo(seq) {
       ['pairs', 'players'].map(mode => h('button', { type: 'button', 'aria-pressed': String(ui.view === mode), onclick: () => switchView(mode) }, mode === 'pairs' ? '조합 기록' : '개인 기록'))),
       h('div', { class: 'duo-filter-row' }, mine, select));
   }
-  show([head(), cover, bestCard,
+  show([head(), demo ? h('a', { class: 'duo-preview-back', href: '#/stats/duo' }, '← 2대2 준비 화면으로') : null, cover, bestCard,
     h('section', { class: 'duo-ranking', 'aria-labelledby': 'duo-ranking-title' },
       h('div', { class: 'duo-section-head' }, h('h2', { id: 'duo-ranking-title' }, '같이 뛴 기록'), h('span', null, '개인·조합별 최근 30경기')),
       controls, status, list, detail,
@@ -3185,13 +3219,14 @@ const AWARD_CATS = [
   { key: 'assists', title: '도움왕', what: '선발 1경기당 도움', val: (e) => `${fx(e.assists / e.apps, 2)}도움`, sub: (e) => `${e.apps}경기 ${e.assists}도움` },
   { key: 'tackle', title: '수비왕', what: '수비수 태클 성공률', val: (e) => pctText((e.tackle * 100) / e.tackle_try), sub: (e) => `태클 ${e.tackle_try}번 중 ${e.tackle}번` },
   { key: 'save', title: '선방왕', what: '골키퍼 선방률', val: (e) => pctText((e.saved * 100) / e.faced), sub: (e) => `유효슈팅 ${e.faced}개 중 ${e.saved}개` },
+  { key: 'possession', title: '볼돌왕', what: '클럽원 평균 볼 점유율', val: (e) => `${fx(e.avg_possession, 1)}%`, sub: (e) => `${e.played}경기 평균` },
 ];
 const AW_SHOW = 5;
 async function renderAwards(type, seq) {
-  setTitle('최고의 선수');
+  setTitle('어워드');
   state.bestType = type;
-  const head = () => [tabs(STATS_TAB), statsNav('best'), h('p', { class: 'idx' }, 'AWARDS'), h('h1', { class: 'h1', tabindex: '-1' }, '최고의 선수'),
-    h('p', { class: 'desc' }, '클럽원들이 최근 경기에서 선발로 쓴 선수 중에서 부문별로 뽑아요. 줄을 누르면 그 클럽원 전적으로 가요.'),
+  const head = () => [tabs(STATS_TAB), statsNav('best'), h('p', { class: 'idx' }, 'AWARDS'), h('h1', { class: 'h1', tabindex: '-1' }, '클럽 어워드'),
+    h('p', { class: 'desc' }, '선수 카드와 클럽원 기록으로 부문별 순위를 뽑아요. 볼돌왕은 클럽원의 평균 점유율로 겨뤄요. 줄을 누르면 개인 전적으로 가요.'),
     h('nav', { class: 'seg seg-2', 'aria-label': '경기 종류' }, RK_TYPES.map(([t, l]) => h('a', { href: `#/stats/best/${t}`, 'aria-current': t === type ? 'page' : null }, l)))];
   const key = `best:${type}`;
   let d = cacheGet(key);
@@ -3207,10 +3242,12 @@ async function renderAwards(type, seq) {
   const aw = d.awards || {};
   const rules = d.rules || {};
   const minApps = isNum(rules.min_apps) ? rules.min_apps : 15;
+  const minPossession = isNum(d.min_possession_games) ? d.min_possession_games : minApps;
+  const hasRecords = !!(d.members_counted || d.possession_members_counted);
   const W = winSize(d);
   const lists = AWARD_CATS.map((c) => (aw[c.key] && Array.isArray(aw[c.key].list) ? aw[c.key].list : []));
   const all = lists.flat();
-  await waitAtMost(Promise.all([loadNames(all.map((e) => e.spid)), loadSeasons()]), 2500);
+  await waitAtMost(Promise.all([loadNames(all.map((e) => e.spid).filter(Number.isFinite)), loadSeasons()]), 2500);
   if (stale(seq)) return;
   for (const e of all) {
     const mb = e.member || {};
@@ -3218,7 +3255,7 @@ async function renderAwards(type, seq) {
     if (!state.statsMembers) state.statsMembers = new Map();
     if (!state.statsMembers.has(mb.discord_id)) state.statsMembers.set(mb.discord_id, { discord_id: mb.discord_id, name: mb.name, link: { nickname: mb.nickname } });
   }
-  const onRow = () => rememberPlace('최고의 선수');
+  const onRow = () => rememberPlace('어워드');
   /* 디스코드 이름에 게임 닉네임이 이미 들어 있으면 닉네임은 다시 쓰지 않는다 */
   const owner = (mb) => h('span', { class: 'aw-own' }, h('b', null, mb.name || mb.nickname || '클럽원'), statsMeBadge(mb),
     mb.nickname && !String(mb.name || '').includes(mb.nickname) ? h('span', { class: 'nk' }, mb.nickname) : null);
@@ -3228,6 +3265,10 @@ async function renderAwards(type, seq) {
   const games = (c, e) => `${c.key === 'save' ? e.gk_apps : e.apps}경기`;
   function winner(c, e, tied) {
     const mb = e.member || {};
+    if (c.key === 'possession') return link(mb, 'aw-win', [
+      h('span', { class: 'aw-club-mark', 'aria-hidden': 'true' }, 'NV'),
+      h('div', { class: 'aw-id' }, h('span', { class: 'aw-1' }, tied ? '공동 1위' : '1위'), owner(mb)),
+      h('div', { class: 'aw-val' }, h('b', null, c.val(e)), h('small', null, c.sub(e)))]);
     return link(mb, 'aw-win', [
       faceEl(e.spid, 'pf-aw'),
       h('div', { class: 'aw-id' },
@@ -3239,6 +3280,10 @@ async function renderAwards(type, seq) {
   }
   function runner(c, e) {
     const mb = e.member || {};
+    if (c.key === 'possession') return h('li', null, link(mb, 'aw-row', [
+      h('span', { class: 'aw-n' + (e.rank === 1 ? ' aw-n1' : '') }, String(e.rank)),
+      h('div', { class: 'aw-id' }, owner(mb)),
+      h('div', { class: 'aw-rv' }, h('b', null, c.val(e)), h('small', null, c.sub(e)))]));
     return h('li', null, link(mb, 'aw-row', [
       h('span', { class: 'aw-n' + (e.rank === 1 ? ' aw-n1' : '') }, String(e.rank)),
       faceEl(e.spid, 'pf-sm'),
@@ -3248,6 +3293,7 @@ async function renderAwards(type, seq) {
       h('div', { class: 'aw-rv' }, h('b', null, c.val(e)), h('small', null, c.sub(e)))]));
   }
   const empty = {
+    possession: aw.possession ? `점유율 기록이 있고 ${minPossession}경기 이상 뛴 클럽원이 아직 없어요.` : '점유율 집계를 준비하고 있어요.',
     goals: `선발 ${minApps}경기 이상 뛰고 골을 넣은 선수가 아직 없어요.`,
     assists: `선발 ${minApps}경기 이상 뛰고 도움을 한 선수가 아직 없어요.`,
     tackle: d.tackle_data
@@ -3256,7 +3302,7 @@ async function renderAwards(type, seq) {
     save: `골키퍼로 선발 ${minApps}경기 이상, 유효슈팅 ${rules.min_faced ?? 30}개 이상 받은 선수가 아직 없어요.`,
   };
   function section(c, list) {
-    const box = h('section', { class: 'aw', 'aria-labelledby': `aw-${c.key}` },
+    const box = h('section', { class: 'aw' + (c.key === 'possession' ? ' aw-possession' : ''), 'aria-labelledby': `aw-${c.key}` },
       h('div', { class: 'aw-h' }, h('h2', { id: `aw-${c.key}` }, c.title), h('span', null, c.what)));
     if (!list.length) { append(box, [h('p', { class: 'aw-empty' }, empty[c.key])]); return box; }
     const rest = list.slice(1);
@@ -3275,15 +3321,16 @@ async function renderAwards(type, seq) {
   const any = lists.some((l) => l.length);
   show([head(),
     h('p', { class: 'rk-cov' },
-      h('span', null, `클럽원 ${d.members_counted ?? 0}명의 최근 ${W}경기 선발 기록이에요.`),
+      h('span', null, `최근 ${W}경기 · 선수 기록 ${d.members_counted ?? 0}명 · ` + (aw.possession ? `점유율 기록 ${d.possession_members_counted ?? 0}명` : '점유율 집계 준비 중')),
       h('span', null, d.updated_at ? ['갱신 ', timeEl(d.updated_at, true)] : '아직 모은 기록이 없어요')),
     refillNote(d, `선발 ${minApps}경기 이상`),
-    d.members_counted ? null : h('div', { class: 'st-empty', style: 'margin-top:18px' }, h('p', null, '아직 모은 기록이 없어요.'), h('p', null, '클럽원 기록을 모으면 여기에 보여요.')),
-    d.members_counted ? h('div', { class: 'aw-grid' }, AWARD_CATS.map((c, i) => section(c, lists[i]))) : null,
-    any || d.members_counted ? h('ul', { class: 'aw-rules' },
+    hasRecords ? null : h('div', { class: 'st-empty', style: 'margin-top:18px' }, h('p', null, '아직 모은 기록이 없어요.'), h('p', null, '클럽원 기록을 모으면 여기에 보여요.')),
+    hasRecords ? h('div', { class: 'aw-grid' }, AWARD_CATS.map((c, i) => section(c, lists[i]))) : null,
+    any || hasRecords ? h('ul', { class: 'aw-rules' },
       h('li', null, `클럽원마다 최근 ${W}경기에서 선발로 ${minApps}경기 이상 뛴 선수만 넣어요. 같은 선수라도 쓴 클럽원이 다르면 따로 세요.`),
       h('li', null, `수비왕은 수비수(DF) 자리에서 태클을 ${rules.min_tackles ?? 30}번 이상 한 선수의 태클 성공률이에요.`),
-      h('li', null, `선방왕은 골키퍼로 상대 유효슈팅을 ${rules.min_faced ?? 30}개 이상 받은 선수가 골을 내주지 않은 비율이에요.`)) : null,
+      h('li', null, `선방왕은 골키퍼로 상대 유효슈팅을 ${rules.min_faced ?? 30}개 이상 받은 선수가 골을 내주지 않은 비율이에요.`),
+      h('li', null, `볼돌왕은 ${minPossession}경기 이상 뛴 클럽원의 평균 볼 점유율이에요. 같은 평균이면 공동 순위로 표시해요.`)) : null,
     statsAttr()]);
   restorePlace();
 }

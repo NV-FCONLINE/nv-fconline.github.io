@@ -1,4 +1,4 @@
-// 2대2 로컬 시안. 모든 계정·경기는 가상 데이터이며 외부 API·운영 DB에 접속하지 않는다.
+// 2대2·어워드 로컬 검증. 모든 계정·경기는 가상 데이터이며 외부 API·운영 DB에 접속하지 않는다.
 // 실행: node tools/preview-duo.mjs / 종료: Ctrl+C 또는 20분 뒤 자동 종료.
 import { createServer } from 'node:http';
 import { readFile } from 'node:fs/promises';
@@ -46,8 +46,20 @@ const server = createServer(async (req, res) => {
       if (scenario === 'error') return json(res, 503, { error: 'server' });
       return json(res, 200, { source: 'demo', members, matches: scenario === 'empty' ? [] : matches });
     }
+    if (url.pathname === '/api/stats/awards') {
+      const type = Number(url.searchParams.get('type') || 50);
+      const list = scenario === 'empty' ? [] : members.map((member, i) => ({
+        rank: i < 2 ? 1 : i + 1, member: { discord_id: member.id, name: member.name, nickname: member.name, is_staff: false },
+        played: 30 - i, avg_possession: (type === 52 ? [61, 61, 57, 55, 52, 50, 48, 0] : [65.2, 65.2, 60.4, 58.2, 55, 52, 45.1, 0])[i]
+      }));
+      return json(res, 200, { type, updated_at: now, members_counted: 0, possession_members_counted: list.length,
+        min_possession_games: 15, rules: { min_apps: 15, min_tackles: 30, min_faced: 30, top: 10 },
+        window: { size: 30, total: list.length, done: list.length, ready: true }, tackle_data: false,
+        awards: Object.fromEntries(['goals', 'assists', 'tackle', 'save', 'possession'].map(key => [key, { count: key === 'possession' ? list.length : 0, list: key === 'possession' ? list : [] }])) });
+    }
     const files = new Map([['/club/', ['club/index.html', 'text/html; charset=utf-8']],
       ['/club/index.html', ['club/index.html', 'text/html; charset=utf-8']],
+      ['/club/demo/duo.json', ['club/demo/duo.json', 'application/json; charset=utf-8']],
       ['/assets/nv-mark.png', ['assets/nv-mark.png', 'image/png']], ['/favicon-32.png', ['favicon-32.png', 'image/png']]]);
     const file = files.get(url.pathname);
     if (!file) return json(res, 404, { error: 'not_found' });
