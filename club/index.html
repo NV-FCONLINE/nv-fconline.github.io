@@ -1038,6 +1038,67 @@
     .duo-detail { padding: 16px; }
   }
 
+  .duo-live { min-width: 0; }
+  .duo-season { display: flex; flex-wrap: wrap; gap: 7px; margin: 0 0 6px; }
+  .duo-season span { padding: 4px 8px; border: 1px solid rgba(230,74,88,.25); color: #e4a9af; font-size: 11px; }
+  .duo-source { display: inline-flex; align-items: center; min-height: 44px; color: var(--ink-dim); font-size: 12px; text-underline-offset: 4px; }
+  .duo-mine-status { margin: 9px 0 0; color: #9fdcee; font-size: 13px; line-height: 1.7; overflow-wrap: anywhere; }
+  .duo-sync { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin: 16px 0 32px; padding: 14px 18px; border: 1px solid var(--rule); background: #090b10; }
+  .duo-sync-copy { flex: 1 1 230px; min-width: 0; }
+  .duo-sync-copy strong { font-size: 13px; font-weight: 500; color: var(--ink-mid); line-height: 1.7; }
+  .duo-sync-copy p { margin: 4px 0 0; font-size: 11.5px; color: var(--ink-dim); line-height: 1.7; }
+  .duo-sync progress { display: block; width: 100%; max-width: 320px; height: 4px; margin-top: 9px; accent-color: var(--sky); }
+  .duo-sync .btn { min-height: 44px; white-space: normal; }
+  .duo-live-controls { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 10px 16px; }
+  .duo-live-search { min-width: 0; width: 100%; min-height: 44px; font-size: 14px; }
+  .duo-live-controls .duo-sort { width: 116px; }
+  .duo-live-head, .duo-live-row { display: grid; grid-template-columns: 38px minmax(0, 1fr) 100px 106px; column-gap: 18px; align-items: center; padding: 14px 20px; }
+  .duo-live-head { font-size: 11px; color: var(--ink-dim); border-bottom: 1px solid var(--rule); }
+  .duo-live-head > :nth-child(n+3) { text-align: right; }
+  .duo-live-row { position: relative; min-height: 100px; border-bottom: 1px solid var(--rule); scroll-margin-top: 95px; }
+  .duo-live-row.is-me { box-shadow: inset 3px 0 0 var(--sky); background: linear-gradient(90deg, rgba(68,160,192,.12), transparent 85%); }
+  .duo-live-row:focus { outline: 2px solid var(--sky); outline-offset: -2px; }
+  .duo-live-identity { min-width: 0; }
+  .duo-live-name { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; color: var(--ink-hi); font-size: 14px; line-height: 1.6; overflow-wrap: anywhere; }
+  .duo-live-nickname { display: block; margin-top: 3px; color: var(--ink-dim); font-size: 11.5px; line-height: 1.6; overflow-wrap: anywhere; }
+  .duo-live-official { text-align: right; color: var(--ink-mid); font-size: 14px; font-variant-numeric: tabular-nums; }
+  .duo-live-rate { display: grid; justify-items: end; gap: 4px; min-width: 0; text-align: right; }
+  .duo-live-rate strong { color: var(--ink-hi); font-size: 26px; line-height: 1.2; font-weight: 600; letter-spacing: -.04em; font-variant-numeric: tabular-nums; }
+  .duo-live-rate small { color: var(--ink-dim); font-size: 11px; line-height: 1.5; }
+  .duo-live-note { grid-column: 2 / -1; margin: 6px 0 0; color: #bcae88; font-size: 11px; line-height: 1.7; }
+  .duo-live-note time { white-space: nowrap; }
+  .duo-live-state { margin: 5px 0 0; font-size: 12px; color: var(--ink-dim); line-height: 1.7; }
+  .duo-live-more { display: flex; justify-content: center; padding: 14px; }
+  .duo-live-more button { min-height: 44px; }
+  .duo-live-list { margin: 0; padding: 0; list-style: none; }
+  .duo-live-list > li:last-child { border-bottom: 0; }
+  .duo-live-find { min-height: 44px; }
+  .duo-combo-note { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px; margin-top: 32px; padding: 22px; border: 1px solid var(--rule); background: #090b10; }
+  .duo-combo-note > div { flex: 1 1 230px; }
+  .duo-combo-note h2 { margin: 0 0 6px; color: var(--ink-hi); font-size: 16px; }
+  .duo-combo-note a { display: inline-flex; align-items: center; min-height: 44px; color: var(--ink-mid); font-size: 13px; text-underline-offset: 4px; }
+  @media (max-width: 640px) {
+    .duo-live .duo-cover { padding: 22px; }
+    .duo-live .duo-mine { grid-template-columns: minmax(0, 1fr) auto; }
+    .duo-mine-status { grid-column: 1 / -1; margin-top: 8px; font-size: 12px; }
+    .duo-live-controls { grid-template-columns: minmax(0, 1fr) auto; gap: 10px; }
+    .duo-live-search { grid-column: 1 / -1; }
+    .duo-live-controls .duo-sort { width: 110px; }
+    .duo-sync { padding: 14px; margin-bottom: 26px; }
+    .duo-live-head, .duo-live-row { grid-template-columns: 22px minmax(0, 1fr) 84px; gap: 6px 10px; padding: 14px 10px; }
+    .duo-live-head > :nth-child(3) { display: none; }
+    .duo-live-row { min-height: 106px; }
+    .duo-live-name { font-size: 13px; }
+    .duo-live-official { grid-column: 2; grid-row: 2; text-align: left; font-size: 11px; }
+    .duo-live-official::before { content: '공식 '; color: var(--ink-dim); }
+    .duo-live-rate { grid-column: 3; grid-row: 1 / span 2; align-self: center; }
+    .duo-live-rate strong { font-size: 24px; }
+    .duo-live-rate small { font-size: 10px; }
+    .duo-live-note { grid-column: 2 / -1; }
+    .duo-live-find { font-size: 12px; padding-inline: 12px; }
+    .duo-combo-note { padding: 18px; }
+  }
+
   /* ---------- 검색 ---------- */
   .sr-form { display: grid; gap: 8px; margin: 18px 0 0; max-width: 560px; }
   .sr-row { display: flex; gap: 8px; }
@@ -1153,7 +1214,6 @@ const API_BASE = (function () {
 
 const TOKEN_KEY = 'nv_club_session';
 // 개발용 가짜 API는 localhost에서만 사용. 공개 화면의 예시는 별도 정적 파일로 읽는다.
-const DUO_PREVIEW = ['localhost', '127.0.0.1', '[::1]'].includes(location.hostname) && new URLSearchParams(location.search).get('duo') === 'preview';
 const LOGIN_ERR = {
   denied: '디스코드 로그인을 취소했어요. 다시 해 주세요.',
   not_member: 'NV 디스코드 서버의 클럽 멤버만 들어올 수 있어요. 서버에 들어와 있는지, 클럽 역할이 있는지 운영진에게 물어봐 주세요.',
@@ -2855,29 +2915,169 @@ function buildDuoStats(input, { now = Date.now(), limit = 30, minGames = 5 } = {
 }
 /* DUO_MODEL_END */
 
+async function renderDuoLive(seq) {
+  setTitle('2대2');
+  const sourceUrl = 'https://fconline.nexon.com/datacenter/rank?rt=2vs2';
+  const ui = { query: '', sort: 'rate', mine: false, limit: 20 };
+  let data = null, busy = false, failed = false, retryAt = 0;
+  const members = () => Array.isArray(data?.members) ? data.members : [];
+  const isMine = m => !!(state.me?.id && m && (m.discord_id === state.me.id ||
+    Array.isArray(m.discord_ids) && m.discord_ids.includes(state.me.id)));
+  const hasStats = m => !!(m?.stats && isNum(m.stats.win_rate) && isNum(m.stats.rank));
+  const rate = n => isNum(n) ? `${Number(n.toFixed(1))}%` : '—';
+  const num = n => isNum(n) ? n.toLocaleString('ko-KR') : '—';
+  const record = s => `${num(s.win)}승 ${num(s.draw)}무 ${num(s.lose)}패`;
+  const statusText = m => ({ unlinked: '게임 계정 미연결', not_ranked: '공식 랭킹에서 조회되지 않음',
+    pending: '순서대로 확인 중', error: '불러오기 실패' }[m?.status] || '기록 확인 중');
+  const minePanel = h('div', { class: 'duo-mine' });
+  const sync = h('div', { class: 'duo-sync', 'aria-live': 'polite' });
+  const list = h('div', { class: 'duo-board' });
+  const listStatus = h('p', { class: 'duo-list-status', role: 'status' });
+  const query = h('input', { class: 'input duo-live-search', type: 'search', maxlength: '80',
+    placeholder: '클럽 이름이나 게임 닉네임 검색', 'aria-label': '클럽 이름이나 게임 닉네임 검색',
+    oninput: ev => { ui.query = ev.target.value.trim().toLocaleLowerCase('ko-KR'); ui.limit = 20; paintList(); } });
+  const onlyMine = h('button', { class: 'duo-only-mine', type: 'button', role: 'switch', 'aria-checked': 'false',
+    onclick: () => { ui.mine = !ui.mine; ui.limit = 20; onlyMine.setAttribute('aria-checked', String(ui.mine)); paintList(); } },
+    h('span', { class: 'duo-switch-track', 'aria-hidden': 'true' }, h('i')), '내 기록만');
+  const sort = h('select', { class: 'duo-sort', 'aria-label': '개인 2대2 정렬',
+    onchange: ev => { ui.sort = ev.target.value; ui.limit = 20; paintList(); } },
+    h('option', { value: 'rate' }, '승률순'), h('option', { value: 'official' }, '공식 순위순'));
+  const myButton = h('button', { class: 'btn btn-ghost duo-live-find', type: 'button', onclick: () => {
+    if (!members().some(isMine)) { toast('내 계정을 클럽 명단에서 찾지 못했어요.'); return; }
+    ui.query = ''; query.value = ''; ui.mine = false; onlyMine.setAttribute('aria-checked', 'false');
+    ui.limit = Math.max(20, orderedRows().findIndex(isMine) + 1); paintList();
+    const row = list.querySelector('[data-duo-me]');
+    row?.scrollIntoView({ block: 'center', behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+    row?.focus({ preventScroll: true });
+  } }, '내 기록 찾기');
+  const cover = h('section', { class: 'duo-cover', 'aria-labelledby': 'duo-title' },
+    h('div', { class: 'duo-cover-copy' }, h('p', { class: 'duo-eyebrow' }, 'NV / TEAM PLAY'),
+      h('h1', { class: 'duo-title', id: 'duo-title', tabindex: '-1' }, '2대2'),
+      h('p', { class: 'duo-lead' }, '클럽원들의 이번 시즌 개인 기록'),
+      h('p', { class: 'duo-season' }, h('span', null, '현재 시즌'), h('span', null, '공식 랭킹 상위 1만 명 기준')),
+      h('a', { class: 'duo-source', href: sourceUrl, target: '_blank', rel: 'noopener noreferrer' }, '출처: FC Online 공식 2대2 랭킹 ↗')),
+    minePanel);
+  const shell = h('div', { class: 'duo-live' }, cover, sync,
+    h('section', { 'aria-labelledby': 'duo-live-title' },
+      h('div', { class: 'duo-section-head' }, h('h2', { id: 'duo-live-title' }, '개인 2대2 랭킹'), myButton),
+      h('div', { class: 'duo-live-controls' }, query, onlyMine, sort), listStatus, list,
+      h('p', { class: 'duo-rules' }, '클럽 순위는 공식 랭킹에서 확인한 클럽원의 승률 기준이에요. 같은 승률은 공동 순위로 표시해요. 공식 순위는 게임 전체 순위예요. 시즌 중 공식 랭킹 상위 1만 명에서 조회되지 않으면 승률을 표시하지 않아요.'),
+      h('p', { class: 'duo-rules' }, '구단주별 조회 시각이 달라 공식 사이트의 현재 표시와 차이가 날 수 있어요.')),
+    h('section', { class: 'duo-combo-note' }, h('div', null, h('h2', null, '파트너별 조합 승률'),
+      h('p', { class: 'duo-muted' }, '같은 편과 경기별 기록을 확인할 자료가 없어 아직 제공하지 않아요. 아래 화면은 가상 데이터로 만든 예시예요.')),
+      h('a', { href: '#/stats/duo/demo' }, '조합 화면 예시 보기 →')));
+  show([tabs(STATS_TAB), statsNav('duo'), shell]);
+
+  function orderedRows() {
+    return members().filter(m => (!ui.mine || isMine(m)) && (!ui.query ||
+      `${m.name || ''} ${m.nickname || ''}`.toLocaleLowerCase('ko-KR').includes(ui.query))).slice().sort((a, b) => {
+      const av = hasStats(a), bv = hasStats(b);
+      if (av !== bv) return Number(bv) - Number(av);
+      if (av) return (ui.sort === 'official' ? a.stats.rank - b.stats.rank : b.stats.win_rate - a.stats.win_rate || a.stats.rank - b.stats.rank)
+        || String(a.discord_id).localeCompare(String(b.discord_id));
+      return String(a.name || '').localeCompare(String(b.name || ''), 'ko');
+    });
+  }
+  function paintList() {
+    const rows = orderedRows();
+    const visible = rows.slice(0, ui.limit);
+    listStatus.textContent = data ? `${ui.mine ? '내 기록' : '클럽원'} ${rows.length}명${ui.query ? ' · 검색 결과' : ''} · ${ui.sort === 'official' ? '공식 순위순' : '승률순'}` : '클럽원 기록을 불러오고 있어요.';
+    myButton.disabled = !data;
+    list.replaceChildren();
+    if (!data) { list.append(failed ? h('p', { class: 'duo-empty' }, '기록을 불러오지 못했어요. 위의 다시 불러오기를 눌러 주세요.') : loadingEl('공식 2대2 랭킹을 확인하고 있어요.')); return; }
+    if (!rows.length) { list.append(h('p', { class: 'duo-empty' }, members().length ? '조건에 맞는 클럽원이 없어요.' : '표시할 클럽원이 아직 없어요.')); return; }
+    const ol = h('ol', { class: 'duo-live-list' });
+    visible.forEach(m => {
+      const s = hasStats(m) ? m.stats : null;
+      ol.append(h('li', { class: 'duo-live-row' + (isMine(m) ? ' is-me' : ''),
+        tabindex: '-1', 'data-duo-me': isMine(m) ? 'true' : null },
+        h('span', { class: `duo-rank${s && m.club_rank && m.club_rank <= 3 ? ` podium-${m.club_rank}` : ''}`, 'aria-label': '클럽 순위' }, s ? num(m.club_rank) : '—'),
+        h('div', { class: 'duo-live-identity' },
+          h('div', { class: 'duo-live-name' }, m.name || '클럽원', isMine(m) ? badge('나', 'me') : null),
+          m.nickname ? h('span', { class: 'duo-live-nickname' }, m.nickname) : null,
+          !s ? h('p', { class: 'duo-live-state' }, statusText(m)) : null),
+        h('span', { class: 'duo-live-official' }, s ? `${num(s.rank)}위` : '—'),
+        h('div', { class: 'duo-live-rate' }, h('strong', null, s ? rate(s.win_rate) : '—'),
+          s ? h('small', null, record(s)) : null),
+        m.stale ? h('p', { class: 'duo-live-note' }, m.status === 'error' ? '갱신 실패 · 기존 조회 결과' : s ? '기존 기록' : '기존 조회 결과',
+          isNum(m.fetched_at) ? [' · ', timeEl(m.fetched_at)] : null) :
+          m.status === 'not_ranked' ? h('p', { class: 'duo-live-note' }, '공식 랭킹 집계 범위 밖이거나 조회되지 않은 계정이에요.') : null));
+    });
+    list.append(h('div', { class: 'duo-live-head', 'aria-hidden': 'true' }, h('span', null, '클럽'), h('span', null, '클럽원'), h('span', null, '공식 순위'), h('span', null, '승률 · 승무패')), ol);
+    if (rows.length > visible.length) list.append(h('div', { class: 'duo-live-more' },
+      h('button', { class: 'btn btn-ghost', type: 'button', onclick: () => { ui.limit += 20; paintList(); } }, `${Math.min(20, rows.length - visible.length)}명 더 보기 (${visible.length}/${rows.length})`)));
+  }
+  function paint() {
+    if (stale(seq)) return;
+    const mine = members().find(isMine);
+    const s = hasStats(mine) ? mine.stats : null;
+    minePanel.replaceChildren(...[h('p', { class: 'duo-eyebrow' }, 'MY RECORD'),
+      h('span', { class: 'duo-mine-label' }, '내 2대2 승률'), h('strong', { class: 'duo-big-rate' }, s ? rate(s.win_rate) : '—'),
+      h('p', { class: 'duo-muted' }, !data ? failed ? '내 기록을 불러오지 못했어요.' : '내 기록을 확인하고 있어요.' : s ? `${record(s)} · ${num(s.played)}경기` : mine ? statusText(mine) : '내 계정을 클럽 명단에서 찾지 못했어요.'),
+      s ? h('p', { class: 'duo-mine-status' }, `클럽 ${num(mine.club_rank)}위 · 공식 ${num(s.rank)}위`, mine.stale ? ' · 기존 기록' : '') : null].filter(Boolean));
+    const c = data?.coverage || {};
+    const pending = Number(data?.pending || 0);
+    const total = Number(c.total ?? members().length);
+    const done = Math.max(0, Number(c.linked || 0) - pending);
+    const message = !data ? (failed ? '2대2 기록을 불러오지 못했어요.' : '클럽원의 공식 2대2 랭킹을 확인하고 있어요.') :
+      retryAt > Date.now() ? '잠시 뒤 이어서 불러와 주세요. 확인된 기록부터 보여 드려요.' :
+      busy && pending ? `클럽원 기록을 순서대로 확인하고 있어요. (${done}/${Number(c.linked || 0)}명)` :
+      pending ? `아직 ${pending}명의 기록을 확인하고 있어요.` :
+      failed || Number(c.error || 0) ? '일부 기록을 갱신하지 못했어요. 확인된 기록부터 보여 드려요.' : `${total}명 중 ${Number(c.ranked || 0)}명의 공식 랭킹 기록을 확인했어요.`;
+    const copy = h('div', { class: 'duo-sync-copy' }, h('strong', null, message),
+      data && isNum(data.source_updated_at) ? h('p', null, '공식 사이트 기준 ', timeEl(data.source_updated_at)) : null,
+      h('p', null, data && isNum(data.updated_at) ? ['최근 확인 ', timeEl(data.updated_at)] : '아직 확인한 기록이 없어요.',
+        data && Number(c.not_ranked || 0) ? ` · 랭킹 조회 안 됨 ${Number(c.not_ranked)}명` : '',
+        data && Number(c.total || 0) > Number(c.linked || 0) ? ` · 게임 계정 미연결 ${Number(c.total) - Number(c.linked || 0)}명` : '',
+        Number(c.stale || 0) ? ` · 기존 기록 ${Number(c.stale)}명` : ''));
+    if (pending) copy.append(h('progress', { max: Math.max(1, Number(c.linked || 0)), value: done, 'aria-label': '2대2 기록 확인 진행률' }));
+    const remaining = Math.max(0, Math.ceil((retryAt - Date.now()) / 1000));
+    sync.replaceChildren(...[copy, !busy && (!data || pending || failed || Number(c.error || 0) || Number(c.stale || 0)) ?
+      h('button', { class: 'btn btn-ghost', type: 'button', onclick: () => {
+        if (Date.now() < retryAt) {
+          const seconds = Math.ceil((retryAt - Date.now()) / 1000);
+          toast(`다음 조회까지 잠시 기다려 주세요. ${seconds < 60 ? `${seconds}초` : `${Math.ceil(seconds / 60)}분`} 뒤 다시 눌러 주세요.`); return;
+        }
+        load();
+      } }, remaining ? '잠시 후 다시 불러오기' : pending ? '계속 불러오기' : '다시 불러오기') : null].filter(Boolean));
+    paintList();
+  }
+  async function load() {
+    if (busy || stale(seq)) return;
+    busy = true; failed = false; paint();
+    let previousPending = Infinity;
+    try {
+      for (let attempt = 0; attempt < 12; attempt++) {
+        if (stale(seq)) return;
+        const next = await api('/api/stats/duo');
+        if (stale(seq)) return;
+        if (next?.source !== 'nexon-website' || !Array.isArray(next.members)) throw new ApiError(500, 'server');
+        data = next;
+        retryAt = next.can_continue ? 0 : Date.now() + Math.max(0, Number(next.retry_after) || 0) * 1000;
+        paint();
+        const pending = Number(next.pending || 0);
+        if (!pending || !next.can_continue || pending >= previousPending) break;
+        previousPending = pending;
+      }
+    } catch (e) {
+      if (stale(seq) || e.handled) return;
+      failed = true;
+    } finally {
+      busy = false;
+      if (!stale(seq)) paint();
+    }
+  }
+  await load();
+}
+
 async function renderDuo(seq, demo = false) {
+  if (!demo) return renderDuoLive(seq);
   setTitle('2대2');
   const head = () => [tabs(STATS_TAB), statsNav('duo')];
-  if (!demo && !DUO_PREVIEW) return show([head(),
-    h('section', { class: 'duo-cover', 'aria-labelledby': 'duo-title' },
-      h('div', { class: 'duo-cover-copy' }, h('p', { class: 'duo-eyebrow' }, 'NV / TEAM PLAY'),
-        h('h1', { class: 'duo-title', id: 'duo-title', tabindex: '-1' }, '2대2'),
-        h('p', { class: 'duo-lead' }, '함께 뛰는 조합을 찾아보세요.'),
-        h('p', { class: 'duo-muted', style: 'margin-bottom:20px' }, '현재는 예시 화면만 볼 수 있어요. 실제 2대2 전적을 제공받을 수 있는지 확인하고 있어요.'),
-        h('a', { class: 'btn btn-primary', href: '#/stats/duo/demo' }, '예시 화면 보기')),
-      h('div', { class: 'duo-mine' }, h('p', { class: 'duo-eyebrow' }, 'DATA AVAILABILITY'),
-        h('strong', { style: 'font-size:23px;color:var(--ink-hi);line-height:1.5' }, '실제 전적 지원 여부 확인 중'),
-        h('p', { class: 'duo-muted', style: 'margin-top:10px' }, '실제 경기 자동 수집은 아직 연결되지 않았어요.'))),
-    h('div', { class: 'duo-coming' }, [
-      ['개인 승률', '2대2 승·무·패와 최근 경기 흐름을 살펴봐요.'],
-      ['조합 승률', '함께 뛴 파트너별로 기록을 비교해요.'],
-      ['내 조합 찾기', '본인 조합만 모아 경기 목록까지 확인해요.']
-    ].map(([title, text]) => h('section', { class: 'duo-feature' }, h('h2', null, title), h('p', { class: 'duo-muted' }, text))))]);
   show([head(), loadingEl('2대2 기록을 정리하고 있어요.')]);
   let data;
   try {
-    if (DUO_PREVIEW && !demo) data = await api('/api/stats/duo');
-    else {
+    {
       const res = await fetch('demo/duo.json', { cache: 'no-store' });
       if (!res.ok) throw new ApiError(res.status, 'server');
       const fixture = await res.json();
@@ -2892,7 +3092,7 @@ async function renderDuo(seq, demo = false) {
   if (stale(seq)) return;
   if (data?.source !== 'demo') return show([head(), h('p', { class: 'info' }, '2대2 기록을 연결할 준비 중이에요.')]);
   const model = buildDuoStats(data);
-  const meId = demo ? data.example_member_id : state.me.id;
+  const meId = data.example_member_id;
   const mine = model.players.find(p => p.key === meId);
   const myPairs = model.pairs.filter(p => p.ids.includes(meId));
   const best = myPairs.find(p => p.eligible) || myPairs[0];
@@ -2988,7 +3188,7 @@ async function renderDuo(seq, demo = false) {
       ['pairs', 'players'].map(mode => h('button', { type: 'button', 'aria-pressed': String(ui.view === mode), onclick: () => switchView(mode) }, mode === 'pairs' ? '조합 기록' : '개인 기록'))),
       h('div', { class: 'duo-filter-row' }, mine, select));
   }
-  show([head(), demo ? h('a', { class: 'duo-preview-back', href: '#/stats/duo' }, '← 2대2 준비 화면으로') : null, cover, bestCard,
+  show([head(), demo ? h('a', { class: 'duo-preview-back', href: '#/stats/duo' }, '← 개인 2대2 기록으로') : null, cover, bestCard,
     h('section', { class: 'duo-ranking', 'aria-labelledby': 'duo-ranking-title' },
       h('div', { class: 'duo-section-head' }, h('h2', { id: 'duo-ranking-title' }, '같이 뛴 기록'), h('span', null, '개인·조합별 최근 30경기')),
       controls, status, list, detail,

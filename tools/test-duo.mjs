@@ -113,17 +113,19 @@ test('빈 입력은 오류 없이 빈 목록 반환', () => {
   }
 });
 
-test('가짜 API는 로컬에서만 사용하고 공개 경로는 준비 안내와 예시를 구분', () => {
-  const gate = html.match(/const DUO_PREVIEW = ([\s\S]*?);/)[1];
-  const check = (hostname, search) => vm.runInNewContext(gate, { location: { hostname, search }, URLSearchParams });
-  assert.equal(check('127.0.0.1', '?duo=preview'), true);
-  assert.equal(check('localhost', '?duo=preview'), true);
-  assert.equal(check('nv-fconline.github.io', '?duo=preview'), false);
-  assert.equal(check('localhost', ''), false);
+test('공개 기본 경로는 실제 개인 랭킹을 조회하고 가상 조합은 별도 예시에서만 표시', () => {
+  const live = html.slice(html.indexOf('async function renderDuoLive(seq)'), html.indexOf('async function renderDuo(seq'));
+  const demo = html.slice(html.indexOf('async function renderDuo(seq'), html.indexOf('const RANK_CATS'));
   assert.match(html, /if \(hsh === '#\/stats\/duo' \|\| hsh === '#\/stats\/duo\/demo'\)/);
-  assert.match(html, /if \(!demo && !DUO_PREVIEW\) return show/);
-  assert.match(html, /if \(DUO_PREVIEW && !demo\) data = await api/);
-  assert.match(html, /const meId = demo \? data.example_member_id : state.me.id/);
+  assert.match(demo, /if \(!demo\) return renderDuoLive\(seq\)/);
+  assert.match(live, /await api\('\/api\/stats\/duo'\)/);
+  assert.match(live, /next\?\.source !== 'nexon-website'/);
+  assert.match(live, /attempt < 12/);
+  assert.match(live, /if \(stale\(seq\)\) return;\s*const next = await api/);
+  assert.doesNotMatch(live, /buildDuoStats|example_member_id|최근 30경기/);
+  assert.match(demo, /fetch\('demo\/duo.json', \{ cache: 'no-store' \}\)/);
+  assert.match(demo, /const meId = data.example_member_id/);
+  assert.match(demo, /실제 전적이 아닙니다/);
 });
 
 test('공개 예시 데이터는 가상 계정이며 상대 시각으로 매번 같은 범위 집계', () => {

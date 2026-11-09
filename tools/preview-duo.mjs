@@ -9,26 +9,61 @@ const ids = Array.from({ length: 8 }, (_, i) => `00000000000000000${i + 1}`);
 const members = ['하늘', '바람', '레오', '유성', '겨울', '노을', '구름', '새벽'].map((name, i) => ({ id: ids[i], name: `NV예시${name}` }));
 const me = { id: ids[0], name: '예시하늘', is_staff: false, is_admin: false };
 const now = Date.now();
-const matches = [];
-let index = 0;
-function add(pairA, pairB, results) {
-  for (const result of results) {
-    index++;
-    matches.push({ id: `example-${index}`, at: now - index * 2 * 3600000,
-      teams: [{ ids: pairA.map(i => ids[i]), score: result === 'w' ? 3 : result === 'd' ? 1 : 0 },
-        { ids: pairB.map(i => ids[i]), score: result === 'l' ? 2 : 1 }] });
+const duoCalls = new Map();
+function duoPayload(scenario) {
+  const call = (duoCalls.get(scenario) || 0) + 1;
+  duoCalls.set(scenario, call);
+  const roster = scenario === 'empty' ? [] : scenario === 'long' ? Array.from({ length: 48 }, (_, i) => ({
+    id: String(i + 1).padStart(18, '0'), name: i < members.length ? members[i].name : `NV예시클럽원${i + 1}` })) : members;
+  const rows = roster.map((m, i) => {
+    const win = [62, 73, 50, 45, 40, 25, 10, 0][i % 8], draw = [3, 6, 4, 8, 5, 6, 0, 0][i % 8], lose = [2, 3, 10, 15, 10, 12, 14, 6][i % 8];
+    const played = win + draw + lose;
+    return { discord_id: m.id, name: m.name, nickname: `${m.name}게임`, is_staff: i === 1,
+      status: 'ok', stats: { rank: 120 + i * 347, score: 2300 - i * 17, win, draw, lose, played,
+        win_rate: Math.round(win * 1000 / played) / 10 }, club_rank: null, fetched_at: now - 5 * 60000,
+      source_updated_at: Math.floor(now / 3600000) * 3600000, stale: false };
+  });
+  for (let i = 0; i < rows.length; i++) {
+    const row = rows[i];
+    if (i === 0 && scenario === 'alias') {
+      row.discord_id = '000000000000000100'; row.discord_ids = [row.discord_id, me.id]; row.name = 'NV예시공동계정';
+    }
+    if (['pending', 'progress', 'partialerror'].includes(scenario) && call === 1 && i >= 4 || scenario === 'slow' && i >= 4) {
+      row.status = 'pending'; row.stats = null; row.fetched_at = null;
+    }
+    if (i === 0 && ['not_ranked', 'not-ranked', 'unlinked'].includes(scenario)) {
+      row.status = scenario === 'unlinked' ? 'unlinked' : 'not_ranked'; row.stats = null;
+      if (row.status === 'unlinked') { row.nickname = null; row.fetched_at = null; }
+    }
+    if (i === 0 && scenario === 'stale') {
+      row.status = 'error'; row.error = 'upstream'; row.stale = true; row.fetched_at = now - 2 * 3600000;
+      row.source_updated_at = row.fetched_at - 3600000;
+    }
+    if (i === 0 && scenario === 'partialerror') {
+      row.status = 'error'; row.error = 'rate'; row.stats = null; row.fetched_at = null;
+    }
+    if (scenario === 'layout') {
+      row.status = 'error'; row.error = 'layout'; row.stats = null; row.fetched_at = null;
+    }
+    if (['globalblocked', 'blocked'].includes(scenario)) {
+      row.status = i < 4 ? 'error' : 'pending'; row.error = 'rate'; row.stats = null; row.fetched_at = null;
+    }
   }
+  let lastRate, rank = 0;
+  rows.filter(r => r.stats).sort((a, b) => b.stats.win_rate - a.stats.win_rate).forEach((row, i) => {
+    if (row.stats.win_rate !== lastRate) rank = i + 1;
+    row.club_rank = rank; lastRate = row.stats.win_rate;
+  });
+  const coverage = { total: rows.length, linked: rows.filter(r => r.status !== 'unlinked').length,
+    ranked: rows.filter(r => r.stats).length, not_ranked: rows.filter(r => r.status === 'not_ranked').length,
+    pending: rows.filter(r => r.status === 'pending').length, error: rows.filter(r => r.status === 'error').length,
+    stale: rows.filter(r => r.stale).length };
+  return { source: 'nexon-website', source_url: 'https://fconline.nexon.com/datacenter/rank?rt=2vs2',
+    season: '현재 시즌', scope: 'official_top_10000', updated_at: rows.some(r => r.fetched_at) ? now - 5 * 60000 : null,
+    source_updated_at: rows.some(r => r.stats) ? Math.floor(now / 3600000) * 3600000 : null,
+    coverage, pending: coverage.pending, can_continue: !!coverage.pending && !['globalblocked', 'blocked'].includes(scenario),
+    ...(['globalblocked', 'blocked', 'partialerror'].includes(scenario) ? { retry_after: 120 } : {}), members: rows };
 }
-add([0, 1], [2, 3], 'wwdwwlwwww');
-add([0, 4], [1, 5], 'wlwwdwlw');
-add([0, 2], [4, 6], 'lwlwdw');
-add([0, 7], [3, 5], 'ww');
-add([1, 2], [4, 5], 'wwwdwlww');
-add([2, 6], [3, 7], 'wlwdw');
-add([4, 7], [1, 6], 'wwdlww');
-add([3, 6], [5, 7], 'wwwwdl');
-const duplicate = matches[0];
-matches.push({ ...duplicate, teams: duplicate.teams.toReversed().map(t => ({ ...t, ids: t.ids.toReversed() })) });
 
 const json = (res, code, data) => { res.writeHead(code, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' }); res.end(JSON.stringify(data)); };
 const server = createServer(async (req, res) => {
@@ -44,7 +79,7 @@ const server = createServer(async (req, res) => {
     ] });
     if (url.pathname === '/api/stats/duo') {
       if (scenario === 'error') return json(res, 503, { error: 'server' });
-      return json(res, 200, { source: 'demo', members, matches: scenario === 'empty' ? [] : matches });
+      return json(res, 200, duoPayload(scenario));
     }
     if (url.pathname === '/api/stats/awards') {
       const type = Number(url.searchParams.get('type') || 50);
@@ -102,6 +137,7 @@ const server = createServer(async (req, res) => {
       ['/assets/nv-mark.png', ['assets/nv-mark.png', 'image/png']], ['/favicon-32.png', ['favicon-32.png', 'image/png']]]);
     const file = files.get(url.pathname);
     if (!file) return json(res, 404, { error: 'not_found' });
+    if (url.pathname === '/club/' || url.pathname === '/club/index.html') duoCalls.set(url.searchParams.get('scenario'), 0);
     const body = await readFile(new URL(file[0], root));
     res.writeHead(200, { 'Content-Type': file[1], 'Cache-Control': 'no-store' }); res.end(body);
   } catch { json(res, 500, { error: 'preview_error' }); }
