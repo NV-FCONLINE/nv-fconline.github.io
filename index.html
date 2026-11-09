@@ -510,7 +510,7 @@
   .staff-foot p { margin: 0; max-width: 40em; font-size: 15px; line-height: 1.75; color: var(--ink-mid); }
 
   /* ---------- 클럽 소식(제목만 공개한 게시판의 최근 글, 글이 있을 때만 보임) ---------- */
-  .sec[hidden], .nav li[hidden], .channels[hidden] { display: none; }
+  .sec[hidden], .nav li[hidden] { display: none; }
   .news-grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: 24px; align-items: start; }
   .news-text { grid-column: 1 / span 4; }
   .news-text .lead { margin-bottom: 34px; }
@@ -765,8 +765,7 @@
         <li class="act panel rv d2"><span class="act-ic" aria-hidden="true"><svg viewBox="0 0 100 100"><polygon points="50,3 90.7,26.5 90.7,73.5 50,97 9.3,73.5 9.3,26.5"></polygon></svg><span>03</span></span><div><h3>디스코드</h3><p>내전 때는 평균 15명 안팎, 평소에도 5~10명 이상 접속해 있습니다.</p></div></li>
         <li class="act act-key panel rv d3"><span class="act-ic" aria-hidden="true"><svg viewBox="0 0 100 100"><polygon points="50,3 90.7,26.5 90.7,73.5 50,97 9.3,73.5 9.3,26.5"></polygon></svg><span>04</span></span><div><h3>우대하는 분</h3><p>활발하고 접속률이 좋으며, 예의와 바른 인성 보유자를 우대합니다.</p></div></li>
       </ul>
-      <!-- 2026-11-07 사용자 요청으로 잠시 숨김(유튜브 링크). 다시 보이게 하려면 아래 hidden만 지운다 -->
-      <div class="channels rv" hidden>
+      <div class="channels rv">
         <h3 id="ch-h">클럽원 채널</h3>
         <ul class="ch-list" aria-labelledby="ch-h">
           <li><a class="chip" href="https://www.youtube.com/@NVchang" target="_blank" rel="noopener"><svg viewBox="0 0 18 18" aria-hidden="true"><circle cx="9" cy="9" r="7.6" fill="none" stroke="currentColor" stroke-opacity="0.55"></circle><path d="M7.3 5.9v6.2L12.2 9z" fill="#e64a58"></path></svg>NV창희 · YouTube <span class="arr" aria-hidden="true">&#8599;</span></a></li>
