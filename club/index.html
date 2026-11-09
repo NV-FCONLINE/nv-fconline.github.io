@@ -8,7 +8,7 @@
 <meta name="robots" content="noindex, nofollow">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="theme-color" content="#000000">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https://cdn.discordapp.com https://fco.dn.nexoncdn.co.kr https://ssl.nexon.com data:; connect-src 'self' https://*.workers.dev https://open.api.nexon.com http://localhost:* http://127.0.0.1:*; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https://cdn.discordapp.com https://fco.dn.nexoncdn.co.kr https://ssl.nexon.com data:; connect-src 'self' https://*.workers.dev https://open.api.nexon.com http://localhost:* http://127.0.0.1:*; frame-src https://widgets.sofascore.com; base-uri 'none'; form-action 'none'">
 <link rel="icon" type="image/png" sizes="32x32" href="../favicon-32.png">
 <link rel="apple-touch-icon" href="../apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -835,6 +835,16 @@
   .rk-out .rk { background: none; }
   .rk-out .rk-nm { color: var(--ink); }
   .rk-mine-go { margin: 12px 0; }
+  /* ---------- 해외축구(Sofascore 위젯) ---------- */
+  .sofa-sec { margin-top: 8px; }
+  .sofa-sec .rk-cats { margin: 10px -2px 12px; }
+  .sofa-box { border: 1px solid var(--rule); border-radius: 10px; overflow: hidden; background: #0f0f10; }
+  .sofa { display: block; width: 100%; min-width: 0; border: 0; margin: 0 auto; background: transparent; }
+  .sofa-credit { margin: 6px 0 0; font-size: 12px; color: var(--ink-dim); }
+  .sofa-credit a { color: var(--ink-mid); }
+  .rk-off { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; margin: 12px 0; font-size: 13px; line-height: 1.6; color: var(--ink-dim); }
+  .rk-off p { margin: 0; min-width: 0; }
+  .rk-off time { color: var(--ink-mid); font-weight: 600; }
 
   /* ---------- 클럽 픽 ---------- */
   .pk-explain { margin: 0 0 4px; }
@@ -1392,9 +1402,11 @@ function errorBox(e, retry) {
 }
 /* 게시판 탭 + 맨 끝에 전적. 게시판 주소와 겹치지 않게 전적은 STATS_TAB(':stats')로 표시한다 */
 const STATS_TAB = ':stats';
+const FOOTBALL_TAB = ':football';
 function tabs(active) {
   const items = state.boards.map((b) => h('a', { href: `#/b/${b.slug}`, 'aria-current': b.slug === active ? 'page' : null }, b.name));
   if (state.me) items.push(h('a', { href: '#/stats', 'aria-current': active === STATS_TAB ? 'page' : null }, '전적'));
+  if (state.me) items.push(h('a', { href: '#/football', 'aria-current': active === FOOTBALL_TAB ? 'page' : null }, '해외축구'));
   if (!items.length) return null;
   return h('nav', { class: 'tabs', 'aria-label': '클럽 공간 메뉴' }, items);
 }
@@ -1434,6 +1446,7 @@ function route() {
     if (state.boards[0]) return renderBoard(state.boards[0].slug, seq);
     return show([tabs(null), h('h1', { class: 'h1', tabindex: '-1' }, '클럽 공간'), h('p', { class: 'desc' }, '아직 볼 수 있는 게시판이 없어요.')]);
   }
+  if (hsh === '#/football') return renderFootball();
   if (hsh === '#/stats') return renderStats(seq);
   if (hsh === '#/stats/duo' || hsh === '#/stats/duo/demo') return renderDuo(seq, hsh.endsWith('/demo'));
   if ((m = hsh.match(/^#\/stats\/m\/(\d{5,25})(?:\/(50|52|40))?$/))) return renderMemberStats(m[1], m[2] ? +m[2] : 50, seq);
@@ -2013,25 +2026,39 @@ async function fillPending(url, d, seq, repaint) {
   return 'done';
 }
 /* 이어 받은 뒤 본문만 다시 그릴 때, 보던 자리(경기 줄의 라인업·상대 링크, 더 보기)에 포커스를 돌려 준다 */
-function keepFocusIn(box, redraw) {
+/* opts.inView: 화면 안에 보이는 줄만 기준으로 삼고, 목록 머리가 화면에 보이면 스크롤을 건드리지 않는다.
+   data-keep이 붙은 요소에 초점이 있었으면 다시 그린 뒤 같은 data-keep(없으면 data-keep-fallback)으로 돌려준다 */
+function keepFocusIn(box, redraw, opts = {}) {
   const ae = document.activeElement;
   /* 화면 위쪽에서 처음 보이는 경기 줄(없으면 제목)의 위치를 기억했다가, 다시 그린 뒤 같은 자리로 맞춘다 */
-  const anchorOf = (root) => [...root.querySelectorAll('li[data-mid], h2[id]')].find((el) => el.getBoundingClientRect().top >= 0) || null;
+  const seen = (el) => { const t = el.getBoundingClientRect().top; return t >= 0 && (!opts.inView || t < window.innerHeight); };
+  const anchorOf = (root) => (opts.inView && box.getBoundingClientRect().top >= 0 ? null : [...root.querySelectorAll('li[data-mid], h2[id]')].find(seen) || null);
+  const keep = ae && box.contains(ae) && ae.dataset ? ae.dataset.keep || (ae.hasAttribute('data-keep-fallback') ? '\u0000fallback' : null) : null;
+  /* inView: 줄이 다른 묶음(1만 위 밖 → 순위 등)으로 옮겨 갔으면 그 줄을 따라가지 않는다 */
+  const sectionOf = (el) => { const l = el.closest('[aria-labelledby]'); return l ? l.getAttribute('aria-labelledby') : el.closest('ol, ul') ? 'list' : ''; };
   const a = anchorOf(box);
   const aKey = a ? (a.dataset.mid ? `li[data-mid="${CSS.escape(a.dataset.mid)}"]` : `#${CSS.escape(a.id)}`) : null;
   const aTop = a ? a.getBoundingClientRect().top : 0;
+  const aSec = a && opts.inView ? sectionOf(a) : null;
   let key = null;
   if (ae && box.contains(ae)) {
     const li = ae.closest('li[data-mid]');
     key = { mid: li ? li.dataset.mid : null, sel: ae.matches('summary') ? 'summary' : ae.matches('a') ? 'a' : ae.closest('.more') ? 'more' : null };
   }
   redraw();
-  const b = aKey ? box.querySelector(aKey) : null;
+  let b = aKey ? box.querySelector(aKey) : null;
+  if (b && opts.inView && sectionOf(b) !== aSec) b = null;
   if (b) { const dy = b.getBoundingClientRect().top - aTop; if (Math.abs(dy) > 1) window.scrollBy(0, dy); }
+  if (keep) {
+    const k = box.querySelector(`[data-keep="${CSS.escape(keep)}"]`) || box.querySelector('[data-keep-fallback]');
+    if (k) { k.focus({ preventScroll: true }); return; }
+  }
   if (!key) return;
   let el = null;
   if (key.sel === 'more') el = box.querySelector('.more button');
   else if (key.mid) { const li = box.querySelector(`li[data-mid="${CSS.escape(key.mid)}"]`); el = li && key.sel ? li.querySelector(key.sel) : null; }
+  /* inView: 돌려줄 곳이 없으면(다시 불러오기 버튼이 사라진 경우 등) body로 떨어지지 않게 상태 줄로 보낸다 */
+  if (!el && opts.inView) el = box.querySelector('[data-keep-fallback]');
   if (el) el.focus({ preventScroll: true });
 }
 
@@ -3209,6 +3236,35 @@ const RANK_CATS = [
   { key: 'internal', label: '내전' },
 ];
 const RK_TYPES = [[50, '공식경기'], [52, '감독모드']];
+/* 종합 탭: 공식 홈페이지 랭킹점수. Open API에는 점수가 없어 서버가 공식 랭킹 페이지에서 4명씩 확인해 1시간 기억한다 */
+const OFFICIAL_SRC = { 50: ['https://fconline.nexon.com/datacenter/rank?rt=1vs1', '공식경기'], 52: ['https://fconline.nexon.com/datacenter/rank?rt=manager', '감독모드'] };
+const officialRk = new Map(); // type -> { d, at, busy, failed, retryAt, onUpdate }
+const scoreText = (v) => (isNum(v) ? v.toLocaleString('ko-KR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '-');
+async function loadOfficial(type) {
+  const st = officialRk.get(type);
+  if (!st || st.busy) return;
+  const update = () => { if (typeof st.onUpdate === 'function') st.onUpdate(); };
+  st.busy = true; st.failed = null; update();
+  let prev = Infinity;
+  try {
+    for (let i = 0; i < 12; i++) {
+      if (!state.token || !state.me) break; // 로그아웃·세션 끝: 더 묻지 않는다
+      const d = await api(`/api/stats/official?type=${type}`);
+      if (!d || d.source !== 'nexon-website' || !Array.isArray(d.members)) throw new ApiError(500, 'server');
+      st.d = d; st.at = Date.now();
+      st.retryAt = d.can_continue ? 0 : Date.now() + Math.max(0, Number(d.retry_after) || 0) * 1000;
+      const pending = Number(d.pending || 0);
+      if (!pending || !d.can_continue || pending >= prev) break;
+      prev = pending;
+      update();
+    }
+  } catch (e) {
+    if (!e.handled && state.me) st.failed = e;
+  } finally {
+    st.busy = false;
+    update();
+  }
+}
 async function loadStatsOverview() {
   const c = cacheGet('overview');
   if (c) return c;
@@ -3269,7 +3325,7 @@ async function renderRanking(type, seq) {
         h('span', { class: 'rk-sub' }, !art && !noTag && isNum(tdv) ? tierTag(tdv) : null, m.nickname ? h('span', { class: 'nk' }, m.nickname) : null, h('span', { class: 'lv' }, games))),
       h('span', { class: 'rk-val' }, h('b', null, value), sub ? h('small', null, sub) : null),
     ];
-    return h('li', null, m.discord_id
+    return h('li', { 'data-mid': m.discord_id ? `u:${m.discord_id}` : null }, m.discord_id
       ? h('a', { class: 'rk' + (rank && rank <= 3 ? ' rk-top' : '') + (isStatsMe(m) ? ' is-me' : ''), href: `#/stats/m/${m.discord_id}/${type}`, onclick: onRow }, inner)
       : h('div', { class: 'rk' }, inner));
   }
@@ -3308,15 +3364,12 @@ async function renderRanking(type, seq) {
       return;
     }
     if (k === 'overall') {
-      const nn = (v) => (isNum(v) ? v : Infinity);
-      const wr = (m) => (m.stats && isNum(m.stats.win_rate) ? m.stats.win_rate : -1);
-      const list = members.slice().sort((a, b) => nn(a.current_division) - nn(b.current_division) || nn(a.best_division) - nn(b.best_division) || wr(b) - wr(a) || String(a.name).localeCompare(String(b.name), 'ko'));
-      fillBox(
-        h('ol', { class: 'rk-list' }, ranked(list, (a, b) => a.current_division === b.current_division && a.best_division === b.best_division && wr(a) === wr(b)).map(([r, m]) => {
-          const cur = isNum(m.current_division) ? divName(m.current_division) : null;
-          return row(r, m, m.stats && isNum(m.stats.win_rate) ? pctText(m.stats.win_rate) : '-', cur ? `승률 · 현재 ${cur}` : '승률 · 현재 티어 없음', gamesText(m));
-        })),
-        h('p', { class: 'st-note' }, '현재 티어가 높은 순이에요. 같으면 최고 티어, 승률 순으로 가려요.'));
+      let st = officialRk.get(type);
+      if (!st) { st = { d: null, at: 0, busy: false, failed: null, retryAt: 0, onUpdate: null }; officialRk.set(type, st); }
+      st.onUpdate = paintOverall;
+      /* 화면에서는 3분만 기억하고(서버는 1시간), 확인 못 한 사람이 남으면 '계속 불러오기'로 이어 받는다 */
+      if (!st.busy && (!st.d || Date.now() - st.at > PM_TTL)) loadOfficial(type);
+      else paintOverall();
       return;
     }
     const ok = (m) => m.stats && m.stats.played >= minGames && isNum(current.v(m.stats));
@@ -3333,6 +3386,80 @@ async function renderRanking(type, seq) {
         h('h2', { class: 'st-h3', id: 'rk-out-h' }, `경기 수 부족 · ${out.length}명`),
         h('p', { class: 'hint', style: 'margin:0 0 8px' }, `최근 ${W}경기 중 ${minGames}경기 이상 한 클럽원만 순위에 넣어요.`),
         h('ul', { class: 'rk-list rk-out', 'aria-labelledby': 'rk-out-h' }, out.map((m) => row(null, m, '-', null, gamesText(m))))] : null);
+  }
+  /* 종합: 공식 홈페이지 이번 시즌 랭킹점수(ELO) 순. 1만 위 밖·확인 전은 아래에 현재 티어 순 */
+  function paintOverall() {
+    if (stale(seq) || current.key !== 'overall') return;
+    const st = officialRk.get(type) || {};
+    const od = st.d;
+    const [srcUrl, label] = OFFICIAL_SRC[type];
+    const nn = (v) => (isNum(v) ? v : Infinity);
+    const wr = (m) => (m.stats && isNum(m.stats.win_rate) ? m.stats.win_rate : -1);
+    const byTier = (a, b) => nn(a.current_division) - nn(b.current_division) || nn(a.best_division) - nn(b.best_division) || wr(b) - wr(a) || String(a.name).localeCompare(String(b.name), 'ko');
+    const byId = new Map();
+    for (const o of od && Array.isArray(od.members) ? od.members : []) {
+      for (const id of Array.isArray(o.discord_ids) && o.discord_ids.length ? o.discord_ids : [o.discord_id]) byId.set(id, o);
+    }
+    const ok = [], outside = [], waiting = [];
+    for (const m of members) {
+      const o = byId.get(m.discord_id);
+      if (o && o.status === 'ok' && o.stats && isNum(o.stats.score) && isNum(o.stats.rank)) ok.push({ m, o });
+      else if (o && o.status === 'not_ranked') outside.push(m);
+      else waiting.push({ m, o });
+    }
+    /* 점수 먼저: 클럽원마다 확인한 시각이 달라 다른 시각의 공식 순위 숫자끼리는 비교가 안 맞는다 */
+    const wrO = (o) => (isNum(o.stats.win_rate) ? o.stats.win_rate : -1);
+    ok.sort((a, b) => b.o.stats.score - a.o.stats.score || a.o.stats.rank - b.o.stats.rank || wrO(b.o) - wrO(a.o) || String(a.m.name).localeCompare(String(b.m.name), 'ko'));
+    outside.sort(byTier);
+    waiting.sort((a, b) => byTier(a.m, b.m));
+    const c = (od && od.coverage) || {};
+    const pending = Number((od && od.pending) || 0);
+    const errors = waiting.filter((x) => x.o && x.o.status === 'error').length;
+    const comma = (n) => n.toLocaleString('ko-KR');
+    const waitText = (o) => (o && o.status === 'error' ? '불러오지 못했어요' : o && o.status === 'pending' ? '확인 중' : st.busy ? '확인 중' : '아직 확인 전');
+    const total = ok.length + outside.length + waiting.length;
+    const lead = !od ? (st.failed ? `${label} 랭킹점수를 불러오지 못했어요.` : `공식 홈페이지 ${label} 랭킹을 확인하고 있어요.`)
+      : st.busy && pending ? `클럽원 점수를 차례로 확인하고 있어요. (${Math.max(0, Number(c.linked || 0) - pending)}/${Number(c.linked || 0)}명)`
+      : st.failed ? '새로 불러오지 못했어요. 이전에 확인한 점수를 보여 드려요.'
+      : pending ? `아직 ${pending}명을 확인하지 못했어요.`
+      : errors && !ok.length && !outside.length ? `${label} 랭킹점수를 불러오지 못했어요. 잠시 뒤 다시 불러와 주세요.`
+      : errors ? `${total}명 중 ${ok.length}명이 1만 위 안이에요. ${errors}명은 불러오지 못했어요.`
+      : `${total}명 중 ${ok.length}명이 이번 시즌 ${label} 1만 위 안이에요.`;
+    /* 누른 버튼이 다시 그릴 때 사라지지 않도록 불러오는 동안에도 자리를 지킨다 */
+    const retry = od && (st.busy ? pending || errors : st.failed || pending || errors) ? h('button', {
+      class: 'btn btn-ghost rk-off-go', type: 'button', 'data-keep': 'rk-off-go', 'aria-disabled': st.busy ? 'true' : null,
+      onclick: () => {
+        if (st.busy) return;
+        if (Date.now() < st.retryAt) { const s = Math.ceil((st.retryAt - Date.now()) / 1000); toast(`잠시 뒤 다시 눌러 주세요. ${s < 60 ? `${s}초` : `${Math.ceil(s / 60)}분`} 남았어요.`); return; }
+        loadOfficial(type);
+      },
+    }, st.busy ? '확인 중…' : pending ? '계속 불러오기' : '다시 불러오기') : null;
+    const status = h('div', { class: 'rk-off', role: 'status', tabindex: '-1', 'data-keep-fallback': '' },
+      h('p', null, lead, od && isNum(od.source_updated_at) ? [h('br'), '공식 홈페이지 ', timeEl(od.source_updated_at, true), ' 기준'] : null), retry);
+    if (!od) {
+      keepFocusIn(listBox, () => fillBox(status, st.failed ? errorBox({ code: st.failed.code }, () => loadOfficial(type)) : loadingEl('공식 랭킹점수를 확인하고 있어요.')), { inView: true });
+      return;
+    }
+    let r = 0;
+    const okRows = ok.map(({ m, o }, i) => {
+      if (!i || o.stats.score !== ok[i - 1].o.stats.score || o.stats.rank !== ok[i - 1].o.stats.rank) r = i + 1;
+      return row(r, m, `${scoreText(o.stats.score)}점`, [`공식 ${comma(o.stats.rank)}위`, h('br'), `승률 ${isNum(o.stats.win_rate) ? Number(o.stats.win_rate.toFixed(1)) : '-'}%`, o.stale ? ' · 이전 확인' : ''], `시즌 ${comma(o.stats.played)}경기`);
+    });
+    keepFocusIn(listBox, () => fillBox(
+      status,
+      okRows.length ? h('ol', { class: 'rk-list' }, okRows)
+        : h('div', { class: 'st-empty' }, h('p', null, pending || st.busy ? '확인한 클럽원부터 여기에 보여 드려요.'
+          : errors ? (outside.length ? '확인한 클럽원 중에는 1만 위 안에 든 사람이 없어요.' : '점수를 확인하지 못했어요.')
+          : `이번 시즌 ${label} 공식 랭킹 1만 위 안에 든 클럽원이 아직 없어요.`)),
+      outside.length ? [
+        h('h2', { class: 'st-h3', id: 'rk-off-out' }, `1만 위 밖 · ${outside.length}명`),
+        h('p', { class: 'hint', style: 'margin:0 0 8px' }, '공식 랭킹은 1만 위까지만 나와서 점수가 없어요. 현재 티어 순이에요.'),
+        h('ul', { class: 'rk-list rk-out', 'aria-labelledby': 'rk-off-out' }, outside.map((m) => row(null, m, '-', '1만 위 밖', gamesText(m))))] : null,
+      waiting.length ? [
+        h('h2', { class: 'st-h3', id: 'rk-off-wait' }, `${errors && errors === waiting.length ? '불러오지 못함' : '확인 중'} · ${waiting.length}명`),
+        h('ul', { class: 'rk-list rk-out', 'aria-labelledby': 'rk-off-wait' }, waiting.map(({ m, o }) => row(null, m, '-', waitText(o), gamesText(m))))] : null,
+      h('p', { class: 'st-note' }, `공식 홈페이지 이번 시즌 ${label} 랭킹점수(ELO)가 높은 순이에요. '공식 ○위'는 게임 전체 순위예요. `,
+        h('a', { href: srcUrl, target: '_blank', rel: 'noopener noreferrer', 'data-keep': 'rk-off-src' }, '공식 랭킹 보기 ↗'))), { inView: true });
   }
   const cov = d.coverage || {};
   show([head(),
@@ -3653,6 +3780,51 @@ async function renderSearch(nick, type, seq) {
 }
 
 /* ---------- 개인정보 안내 ---------- */
+/* ---------- 해외축구(#/football) ----------
+   Sofascore 공식 위젯(widgets.sofascore.com, 무료·신청 없이 제공, 아래 'provided by Sofascore' 표시는 지우지 않는다).
+   데이터를 우리가 가져오거나 저장하지 않고 iframe으로 그대로 보여 준다. 시즌이 바뀌면 SOFA_EPL.season만 바꾼다
+   (widgets.sofascore.com/config/standings에서 Premier League를 고르면 나오는 주소의 season 번호). 한국어는 위젯이 지원하지 않는다 */
+const SOFA = 'https://widgets.sofascore.com/embed';
+const SOFA_EPL = { tournament: 1, unique: 17, season: 96668, label: '2026-27' };
+const SOFA_TOP = [['goals', '득점'], ['assists', '도움'], ['goalsAssistsSum', '공격포인트'], ['rating', '평점']];
+function sofaFrame(src, title, height, maxWidth) {
+  /* sandbox: 위젯 안의 링크는 새 탭으로만 열리고, 이 페이지를 다른 곳으로 옮기지 못한다 */
+  return h('iframe', { class: 'sofa', src, title, loading: 'lazy', frameborder: '0', scrolling: 'no',
+    sandbox: 'allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox',
+    style: `height:${height}px;max-width:${maxWidth}px` });
+}
+function sofaCredit(what) {
+  return h('p', { class: 'sofa-credit', lang: 'en' }, `${what} provided by `, h('a', { href: 'https://sofascore.com/', target: '_blank', rel: 'noopener noreferrer' }, 'Sofascore'));
+}
+function renderFootball() {
+  setTitle('해외축구');
+  const cat = SOFA_TOP.some(([k]) => k === state.footballCat) ? state.footballCat : 'goals';
+  const standings = `${SOFA}/tournament/${SOFA_EPL.tournament}/season/${SOFA_EPL.season}/standings?widgetTitle=Premier+League&showCompetitionLogo=true&widgetTheme=dark`;
+  const top = (sort) => `${SOFA}/unique-tournament/${SOFA_EPL.unique}/season/${SOFA_EPL.season}/topPlayers?numberOfTopPlayers=20&showCompetitionLogo=true&widgetTitle=Top+players&widgetTheme=dark&sortBy=${sort}&seasonPeriodType=overall`;
+  const topBox = h('div', { class: 'sofa-box' });
+  const chips = h('div', { class: 'rk-cats', role: 'group', 'aria-label': '선수 순위 기준' });
+  const paintTop = (k) => {
+    state.footballCat = k;
+    chips.replaceChildren(...SOFA_TOP.map(([key, label]) => h('button', { class: 'chip', type: 'button', 'aria-pressed': key === k ? 'true' : 'false',
+      onclick: () => { if (key !== state.footballCat) { paintTop(key); const b = chips.querySelector('[aria-pressed="true"]'); if (b) b.focus(); } } }, label)));
+    const name = (SOFA_TOP.find(([key]) => key === k) || [])[1] || '';
+    topBox.replaceChildren(sofaFrame(top(k), `EPL 선수 순위 ${SOFA_EPL.label} · ${name}`, 1302, 500));
+  };
+  show([tabs(FOOTBALL_TAB),
+    h('p', { class: 'idx' }, 'FOOTBALL'),
+    h('h1', { class: 'h1', tabindex: '-1' }, '해외축구'),
+    h('p', { class: 'desc' }, `프리미어리그(EPL) ${SOFA_EPL.label} 시즌 순위와 선수 순위예요. Sofascore 화면을 그대로 보여 줘서 영어로 나와요. 경기 중에는 바로바로 바뀌어요.`),
+    h('section', { class: 'sofa-sec', 'aria-labelledby': 'fb-table' },
+      h('h2', { class: 'st-h3', id: 'fb-table' }, '리그 순위'),
+      h('div', { class: 'sofa-box' }, sofaFrame(standings, `EPL 순위표 ${SOFA_EPL.label}`, 1123, 768)),
+      sofaCredit('Standings')),
+    h('section', { class: 'sofa-sec', 'aria-labelledby': 'fb-top' },
+      h('h2', { class: 'st-h3', id: 'fb-top' }, '선수 순위'),
+      h('p', { class: 'hint', style: 'margin:0 0 4px' }, '이번 시즌 상위 20명이에요. 선수 이름을 누르면 Sofascore에서 자세한 기록이 열려요.'),
+      chips, topBox, sofaCredit('Top Players list'))]);
+  paintTop(cat);
+}
+
 function renderPrivacy() {
   setTitle('개인정보 안내');
   show([
@@ -3682,6 +3854,8 @@ function renderPrivacy() {
         h('li', null, h('strong', null, 'Discord'), ': 로그인, 서버 멤버와 역할 확인'),
         h('li', null, h('strong', null, 'Cloudflare'), ': 서버와 데이터베이스(글, 댓글, 열람 기록, 전적)'),
         h('li', null, h('strong', null, 'NEXON Open API'), ': 게임 닉네임, 티어, 경기 기록 조회'),
+        h('li', null, h('strong', null, 'FC온라인 공식 홈페이지 랭킹'), ': 2대2 기록과 랭킹 종합 점수를 게임 닉네임으로 찾아봐요. 1시간쯤 기억해 둬요.'),
+        h('li', null, h('strong', null, 'Sofascore'), ': 해외축구 메뉴의 순위표와 선수 순위. 그 메뉴를 열면 Sofascore 화면을 그대로 불러오고, Sofascore가 자체 방문 통계를 써요. 이 사이트의 정보는 보내지 않아요.'),
         h('li', null, h('strong', null, 'GitHub Pages'), ': 이 화면')),
       h('h2', null, '지우는 때'),
       h('ul', null,
