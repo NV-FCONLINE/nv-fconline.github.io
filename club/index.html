@@ -855,6 +855,10 @@
   .fb-vhelp { margin: 2px 0 0; padding-left: 18px; font-size: 12.5px; line-height: 1.6; color: var(--ink-dim); }
   .ss-box { border: 1px solid var(--rule); border-radius: 10px; overflow: hidden; background: #111; }
   .ss-frame { display: block; width: 100%; border: 0; }
+  /* 순위표 위젯은 폭이 넓을수록 팀 이름 칸이 조금씩 넓어진다. PC에서는 이 칸만 화면 폭(최대 1900px)까지 넓힌다 */
+  @media (min-width: 1000px) {
+    .ss-box.ss-wide { width: min(1900px, calc(100vw - 48px)); margin-left: 50%; transform: translateX(-50%); }
+  }
   .rk-off { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; margin: 12px 0; font-size: 13px; line-height: 1.6; color: var(--ink-dim); }
   .rk-off p { margin: 0; min-width: 0; }
   .rk-off time { color: var(--ink-mid); font-weight: 600; }
@@ -3913,7 +3917,7 @@ async function renderFootball(seq) {
   else paintVideo(video);
   show([...head(), videoBox,
     h('section', { class: 'fb-sec', 'aria-labelledby': 'fb-table' },
-      h('h2', { class: 'st-h3', id: 'fb-table' }, '리그 순위'), h('div', { class: 'ss-box' }, ssFrame('standings', 'EPL 순위표 (SportScore)', 980))),
+      h('h2', { class: 'st-h3', id: 'fb-table' }, '리그 순위'), h('div', { class: 'ss-box ss-wide' }, ssFrame('standings', 'EPL 순위표 (SportScore)', 980))),
     h('section', { class: 'fb-sec', 'aria-labelledby': 'fb-top' },
       h('h2', { class: 'st-h3', id: 'fb-top' }, '득점 순위'), h('div', { class: 'ss-box' }, ssFrame('topscorers', 'EPL 득점 순위 (SportScore)', 980)))]);
 }
