@@ -8,7 +8,7 @@
 <meta name="robots" content="noindex, nofollow">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="theme-color" content="#000000">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https://cdn.discordapp.com https://fco.dn.nexoncdn.co.kr https://ssl.nexon.com data:; connect-src 'self' https://*.workers.dev https://open.api.nexon.com http://localhost:* http://127.0.0.1:*; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https://cdn.discordapp.com https://fco.dn.nexoncdn.co.kr https://ssl.nexon.com data:; connect-src 'self' https://*.workers.dev https://open.api.nexon.com http://localhost:* http://127.0.0.1:*; frame-src https://www.youtube-nocookie.com https://player.twitch.tv https://clips.twitch.tv https://chzzk.naver.com https://play.sooplive.com https://vod.sooplive.com https://sportscore.com; base-uri 'none'; form-action 'none'">
 <link rel="icon" type="image/png" sizes="32x32" href="../favicon-32.png">
 <link rel="apple-touch-icon" href="../apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -835,43 +835,26 @@
   .rk-out .rk { background: none; }
   .rk-out .rk-nm { color: var(--ink); }
   .rk-mine-go { margin: 12px 0; }
-  /* ---------- 해외축구(EPL 순위·선수 순위) ---------- */
+  /* ---------- 해외축구(같이 보기 + SportScore 위젯) ---------- */
   .fb-sec { margin-top: 8px; }
-  .fb-meta { margin: 0 0 8px; font-size: 13px; color: var(--ink-dim); }
+  .fb-meta { margin: 8px 0 0; font-size: 13px; color: var(--ink-dim); }
   .fb-meta time { color: var(--ink-mid); font-weight: 600; }
-  .fb-table { width: 100%; border-collapse: collapse; table-layout: auto; font-size: 14px; font-variant-numeric: tabular-nums; }
-  .fb-table th, .fb-table td { padding: 9px 3px; border-bottom: 1px solid var(--rule); text-align: center; white-space: nowrap; }
-  .fb-table thead th { padding: 8px 3px; font-size: 12px; font-weight: 600; color: var(--ink-dim); border-top: 1px solid var(--rule); }
-  .fb-table td { color: var(--ink); }
-  .fb-table .c-pos { width: 30px; font-weight: 700; color: var(--ink-mid); border-left: 3px solid transparent; }
-  .fb-table th.c-team { text-align: left; padding-left: 8px; font-weight: 600; color: var(--ink-hi); white-space: normal; word-break: keep-all; }
-  .fb-table thead th.c-team { color: var(--ink-dim); }
-  .fb-table .c-pts { font-weight: 700; color: var(--ink-hi); }
-  .fb-table tr.z-ucl .c-pos { border-left-color: #44a0c0; }
-  .fb-table tr.z-uel .c-pos { border-left-color: #d9a24a; }
-  .fb-table tr.z-uecl .c-pos { border-left-color: #5fae6e; }
-  .fb-table tr.z-rel .c-pos { border-left-color: #e64a58; }
-  .fb-legend { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 10px 0 0; font-size: 12px; color: var(--ink-dim); }
-  .fb-legend i { display: inline-block; width: 10px; height: 10px; margin-right: 5px; border-radius: 2px; vertical-align: -1px; }
-  .fb-legend i.z-ucl { background: #44a0c0; } .fb-legend i.z-uel { background: #d9a24a; } .fb-legend i.z-uecl { background: #5fae6e; } .fb-legend i.z-rel { background: #e64a58; }
-  .fb-credit { margin: 8px 0 0; font-size: 12px; color: var(--ink-dim); }
-  .fb-credit a { color: var(--ink-mid); }
-  .fb-sec .rk-cats { margin: 10px -2px 12px; }
-  .fb-pl { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--rule); }
-  .fb-pl li { display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; align-items: center; column-gap: 10px; min-height: 56px; padding: 6px; border-bottom: 1px solid var(--rule); }
-  .fb-pl .n { text-align: center; font-size: 15px; font-weight: 700; color: var(--ink-mid); font-variant-numeric: tabular-nums; }
-  .fb-pl .n.top1 { color: #e6cf8f; } .fb-pl .n.top2 { color: #d6dde6; } .fb-pl .n.top3 { color: #e0a57c; }
-  .fb-pl .who { display: grid; min-width: 0; }
-  .fb-pl .who b { font-size: 15px; font-weight: 600; line-height: 1.4; color: var(--ink-hi); overflow-wrap: anywhere; }
-  .fb-pl .who small { font-size: 12.5px; color: var(--ink-mid); }
-  .fb-pl .v { display: grid; justify-items: end; text-align: right; }
-  .fb-pl .v b { font-size: 17px; font-weight: 700; color: var(--ink-hi); font-variant-numeric: tabular-nums; }
-  .fb-pl .v small { font-size: 11.5px; color: var(--ink-dim); white-space: nowrap; }
-  @media (max-width: 520px) {
-    .fb-table { font-size: 13px; }
-    .fb-table .c-gf, .fb-table .c-ga { display: none; }
-    .fb-table th, .fb-table td { padding: 8px 2px; }
-  }
+  .fb-vtitle { margin: 0 0 8px; font-size: 15px; font-weight: 600; color: var(--ink-hi); overflow-wrap: anywhere; }
+  .fb-video { position: relative; width: 100%; aspect-ratio: 16 / 9; background: #000; border: 1px solid var(--rule); border-radius: 10px; overflow: hidden; }
+  .fb-video iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+  .fb-v-youtube { min-height: 200px; }
+  .fb-v-twitch { min-height: 300px; }
+  .fb-vnarrow { position: absolute; inset: 0; display: grid; place-content: center; gap: 10px; padding: 16px; text-align: center; font-size: 14px; color: var(--ink-mid); }
+  .fb-vnarrow p { margin: 0; }
+  .fb-legal { margin: 4px 0 0; font-size: 12px; color: var(--ink-dim); }
+  .fb-legal a, .fb-meta a { color: var(--ink-mid); }
+  .fb-vform { margin: 10px 0 4px; }
+  .fb-vform summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; font-size: 14px; color: var(--ink-mid); }
+  .fb-vform form { display: grid; gap: 8px; margin-top: 4px; }
+  .fb-vbtns { display: flex; gap: 8px; flex-wrap: wrap; }
+  .fb-vhelp { margin: 2px 0 0; padding-left: 18px; font-size: 12.5px; line-height: 1.6; color: var(--ink-dim); }
+  .ss-box { border: 1px solid var(--rule); border-radius: 10px; overflow: hidden; background: #111; }
+  .ss-frame { display: block; width: 100%; border: 0; }
   .rk-off { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; margin: 12px 0; font-size: 13px; line-height: 1.6; color: var(--ink-dim); }
   .rk-off p { margin: 0; min-width: 0; }
   .rk-off time { color: var(--ink-mid); font-weight: 600; }
@@ -3811,96 +3794,128 @@ async function renderSearch(nick, type, seq) {
 
 /* ---------- 개인정보 안내 ---------- */
 /* ---------- 해외축구(#/football) ----------
-   EPL 순위표·선수 순위를 서버(/api/football/epl)가 SportScore 무료 API에서 1시간마다 받아 둔 것으로 직접 그린다.
-   SportScore 약관(2026-04-23): 자료를 보여 주는 화면마다 눈에 보이는 dofollow 'Powered by SportScore' 링크가 있어야 한다
-   → fbCredit()의 링크 모양(주소·rel·title·글자)을 바꾸거나 지우지 않는다. 팀 로고는 쓰지 않는다(상표).
-   선수 이름은 영어 그대로, 팀 이름은 FB_TEAM_KO로 한국어(없으면 영어). 새 팀이 올라오면 FB_TEAM_KO에 slug를 더한다 */
-const FB_TEAM_KO = {
-  arsenal: '아스널', 'brighton-hove-albion': '브라이튼', 'manchester-city': '맨시티', liverpool: '리버풀', chelsea: '첼시',
-  everton: '에버턴', 'bournemouth-afc': '본머스', brentford: '브렌트포드', 'leeds-united': '리즈', 'aston-villa': '애스턴 빌라',
-  'tottenham-hotspur': '토트넘', 'newcastle-united': '뉴캐슬', 'hull-city': '헐 시티', 'ipswich-town': '입스위치', fulham: '풀럼',
-  'nottingham-forest': '노팅엄 포레스트', 'coventry-city': '코번트리', 'manchester-united': '맨유', sunderland: '선덜랜드',
-  'crystal-palace': '크리스탈 팰리스', 'west-ham-united': '웨스트햄', 'wolverhampton-wanderers': '울버햄튼', burnley: '번리',
-  'leicester-city': '레스터', southampton: '사우샘프턴', 'sheffield-united': '셰필드 유나이티드', 'luton-town': '루턴',
-  watford: '왓퍼드', 'norwich-city': '노리치', middlesbrough: '미들즈브러', 'west-bromwich-albion': '웨스트브롬', 'stoke-city': '스토크',
-};
-const FB_ZONES = [['ucl', '챔피언스리그'], ['uel', '유로파리그'], ['uecl', '컨퍼런스리그'], ['rel', '강등']];
-const FB_PLAYER = [['goals', '득점'], ['assists', '도움'], ['points', '공격포인트']];
-const fbTeam = (slug, name) => (slug && Object.prototype.hasOwnProperty.call(FB_TEAM_KO, slug) ? FB_TEAM_KO[slug] : name || '');
-function fbCredit() {
-  return h('p', { class: 'fb-credit', lang: 'en' }, h('a', { href: 'https://sportscore.com/', rel: 'dofollow', title: 'Sports data by SportScore' }, 'Powered by SportScore'));
+   1) 같이 보기: 운영진이 올린 공식 퍼가기 영상(YouTube·Twitch·치지직 클립·SOOP). 서버(/api/football/video)가 주소를
+      (provider, kind, id, start)로 나눠 검사해 주고, 화면은 그 조각으로만 플레이어 주소를 만든다(붙여 넣은 주소를 그대로 넣지 않음).
+      자동 재생은 하지 않는다(YouTube 정책상 자동 재생은 페이지를 열자마자 정보가 넘어가고, SOOP 생방송은 자동 재생 설정이 없음).
+      플랫폼을 늘릴 때는 서버 video.js · 여기 fbEmbedUrl · CSP frame-src를 함께 고친다.
+   2) EPL 순위표·득점 순위: SportScore 공식 위젯 iframe(sportscore.com/embed, 팬 사이트 무료, 위젯 안 'Powered by SportScore' 유지).
+      팀 마크는 위젯이 직접 그린다. 우리 서버의 /api/football/epl(SportScore API)은 쓰지 않는다: API 약관은 출처 링크가
+      검색 로봇이 읽을 수 있어야 하는데(스크립트로만 그리거나 noindex 페이지는 안 됨) 클럽 공간은 로그인·스크립트 화면이라 맞출 수 없다 */
+const FB_VIDEO_NAME = { youtube: 'YouTube', twitch: 'Twitch', chzzk: '치지직', soop: 'SOOP' };
+const SS_EMBED = 'https://sportscore.com/embed';
+function fbEmbedUrl(v) {
+  if (!v || typeof v.id !== 'string') return null;
+  const start = isNum(v.start) && v.start > 0 ? Math.floor(v.start) : 0;
+  if (v.provider === 'youtube') {
+    if (v.kind === 'live' && /^UC[A-Za-z0-9_-]{22}$/.test(v.id)) return `https://www.youtube-nocookie.com/embed/live_stream?channel=${v.id}&playsinline=1&rel=0`;
+    if (v.kind === 'video' && /^[A-Za-z0-9_-]{11}$/.test(v.id)) return `https://www.youtube-nocookie.com/embed/${v.id}?playsinline=1&rel=0${start ? `&start=${start}` : ''}`;
+  }
+  if (v.provider === 'twitch') {
+    const parent = encodeURIComponent(location.hostname);
+    if (v.kind === 'live' && /^[a-z0-9_]{3,25}$/.test(v.id)) return `https://player.twitch.tv/?channel=${v.id}&parent=${parent}&autoplay=false`;
+    if (v.kind === 'video' && /^\d{5,15}$/.test(v.id)) return `https://player.twitch.tv/?video=v${v.id}&parent=${parent}&autoplay=false${start ? `&time=${Math.floor(start / 3600)}h${Math.floor((start % 3600) / 60)}m${start % 60}s` : ''}`;
+    if (v.kind === 'clip' && /^[A-Za-z0-9_-]{5,100}$/.test(v.id)) return `https://clips.twitch.tv/embed?clip=${encodeURIComponent(v.id)}&parent=${parent}&autoplay=false`;
+  }
+  if (v.provider === 'chzzk' && v.kind === 'clip' && /^[A-Za-z0-9]{10}$/.test(v.id)) return `https://chzzk.naver.com/embed/clip/${v.id}`;
+  if (v.provider === 'soop') {
+    if (v.kind === 'live' && /^[a-z0-9_]{3,20}$/.test(v.id)) return `https://play.sooplive.com/${v.id}/embed`;
+    if ((v.kind === 'video' || v.kind === 'clip') && /^\d{1,12}$/.test(v.id)) return `https://vod.sooplive.com/player/${v.id}/embed?${v.kind === 'clip' ? 'type=catch&' : ''}showChat=false&autoPlay=false&mutePlay=false`;
+  }
+  return null;
+}
+const FB_ORIGINAL = /^https:\/\/(www\.youtube\.com|www\.twitch\.tv|clips\.twitch\.tv|chzzk\.naver\.com|play\.sooplive\.com|vod\.sooplive\.com)\//;
+function fbVideoSection(v, onChange) {
+  const staff = !!(state.me && state.me.is_staff);
+  const src = v ? fbEmbedUrl(v) : null;
+  if (!src && !staff) return null;
+  const kids = [h('h2', { class: 'st-h3', id: 'fb-video' }, '같이 보기')];
+  if (src) {
+    const original = typeof v.url === 'string' && FB_ORIGINAL.test(v.url) ? v.url : null;
+    if (v.title) kids.push(h('p', { class: 'fb-vtitle' }, v.title));
+    const frame = h('iframe', { src, title: v.title || '같이 보기 영상', allow: 'encrypted-media; picture-in-picture; fullscreen; clipboard-write; web-share', allowfullscreen: true, referrerpolicy: 'strict-origin-when-cross-origin' });
+    const box = h('div', { class: `fb-video fb-v-${v.provider}` }, frame);
+    kids.push(box);
+    /* Twitch는 플레이어가 400×300 이상이어야 한다. 폭이 400보다 좁으면(돌리거나 창을 줄여도) Twitch로 가는 링크로 바꾼다 */
+    if (v.provider === 'twitch' && typeof ResizeObserver === 'function') {
+      const narrow = h('div', { class: 'fb-vnarrow' }, h('p', null, '화면이 좁아서 Twitch 규칙상 여기서는 재생할 수 없어요.'),
+        original ? h('a', { class: 'btn btn-ghost', href: original, target: '_blank', rel: 'noopener noreferrer' }, 'Twitch에서 보기 ↗') : null);
+      let shown = frame;
+      const ro = new ResizeObserver(() => {
+        if (!box.isConnected) { ro.disconnect(); return; } // 다른 화면으로 가면 그만 본다
+        const want = box.clientWidth >= 400 ? frame : narrow;
+        if (want !== shown) { shown = want; box.replaceChildren(want); }
+      });
+      ro.observe(box);
+    }
+    kids.push(h('p', { class: 'fb-meta' }, `${FB_VIDEO_NAME[v.provider] || ''} · 운영진이 올렸어요`, isNum(v.set_at) ? [' · ', timeEl(v.set_at, true)] : null,
+      original ? [' · ', h('a', { href: original, target: '_blank', rel: 'noopener noreferrer' }, '원래 페이지에서 보기 ↗')] : null));
+    if (v.provider === 'youtube') kids.push(h('p', { class: 'fb-legal' }, 'YouTube 영상에는 ', h('a', { href: 'https://www.youtube.com/t/terms', target: '_blank', rel: 'noopener noreferrer' }, 'YouTube 서비스 약관'), '과 ', h('a', { href: 'https://policies.google.com/privacy', target: '_blank', rel: 'noopener noreferrer' }, 'Google 개인정보처리방침'), '이 적용돼요.'));
+  } else kids.push(h('p', { class: 'hint', style: 'margin:0 0 6px' }, '올린 영상이 없어요. 주소를 넣으면 클럽원 모두에게 이 자리에서 보여요.'));
+  if (staff) {
+    const url = h('input', { class: 'input', type: 'text', inputmode: 'url', maxlength: '2000', placeholder: '영상·방송 주소 또는 퍼가기 코드', 'aria-label': '영상 주소' });
+    const title = h('input', { class: 'input', type: 'text', maxlength: '60', placeholder: '제목(선택) 예: 맨유 vs 리버풀 같이 보기', 'aria-label': '영상 제목' });
+    let busy = false;
+    const send = async (method, body) => {
+      if (busy) return;
+      busy = true;
+      try {
+        const r = await api('/api/football/video', { method, body });
+        toast(method === 'DELETE' ? '영상을 내렸어요.' : '영상을 올렸어요. 클럽원 모두에게 보여요.');
+        onChange(r.video || null);
+      } catch (e) {
+        if (!e.handled) toast(e.code === 'unsupported_url' ? '넣을 수 있는 주소가 아니에요. 아래 안내를 봐 주세요.' : e.code === 'title_too_long' ? '제목은 60자까지 쓸 수 있어요.' : errText(e));
+      } finally { busy = false; }
+    };
+    kids.push(h('details', { class: 'fb-vform' },
+      h('summary', null, src ? '영상 바꾸기·내리기 (운영진)' : '영상 올리기 (운영진)'),
+      h('form', { onsubmit: (ev) => { ev.preventDefault(); if (!url.value.trim()) { url.focus(); return; } send('PUT', { url: url.value.trim(), title: title.value.trim() }); } },
+        url, title,
+        h('div', { class: 'fb-vbtns' }, h('button', { class: 'btn', type: 'submit' }, src ? '바꾸기' : '올리기'),
+          src ? h('button', { class: 'btn btn-ghost', type: 'button', onclick: () => send('DELETE') }, '내리기') : null),
+        h('ul', { class: 'fb-vhelp' },
+          h('li', null, 'YouTube 영상·생방송(영상 주소), Twitch 방송·다시보기·클립, 치지직 클립, SOOP 생방송·다시보기를 넣을 수 있어요.'),
+          h('li', null, '치지직은 생방송·다시보기를 다른 사이트에 넣는 걸 막아 두어서 클립만 돼요.'),
+          h('li', null, '무료 중계 사이트처럼 공식이 아닌 주소는 넣을 수 없어요. 내리기 전까지 계속 보여요.')))));
+  }
+  return h('section', { class: 'fb-sec', 'aria-labelledby': 'fb-video' }, kids);
+}
+/* SportScore 위젯은 높이가 바뀌면 {type:'sportscore:resize', height}를 보낸다. sportscore.com에서 온 것만 받는다 */
+let ssResizeOn = false;
+function ssListen() {
+  if (ssResizeOn) return;
+  ssResizeOn = true;
+  window.addEventListener('message', (ev) => {
+    if (ev.origin !== 'https://sportscore.com' || !ev.data || ev.data.type !== 'sportscore:resize') return;
+    const hgt = Number(ev.data.height);
+    if (!isFinite(hgt) || hgt < 120 || hgt > 6000) return;
+    for (const f of document.querySelectorAll('iframe.ss-frame')) if (f.contentWindow === ev.source) f.style.height = `${Math.ceil(hgt)}px`;
+  });
+}
+function ssFrame(kind, title, height) {
+  ssListen();
+  return h('iframe', { class: 'ss-frame', src: `${SS_EMBED}/${kind}/football/english-premier-league/?theme=dark`, title, loading: 'lazy',
+    referrerpolicy: 'strict-origin-when-cross-origin', sandbox: 'allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox', style: `height:${height}px` });
 }
 async function renderFootball(seq) {
   setTitle('해외축구');
   const head = () => [tabs(FOOTBALL_TAB), h('p', { class: 'idx' }, 'FOOTBALL'), h('h1', { class: 'h1', tabindex: '-1' }, '해외축구'),
-    h('p', { class: 'desc' }, '프리미어리그(EPL) 이번 시즌 순위와 선수 순위예요. 1시간마다 새로 받아 와요.')];
-  const fail = (e) => show([...head(), h('div', { style: 'margin-top:18px' }, errorBox({ code: e.code }, () => renderFootball(++state.seq)))]);
-  let d = cacheGet('football');
-  if (!d) {
-    show([...head(), loadingEl('EPL 순위를 불러오고 있어요.')]);
-    try {
-      d = await api('/api/football/epl');
-      /* 다른 사람이 막 새로 받는 중이면(처음이거나, 이전 자료인데 오류는 없음) 잠깐 뒤 한 번 더 */
-      if (d && (d.pending || (d.stale && !d.error)) && !stale(seq)) { await new Promise((r) => setTimeout(r, 2500)); if (!stale(seq)) d = await api('/api/football/epl'); }
-    } catch (e) {
-      if (e.handled || stale(seq)) return;
-      return fail(e);
-    }
-    if (stale(seq)) return;
-    if (!d || d.source !== 'sportscore' || !Array.isArray(d.table)) return fail({ code: 'server' });
-    if (d.table.length && !(d.stale && !d.error)) cacheSet('football', d); // 새로 받는 중인 이전 자료는 기억하지 않는다
-  }
-  const t = d.table;
-  const pl = d.players || {};
-  const num = (n) => (isNum(n) ? n.toLocaleString('ko-KR') : '-');
-  const meta = h('p', { class: 'fb-meta' },
-    isNum(d.updated_at) ? ['갱신 ', timeEl(d.updated_at, true)] : null,
-    d.stale ? (d.error ? ' · 새로 받지 못해 이전 자료예요' : ' · 새로 받는 중이에요(이전 자료)') : null);
-  /* ---- 리그 순위 ---- */
-  let tableEl;
-  if (!t.length) {
-    tableEl = h('div', { class: 'st-empty' }, h('p', null, d.pending ? '순위를 받아 오는 중이에요. 잠시 뒤 다시 열어 주세요.' : '지금 EPL 순위를 받아 오지 못했어요. 잠시 뒤 다시 열어 주세요.'));
-  } else {
-    const zoneLabel = Object.fromEntries(FB_ZONES);
-    const COLS = [['c-pos', '순위'], ['c-team', '팀'], ['c-p', '경기'], ['c-w', '승'], ['c-d', '무'], ['c-l', '패'], ['c-gf', '득점'], ['c-ga', '실점'], ['c-gd', '득실'], ['c-pts', '승점']];
-    tableEl = h('table', { class: 'fb-table' },
-      h('caption', { class: 'sr-only' }, 'EPL 순위표'),
-      h('thead', null, h('tr', null, COLS.map(([c, l]) => h('th', { class: c, scope: 'col' }, l)))),
-      h('tbody', null, t.map((r) => h('tr', { class: r.zone ? `z-${r.zone}` : null },
-        h('td', { class: 'c-pos', title: zoneLabel[r.zone] || null }, String(r.pos), zoneLabel[r.zone] ? h('span', { class: 'sr-only' }, `, ${zoneLabel[r.zone]}`) : null),
-        h('th', { class: 'c-team', scope: 'row' }, fbTeam(r.team_slug, r.team)),
-        h('td', { class: 'c-p' }, num(r.p)), h('td', { class: 'c-w' }, num(r.w)), h('td', { class: 'c-d' }, num(r.d)), h('td', { class: 'c-l' }, num(r.l)),
-        h('td', { class: 'c-gf' }, num(r.gf)), h('td', { class: 'c-ga' }, num(r.ga)),
-        h('td', { class: 'c-gd' }, isNum(r.gd) ? signed(r.gd) : '-'), h('td', { class: 'c-pts' }, num(r.pts))))));
-  }
-  const zonesIn = FB_ZONES.filter(([z]) => t.some((r) => r.zone === z));
-  const legend = zonesIn.length ? h('p', { class: 'fb-legend' }, zonesIn.map(([z, l]) => h('span', null, h('i', { class: `z-${z}`, 'aria-hidden': 'true' }), l))) : null;
-  /* ---- 선수 순위 ---- */
-  const cat = FB_PLAYER.some(([k]) => k === state.footballCat) ? state.footballCat : 'goals';
-  const chips = h('div', { class: 'rk-cats', role: 'group', 'aria-label': '선수 순위 기준' });
-  const listBox = h('div');
-  const paintPlayers = (k) => {
-    state.footballCat = k;
-    chips.replaceChildren(...FB_PLAYER.map(([key, label]) => h('button', { class: 'chip', type: 'button', 'aria-pressed': key === k ? 'true' : 'false',
-      onclick: () => { if (key !== state.footballCat) { paintPlayers(key); const b = chips.querySelector('[aria-pressed="true"]'); if (b) b.focus(); } } }, label)));
-    const list = Array.isArray(pl[k]) ? pl[k] : [];
-    const unit = k === 'goals' ? '골' : k === 'assists' ? '도움' : '포인트';
-    listBox.replaceChildren(list.length
-      ? h('ol', { class: 'fb-pl' }, list.map((p) => h('li', null,
-        h('span', { class: 'n' + (p.rank <= 3 ? ` top${p.rank}` : '') }, num(p.rank)),
-        h('span', { class: 'who' }, h('b', { lang: 'en' }, p.name), h('small', null, fbTeam(p.team_slug, p.team))),
-        h('span', { class: 'v' }, h('b', null, `${num(p.value)}${unit}`),
-          h('small', null, k === 'points' ? `${num(p.goals)}골 ${num(p.assists)}도움 · ${num(p.matches)}경기` : `${num(p.matches)}경기 · ${num(p.minutes)}분`)))))
-      : h('div', { class: 'st-empty' }, h('p', null, '선수 순위를 받아 오지 못했어요.')));
-  };
-  show([...head(),
+    h('p', { class: 'desc' }, '프리미어리그(EPL) 이번 시즌 순위와 득점 순위예요. SportScore 화면을 그대로 보여 줘서 팀 이름은 영어로 나와요.')];
+  show([...head(), loadingEl('불러오는 중이에요.')]);
+  /* 영상은 바뀔 수 있어 화면에서 기억하지 않고 매번 묻는다 */
+  let video = null, videoErr = null;
+  try { const r = await api('/api/football/video'); video = r && r.video ? r.video : null; } catch (e) { if (e.handled || stale(seq)) return; videoErr = e; }
+  if (stale(seq)) return;
+  const videoBox = h('div');
+  const paintVideo = (v) => { videoBox.replaceChildren(); append(videoBox, fbVideoSection(v, paintVideo)); };
+  /* 못 불러온 것을 '올린 영상 없음'처럼 보이지 않게 따로 알린다 */
+  if (videoErr) append(videoBox, h('section', { class: 'fb-sec', 'aria-labelledby': 'fb-video' }, h('h2', { class: 'st-h3', id: 'fb-video' }, '같이 보기'),
+    errorBox({ code: videoErr.code }, () => renderFootball(++state.seq))));
+  else paintVideo(video);
+  show([...head(), videoBox,
     h('section', { class: 'fb-sec', 'aria-labelledby': 'fb-table' },
-      h('h2', { class: 'st-h3', id: 'fb-table' }, '리그 순위'), meta, tableEl, legend, fbCredit()),
+      h('h2', { class: 'st-h3', id: 'fb-table' }, '리그 순위'), h('div', { class: 'ss-box' }, ssFrame('standings', 'EPL 순위표 (SportScore)', 980))),
     h('section', { class: 'fb-sec', 'aria-labelledby': 'fb-top' },
-      h('h2', { class: 'st-h3', id: 'fb-top' }, '선수 순위'),
-      h('p', { class: 'hint', style: 'margin:0 0 4px' }, '이번 시즌 상위 20명이에요. 공격포인트는 득점과 도움을 더한 값이에요.'),
-      chips, listBox, fbCredit())]);
-  paintPlayers(cat);
+      h('h2', { class: 'st-h3', id: 'fb-top' }, '득점 순위'), h('div', { class: 'ss-box' }, ssFrame('topscorers', 'EPL 득점 순위 (SportScore)', 980)))]);
 }
 
 function renderPrivacy() {
@@ -3933,7 +3948,8 @@ function renderPrivacy() {
         h('li', null, h('strong', null, 'Cloudflare'), ': 서버와 데이터베이스(글, 댓글, 열람 기록, 전적)'),
         h('li', null, h('strong', null, 'NEXON Open API'), ': 게임 닉네임, 티어, 경기 기록 조회'),
         h('li', null, h('strong', null, 'FC온라인 공식 홈페이지 랭킹'), ': 2대2 기록과 랭킹 종합 점수를 게임 닉네임으로 찾아봐요. 1시간쯤 기억해 둬요.'),
-        h('li', null, h('strong', null, 'SportScore'), ': 해외축구 메뉴의 EPL 순위와 선수 순위. 서버가 1시간마다 받아 두고, 이 사이트의 정보는 보내지 않아요.'),
+        h('li', null, h('strong', null, 'SportScore'), ': 해외축구 메뉴의 EPL 순위표·득점 순위(팀 마크 포함)를 SportScore 화면 그대로 불러와요. 이 사이트의 정보는 보내지 않아요.'),
+        h('li', null, h('strong', null, 'YouTube·Twitch·치지직·SOOP'), ': 운영진이 해외축구 메뉴에 영상을 올려 두었을 때만 그 사이트의 퍼가기 플레이어를 불러와요(YouTube API 서비스 포함). 그 사이트가 자체 쿠키·통계를 쓸 수 있어요. YouTube 영상을 보면 ', h('a', { href: 'https://www.youtube.com/t/terms', target: '_blank', rel: 'noopener noreferrer' }, 'YouTube 서비스 약관'), '이 적용되고, Google은 ', h('a', { href: 'https://policies.google.com/privacy', target: '_blank', rel: 'noopener noreferrer' }, 'Google 개인정보처리방침'), '에 따라 정보를 다뤄요.'),
         h('li', null, h('strong', null, 'GitHub Pages'), ': 이 화면')),
       h('h2', null, '지우는 때'),
       h('ul', null,
