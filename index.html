@@ -476,10 +476,12 @@
   .staff-head .idx::after { order: -1; background: linear-gradient(270deg, var(--red-bot), rgba(230, 74, 88, 0)); }
   .staff { list-style: none; margin: 18px 0 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px; }
   .card { display: flex; flex-direction: column; align-items: flex-start; gap: 22px; min-height: 196px; padding: 28px 24px 26px; }
+  /* 클럽장 카드는 윗줄 가운데(4칸 중 가운데 2칸), 운영진 4명은 아랫줄 한 줄 */
   .card.lead-card {
-    grid-column: span 2; flex-direction: row; align-items: center; gap: 28px; min-height: 0; padding: 34px 36px;
+    grid-column: 2 / span 2; flex-direction: row; align-items: center; gap: 28px; min-height: 0; padding: 34px 36px;
     background: linear-gradient(115deg, rgba(160, 7, 30, 0.26), rgba(9, 5, 7, 0.62) 58%);
   }
+  .card.lead-card + .card { grid-column-start: 1; } /* 첫 운영진은 새 줄 첫 칸부터(클럽장 옆 빈칸을 채우지 않게) */
   .who { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
   .avatar {
     width: 64px; height: 64px; border-radius: 50%; flex: none;
@@ -652,8 +654,8 @@
     .card.lead-card { grid-column: 1 / -1; }
   }
   @media (min-width: 701px) and (max-width: 900px) {
-    /* 태블릿: 클럽장·부클럽장 카드를 나란히 */
-    .card.lead-card { grid-column: span 1; gap: 20px; padding: 26px 24px; }
+    /* 태블릿: 클럽장 카드는 윗줄 전체, 운영진은 2명씩 두 줄 */
+    .card.lead-card { gap: 20px; padding: 26px 24px; }
     .lead-card .avatar { width: 84px; height: 84px; }
   }
   @media (max-width: 700px) {
@@ -785,7 +787,6 @@
       </div>
       <ul class="staff">
         <li class="card lead-card panel hud rv"><span class="avatar tier-ava" data-division="900"><svg viewBox="0 0 120 120" aria-hidden="true" focusable="false"><use href="#tb-champ" width="120" height="120"/></svg></span><span class="who"><span class="role">클럽장</span><span class="nick">NV조이</span><span class="tier-tag t900">챔피언스</span></span></li>
-        <li class="card lead-card panel hud rv d1"><span class="avatar tier-ava" data-division="900"><svg viewBox="0 0 120 120" aria-hidden="true" focusable="false"><use href="#tb-champ" width="120" height="120"/></svg></span><span class="who"><span class="role">부클럽장</span><span class="nick">NV병희</span><span class="tier-tag t900">챔피언스</span></span></li>
         <li class="card panel hud rv"><span class="avatar tier-ava" data-division="900"><svg viewBox="0 0 120 120" aria-hidden="true" focusable="false"><use href="#tb-champ" width="120" height="120"/></svg></span><span class="who"><span class="role">운영진</span><span class="nick">NV정민</span><span class="tier-tag t900">챔피언스</span></span></li>
         <li class="card panel hud rv d1"><span class="avatar tier-ava" data-division="800"><svg viewBox="0 0 120 120" aria-hidden="true" focusable="false"><use href="#tb-superchamp" width="120" height="120"/></svg></span><span class="who"><span class="role">운영진</span><span class="nick">NV뚝배기</span><span class="tier-tag t800">슈퍼 챔피언스</span></span></li>
         <li class="card panel hud rv d2"><span class="avatar tier-ava" data-division="900"><svg viewBox="0 0 120 120" aria-hidden="true" focusable="false"><use href="#tb-champ" width="120" height="120"/></svg></span><span class="who"><span class="role">운영진</span><span class="nick">NV치노</span><span class="tier-tag t900">챔피언스</span></span></li>
