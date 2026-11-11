@@ -9,7 +9,7 @@
 <meta name="robots" content="noindex, follow">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="theme-color" content="#000000">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https://cdn.discordapp.com https://fco.dn.nexoncdn.co.kr https://ssl.nexon.com https://crests.football-data.org data:; connect-src 'self' https://*.workers.dev https://open.api.nexon.com http://localhost:* http://127.0.0.1:*; frame-src https://www.youtube-nocookie.com https://player.twitch.tv https://clips.twitch.tv https://chzzk.naver.com https://play.sooplive.com https://vod.sooplive.com https://sportscore.com; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https://cdn.discordapp.com https://fco.dn.nexoncdn.co.kr https://ssl.nexon.com https://crests.football-data.org data:; connect-src 'self' https://*.workers.dev https://open.api.nexon.com http://localhost:* http://127.0.0.1:*; worker-src 'self'; frame-src https://www.youtube-nocookie.com https://player.twitch.tv https://clips.twitch.tv https://chzzk.naver.com https://play.sooplive.com https://vod.sooplive.com https://sportscore.com; base-uri 'none'; form-action 'none'">
 <link rel="icon" type="image/png" sizes="32x32" href="../favicon-32.png">
 <link rel="apple-touch-icon" href="../apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1382,6 +1382,141 @@
     .rk-val b { font-size: 16px; }
   }
   @media (prefers-reduced-motion: reduce) { .pm-lu > summary svg { transition: none; } }
+
+  /* ---------- 스쿼드 메이커(#/squad) ---------- */
+  .sq-h { margin: 22px 0 10px; font-size: 16px; font-weight: 700; color: var(--ink-hi); }
+  .sq-grid { display: grid; gap: 8px 28px; margin-top: 20px; }
+  .sq-auto-box { margin-top: 22px; }
+  .sq-left, .sq-right { min-width: 0; }
+  @media (min-width: 1000px) {
+    /* PC: 경기장 왼쪽, 선수 찾기 오른쪽. 본문 폭(920px)보다 넓게 */
+    .sq-grid { grid-template-columns: minmax(0, 520px) minmax(0, 1fr); margin-inline: calc(50% - min(620px, 50vw - 24px)); }
+    .sq-right { position: sticky; top: 12px; align-self: start; max-height: calc(100vh - 24px); overflow: auto; overscroll-behavior: contain; padding-right: 4px; }
+    .sq-right > .sq-h:first-child { margin-top: 0; }
+  }
+  .sq-bar { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 0 0 12px; }
+  .sq-form { width: auto; min-width: 150px; }
+  .sq-sum { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; margin: 0 0 10px; background: var(--rule); border: 1px solid var(--rule); }
+  .sq-sum-c { display: grid; gap: 2px; padding: 8px 10px; background: #0b0708; }
+  .sq-sum-c span { font-size: 12px; color: var(--ink-dim); }
+  .sq-sum-c b { font-size: 16px; font-weight: 700; color: var(--ink-hi); font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .sq-sum-c.bad b { color: var(--red-soft); }
+  @media (max-width: 520px) { .sq-sum { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .sq-warn { margin: 0 0 10px; font-size: 13px; color: var(--red-soft); }
+  .sq-moving { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; }
+  .sq-pitch { max-width: 520px; }
+  .sq-spots { list-style: none; margin: 0; padding: 0; position: absolute; inset: 0; }
+  .sq-li { position: absolute; width: 74px; margin-left: -37px; transform: translateY(-50%); }
+  .sq-spot {
+    display: grid; justify-items: center; gap: 3px; width: 100%; padding: 4px 0; margin: 0; border: 0; border-radius: 4px; cursor: pointer;
+    background: none; color: inherit; font: inherit;
+  }
+  div.sq-spot { cursor: default; }
+  .sq-spot:hover .sq-face, .sq-spot.on .sq-face { box-shadow: 0 0 0 2px #000, 0 0 0 4px var(--red-bot); }
+  .sq-spot:focus-visible { outline: 2px solid var(--sky); outline-offset: 0; }
+  .sq-face { position: relative; display: block; width: 44px; height: 44px; border-radius: 50%; box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.7), 0 0 0 3px rgba(216, 216, 214, 0.2); transition: box-shadow 0.15s ease; }
+  .sq-face .pf.pf-pk { width: 44px; height: 44px; box-shadow: none; }
+  .sq-empty { display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 400; color: var(--ink-dim); background: rgba(255, 255, 255, 0.03); box-shadow: inset 0 0 0 1px rgba(216, 216, 214, 0.28); }
+  .sq-ovr, .sq-gr { position: absolute; font-size: 11px; font-weight: 700; line-height: 1; padding: 2px 4px; border-radius: 2px; font-variant-numeric: tabular-nums; }
+  .sq-ovr { right: -14px; top: -5px; color: #041318; background: #8fd3ea; }
+  .sq-ovr.off { color: #fff; background: #6b5a5d; }
+  .sq-gr { left: -12px; bottom: -4px; color: var(--ink-hi); background: #1f1518; box-shadow: inset 0 0 0 1px rgba(216, 216, 214, 0.28); }
+  .sq-nm { display: flex; align-items: center; justify-content: center; gap: 3px; max-width: 72px; font-size: 11.5px; font-weight: 600; line-height: 1.3; color: var(--ink-hi); text-shadow: 0 1px 3px #000, 0 0 2px #000; }
+  .sq-nm .pl-nm { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .sq-nm .ss { width: 15px; height: 12px; }
+  .sq-role { font-size: 10.5px; font-weight: 700; letter-spacing: 0.02em; line-height: 1.2; white-space: nowrap; text-shadow: 0 1px 2px #000; }
+  @media (max-width: 420px) {
+    .sq-li { width: 62px; margin-left: -31px; }
+    .sq-face, .sq-face .pf.pf-pk { width: 38px; height: 38px; }
+    .sq-nm { max-width: 62px; font-size: 10.5px; }
+  }
+  .sq-bench { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 6px; }
+  .sq-bspot {
+    display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; align-items: center; gap: 8px; width: 100%; min-height: 46px; padding: 6px 10px;
+    border: 1px solid rgba(216, 216, 214, 0.14); border-radius: 2px; background: rgba(255, 255, 255, 0.02); color: var(--ink-hi); font: inherit; font-size: 13.5px; cursor: pointer; text-align: left;
+  }
+  .sq-bspot.none { color: var(--ink-dim); border-style: dashed; }
+  .sq-bspot.on { border-color: rgba(230, 74, 88, 0.75); background: rgba(160, 7, 30, 0.18); }
+  .sq-bplus { display: flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 50%; box-shadow: inset 0 0 0 1px rgba(216, 216, 214, 0.25); }
+  .sq-bnm { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .sq-bgr { font-size: 11.5px; font-weight: 700; color: var(--ink-mid); }
+  .sq-cur { display: grid; grid-template-columns: 52px minmax(0, 1fr); gap: 10px 12px; align-items: center; padding: 12px; margin: 0 0 14px; background: rgba(255, 255, 255, 0.025); box-shadow: inset 0 0 0 1px var(--rule); }
+  .sq-cur-tools { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+  .sq-gsel { width: auto; min-width: 140px; }
+  .sq-find { display: grid; gap: 8px; margin: 12px 0 0; }
+  .sq-find-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+  .sq-find-row > .input { flex: 1 1 120px; width: auto; min-width: 0; }
+  .sq-find-row > .select { flex: 0 1 auto; }
+  .sq-gtag { height: 32px; padding: 0 10px; font-size: 13px; }
+  .sq-list-box { margin: 10px 0 0; }
+  .sq-note { margin: 0 0 6px; }
+  .sq-plist { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--rule); }
+  .sq-prow {
+    display: grid; grid-template-columns: 38px minmax(0, 1fr) auto; align-items: center; gap: 10px; width: 100%; min-height: 62px; padding: 8px 4px;
+    border: 0; border-bottom: 1px solid var(--rule); background: none; color: inherit; font: inherit; text-align: left; cursor: pointer;
+  }
+  .sq-prow:hover { background: rgba(255, 255, 255, 0.03); }
+  .sq-prow:focus-visible { outline: 2px solid var(--sky); outline-offset: -2px; }
+  .sq-prow .pl-name { font-size: 14.5px; }
+  .sq-dim { opacity: 0.55; }
+  .sq-rk { color: #ffd59a; }
+  .sq-pnum { display: grid; justify-items: end; gap: 1px; font-size: 12px; color: var(--ink-dim); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .sq-pnum b { font-size: 18px; line-height: 1.15; color: var(--ink-hi); }
+  .sq-pnum b.off { color: var(--ink-dim); }
+  .sq-more { width: 100%; margin: 10px 0 0; }
+  .sq-usage { margin: 30px 0 0; padding: 14px; box-shadow: inset 0 0 0 1px var(--rule); background: rgba(255, 255, 255, 0.02); }
+  .sq-usage .sq-h { margin-top: 0; }
+  .sq-us { display: grid; border-top: 1px solid var(--rule); }
+  .sq-us-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 12px; padding: 8px 0; border-bottom: 1px solid var(--rule); font-size: 14px; font-variant-numeric: tabular-nums; }
+  .sq-us-row b { color: var(--ink-hi); text-align: right; }
+  .sq-us-row .muted { font-size: 12.5px; }
+  .sq-us-days { margin: 10px 0; font-size: 13px; color: var(--ink-mid); }
+  .sq-us-days summary { cursor: pointer; min-height: 32px; }
+  .sq-us-days ol { margin: 6px 0 0; padding-left: 18px; }
+
+  .sq-save { margin: 8px 0 0; }
+  .sq-src { margin: 28px 0 0; font-size: 12.5px; color: var(--ink-dim); }
+  .sq-ai { margin: 0 0 18px; padding: 14px; background: rgba(68, 160, 192, 0.05); box-shadow: inset 0 0 0 1px rgba(68, 160, 192, 0.3); }
+  .sq-ai .sq-h { margin-top: 0; }
+  .sq-ai .sq-find-row { margin-top: 8px; }
+  .sq-ai .hint { flex: 1 1 220px; }
+  .sq-auto-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 18px; }
+  .sq-inline { display: flex; align-items: center; gap: 8px; }
+  .sq-inline > .input { flex: 1 1 auto; min-width: 0; width: auto; }
+  .sq-unit { flex: 0 0 84px !important; }
+  .sq-conds { display: grid; gap: 8px; }
+  .sq-cond { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr) minmax(0, 1.4fr) 84px auto; gap: 6px; align-items: center; }
+  .sq-cond .input { width: 100%; min-width: 0; padding-left: 10px; }
+  @media (max-width: 640px) {
+    .sq-cond { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); padding: 8px 0; border-bottom: 1px solid var(--rule); }
+    .sq-cond > .btn-text { grid-column: 1 / -1; justify-self: end; }
+  }
+  .sq-add { justify-self: start; }
+  .sq-out { margin: 26px 0 0; scroll-margin-top: 12px; }
+  .sq-out .pitch { margin: 14px auto; }
+  .sq-res { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--rule); }
+  .sq-res-row {
+    display: grid; grid-template-columns: 46px 30px minmax(0, 1fr) auto; align-items: center; gap: 4px 8px; min-height: 48px; padding: 6px 2px;
+    border-bottom: 1px solid var(--rule); font-size: 14px;
+  }
+  .sq-res-row .pos { justify-content: center; }
+  .sq-res-row .pl-name { font-size: 14px; }
+  .sq-res-row a.pl-nm { color: var(--ink-hi); text-decoration: none; }
+  .sq-res-row a.pl-nm:hover { text-decoration: underline; }
+  .sq-res-nums { display: flex; justify-content: flex-end; gap: 10px; font-size: 13px; color: var(--ink-mid); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .sq-res-nums b { color: var(--ink-hi); }
+  .sq-res-tags { grid-column: 3 / -1; display: flex; gap: 4px; }
+  .sq-res-tags:empty { display: none; }
+  @media (max-width: 560px) { .sq-res-nums { grid-column: 3 / -1; justify-content: flex-start; } }
+  .sq-saved-list { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--rule); }
+  .sq-saved { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 14px; padding: 12px 4px; border-bottom: 1px solid var(--rule); }
+  .sq-saved-main { min-width: 0; flex: 1 1 260px; }
+  .sq-saved-tools { display: flex; gap: 6px; }
+  /* 폰 메뉴 칸이 넷이면 아이콘 위·글자 아래 */
+  @media not all and (min-width: 760px) {
+    .tabs-seg.n4 a { flex-direction: column; gap: 2px; min-height: 54px; font-size: 13px; padding: 4px 2px; }
+    .tabs-seg.n4 svg { width: 17px; height: 17px; }
+  }
 </style>
 </head>
 <body>
@@ -1608,7 +1743,7 @@ function errorBox(e, retry) {
     retry ? h('button', { class: 'btn btn-ghost', type: 'button', onclick: retry }, '다시 불러오기') : null);
 }
 /* 메뉴(모양은 CSS '메뉴' 주석 참고)
-   - 1단 세 칸: 게시판(마지막으로 본 게시판으로) · 전적 · 해외축구. PC에서는 게시판 칸을 숨기고 전적·해외축구만 오른쪽에
+   - 1단 네 칸: 게시판(마지막으로 본 게시판으로) · 전적 · 해외축구 · 스쿼드(폰은 아이콘 위·글자 아래). PC에서는 게시판 칸을 숨기고 나머지만 오른쪽에
    - 게시판 알약 줄: 폰에서는 게시판을 열었을 때만, PC에서는 늘
    게시판 주소와 겹치지 않게 전적·해외축구는 STATS_TAB(':stats')·FOOTBALL_TAB(':football')로 표시한다 */
 const STATS_TAB = ':stats';
@@ -1629,6 +1764,7 @@ const TAB_ICONS = {
   board: 'M7 3.5h10a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-13a2 2 0 0 1 2-2z M9 8.5h6 M9 12h6 M9 15.5h3.5',
   stats: 'M4 20.5h16 M7 16.5v-4 M12 16.5V6 M17 16.5v-7',
   ball: 'M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18z M12 8.2l3.6 2.6-1.4 4.2H9.8l-1.4-4.2z M12 8.2V3.4 M15.6 10.8l4.3-1.5 M14.2 15l2.7 3.7 M9.8 15l-2.7 3.7 M8.4 10.8L4.1 9.3',
+  squad: 'M9 3.5L4 6l1.8 4 2.2-1v11.5h8V9l2.2 1L20 6l-5-2.5a3 3 0 0 1-6 0z',
 };
 function tabIcon(kind) {
   const s = icon('next');
@@ -1644,6 +1780,7 @@ function tabs(active) {
     state.boards.length ? seg(boardHome(), 'board', '게시판', onBoard ? 'true' : null, 'seg-board') : null,
     seg('#/stats', 'stats', '전적', active === STATS_TAB ? 'page' : null),
     seg('#/football', 'ball', '해외축구', active === FOOTBALL_TAB ? 'page' : null),
+    seg('#/squad', 'squad', '스쿼드', active === SQUAD_TAB ? 'page' : null),
   ].filter(Boolean) : [];
   let box = null;
   if (state.boards.length) {
@@ -1672,7 +1809,7 @@ function tabs(active) {
     box = h('div', { class: onBoard || !segs.length ? 'rail-box' : 'rail-box pc-only' }, rail, more);
   }
   if (!segs.length && !box) return null;
-  const segBox = segs.length ? h('div', { class: 'tabs-seg' }, segs) : null;
+  const segBox = segs.length ? h('div', { class: segs.length >= 4 ? 'tabs-seg n4' : 'tabs-seg' }, segs) : null;
   /* 보이는 순서대로 DOM에 넣는다: 폰은 세 칸 → 게시판 줄, PC는 게시판 줄 → 전적·해외축구 */
   return h('nav', { class: 'tabs', 'aria-label': '클럽 공간 메뉴' }, PC_MQ.matches ? [box, segBox] : [segBox, box]);
 }
@@ -1764,6 +1901,9 @@ function route() {
     return show([tabs(null), h('h1', { class: 'h1', tabindex: '-1' }, '클럽 공간'), h('p', { class: 'desc' }, '아직 볼 수 있는 게시판이 없어요.')]);
   }
   if (hsh === '#/football') return renderFootball(seq);
+  if (hsh === '#/squad') return renderSquad(seq);
+  if (hsh === '#/squad/auto') return renderSquadAuto(seq);
+  if (hsh === '#/squad/saved') return renderSquadSaved(seq);
   if (hsh === '#/stats') return renderStats(seq);
   if (hsh === '#/stats/duo' || hsh === '#/stats/duo/demo') return renderDuo(seq, hsh.endsWith('/demo'));
   if ((m = hsh.match(/^#\/stats\/m\/(\d{5,25})(?:\/(50|52|40))?$/))) return renderMemberStats(m[1], m[2] ? +m[2] : 50, seq);
@@ -4097,6 +4237,800 @@ async function renderSearch(nick, type, seq) {
 }
 
 /* ---------- 개인정보 안내 ---------- */
+/* ---------- 스쿼드(#/squad) ----------
+   FC온라인 공식 홈페이지 데이터센터 자료(서버 /api/squad/*, nv-api squad.js)로
+   - 만들기(#/squad): 포메이션에 선수를 넣고 강화 단계를 고르면 급여(선발 11명)·평균 OVR·BP를 바로 셈
+   - 자동 편성(#/squad/auto): 예산·급여·강화·능력치·특성·팀컬러·랭커 픽 비중을 넣으면 브라우저(squad-worker.js)가 짬.
+     한 줄 요청은 서버가 Claude(Haiku)로 칸을 채워 줌(키가 있을 때만)
+   - 저장·공유(#/squad/saved): 내 스쿼드, 클럽원이 공유한 스쿼드
+   OVR = 1강 포지션 OVR + 강화 보너스. 팀컬러 보너스는 셈하지 않는다(화면에 적음). 데이터센터 선수 줄의 포지션 OVR은
+   그 선수의 주 포지션들만 있어서, 거기 없는 자리에 넣으면 '자리 아님'으로 표시하고 평균에서 뺀다 */
+const SQUAD_TAB = ':squad';
+/* replaceChildren에 null을 넘기면 'null' 글자가 들어가므로 빈 것은 뺀다 */
+const sqKids = (...a) => a.flat().filter((x) => x != null && x !== false);
+const SQ_BONUS = [0, 0, 1, 2, 4, 6, 8, 11, 15, 17, 19, 21, 24, 27];
+const SQ_ROLE_GROUP = {
+  GK: 'GK', LB: 'LB', RB: 'RB', LWB: 'LWB', RWB: 'RWB', LCB: 'CB', CB: 'CB', RCB: 'CB', LDM: 'CDM', CDM: 'CDM', RDM: 'CDM',
+  LCM: 'CM', CM: 'CM', RCM: 'CM', LM: 'LM', RM: 'RM', LAM: 'CAM', CAM: 'CAM', RAM: 'CAM', LF: 'CF', CF: 'CF', RF: 'CF', LW: 'LW', RW: 'RW', LS: 'ST', ST: 'ST', RS: 'ST',
+};
+const SQ_GROUPS = ['ST', 'CF', 'LW', 'RW', 'CAM', 'CM', 'CDM', 'LM', 'RM', 'CB', 'LB', 'RB', 'LWB', 'RWB', 'GK'];
+const sqLine = (g) => (g === 'GK' ? 'gk' : ['CB', 'LB', 'RB', 'LWB', 'RWB'].includes(g) ? 'df' : ['CDM', 'CM', 'CAM', 'LM', 'RM'].includes(g) ? 'mf' : 'fw');
+/* 포메이션: 수비 줄부터 공격 줄까지(GK는 따로). 서버 squad.js FORMATIONS와 이름이 같아야 한다 */
+const SQ_FORM = {
+  '4-4-2': [['LB', 'LCB', 'RCB', 'RB'], ['LM', 'LCM', 'RCM', 'RM'], ['LS', 'RS']],
+  '4-4-2(2)': [['LB', 'LCB', 'RCB', 'RB'], ['LDM', 'RDM'], ['LM', 'RM'], ['LS', 'RS']],
+  '4-1-2-1-2': [['LB', 'LCB', 'RCB', 'RB'], ['CDM'], ['LM', 'RM'], ['CAM'], ['LS', 'RS']],
+  '4-1-2-1-2(2)': [['LB', 'LCB', 'RCB', 'RB'], ['CDM'], ['LCM', 'RCM'], ['CAM'], ['LS', 'RS']],
+  '4-1-3-2': [['LB', 'LCB', 'RCB', 'RB'], ['CDM'], ['LM', 'CM', 'RM'], ['LS', 'RS']],
+  '4-1-4-1': [['LB', 'LCB', 'RCB', 'RB'], ['CDM'], ['LM', 'LCM', 'RCM', 'RM'], ['ST']],
+  '4-2-1-3': [['LB', 'LCB', 'RCB', 'RB'], ['LDM', 'RDM'], ['CAM'], ['LW', 'ST', 'RW']],
+  '4-2-2-2': [['LB', 'LCB', 'RCB', 'RB'], ['LDM', 'RDM'], ['LAM', 'RAM'], ['LS', 'RS']],
+  '4-2-3-1': [['LB', 'LCB', 'RCB', 'RB'], ['LDM', 'RDM'], ['LAM', 'CAM', 'RAM'], ['ST']],
+  '4-2-3-1(2)': [['LB', 'LCB', 'RCB', 'RB'], ['LDM', 'RDM'], ['LM', 'CAM', 'RM'], ['ST']],
+  '4-2-4': [['LB', 'LCB', 'RCB', 'RB'], ['LCM', 'RCM'], ['LW', 'LS', 'RS', 'RW']],
+  '4-3-1-2': [['LB', 'LCB', 'RCB', 'RB'], ['LCM', 'CM', 'RCM'], ['CAM'], ['LS', 'RS']],
+  '4-3-2-1': [['LB', 'LCB', 'RCB', 'RB'], ['LCM', 'CM', 'RCM'], ['LF', 'RF'], ['ST']],
+  '4-3-3': [['LB', 'LCB', 'RCB', 'RB'], ['LCM', 'CM', 'RCM'], ['LW', 'ST', 'RW']],
+  '4-3-3(2)': [['LB', 'LCB', 'RCB', 'RB'], ['CDM'], ['LCM', 'RCM'], ['LW', 'ST', 'RW']],
+  '4-3-3(3)': [['LB', 'LCB', 'RCB', 'RB'], ['LDM', 'RDM'], ['CM'], ['LW', 'ST', 'RW']],
+  '4-3-3(4)': [['LB', 'LCB', 'RCB', 'RB'], ['LCM', 'RCM'], ['CAM'], ['LW', 'ST', 'RW']],
+  '4-3-3(5)': [['LB', 'LCB', 'RCB', 'RB'], ['CDM'], ['LCM', 'RCM'], ['LW', 'CF', 'RW']],
+  '4-4-1-1': [['LB', 'LCB', 'RCB', 'RB'], ['LM', 'LCM', 'RCM', 'RM'], ['CF'], ['ST']],
+  '4-4-1-1(2)': [['LB', 'LCB', 'RCB', 'RB'], ['LM', 'LCM', 'RCM', 'RM'], ['CAM'], ['ST']],
+  '4-5-1': [['LB', 'LCB', 'RCB', 'RB'], ['LM', 'LCM', 'CM', 'RCM', 'RM'], ['ST']],
+  '3-1-4-2': [['LCB', 'CB', 'RCB'], ['CDM'], ['LM', 'LCM', 'RCM', 'RM'], ['LS', 'RS']],
+  '3-4-1-2': [['LCB', 'CB', 'RCB'], ['LM', 'LCM', 'RCM', 'RM'], ['CAM'], ['LS', 'RS']],
+  '3-4-2-1': [['LCB', 'CB', 'RCB'], ['LM', 'LCM', 'RCM', 'RM'], ['LF', 'RF'], ['ST']],
+  '3-4-3': [['LCB', 'CB', 'RCB'], ['LM', 'LCM', 'RCM', 'RM'], ['LW', 'ST', 'RW']],
+  '3-5-2': [['LCB', 'CB', 'RCB'], ['LDM', 'RDM'], ['LM', 'CAM', 'RM'], ['LS', 'RS']],
+  '5-2-1-2': [['LWB', 'LCB', 'CB', 'RCB', 'RWB'], ['LCM', 'RCM'], ['CAM'], ['LS', 'RS']],
+  '5-2-3': [['LWB', 'LCB', 'CB', 'RCB', 'RWB'], ['LCM', 'RCM'], ['LW', 'ST', 'RW']],
+  '5-3-2': [['LWB', 'LCB', 'CB', 'RCB', 'RWB'], ['LCM', 'CM', 'RCM'], ['LS', 'RS']],
+  '5-4-1': [['LWB', 'LCB', 'CB', 'RCB', 'RWB'], ['LM', 'LCM', 'RCM', 'RM'], ['ST']],
+};
+const SQ_FORM_NAMES = Object.keys(SQ_FORM);
+/* 자리 11개: GK → 수비 줄 → … → 공격 줄, 줄 안은 왼쪽부터. x·y는 경기장 %(위가 상대 골문) */
+function sqLayout(name) {
+  const rows = SQ_FORM[name] || SQ_FORM['4-2-3-1'];
+  const out = [{ role: 'GK', group: 'GK', x: 50, y: 90 }];
+  const R = rows.length;
+  rows.forEach((row, i) => {
+    const y = R === 1 ? 45 : 71 - i * (59 / (R - 1));
+    const n = row.length, gap = n > 1 ? Math.min(26, 76 / (n - 1)) : 0;
+    row.forEach((role, j) => {
+      let x = 50 + (j - (n - 1) / 2) * gap;
+      if (n <= 3 && /^(LM|LW|LWB)$/.test(role)) x = 13;
+      if (n <= 3 && /^(RM|RW|RWB)$/.test(role)) x = 87;
+      out.push({ role, group: SQ_ROLE_GROUP[role], x, y });
+    });
+  });
+  return out;
+}
+const SQ_DRAFT_KEY = 'nv_squad_draft';
+const sqEmpty = (formation) => ({ formation: formation || '4-2-3-1', slots: Array(11).fill(null), bench: Array(7).fill(null), name: '', id: null, shared: false });
+function sqLoadDraft() {
+  try {
+    const d = JSON.parse(localStorage.getItem(SQ_DRAFT_KEY) || 'null');
+    /* 초안은 만든 사람 것만(같은 PC에서 다른 클럽원이 로그인하면 버림) */
+    if (d && state.me && d.owner === state.me.id && SQ_FORM[d.formation] && Array.isArray(d.slots) && d.slots.length === 11 && Array.isArray(d.bench)) {
+      return { ...sqEmpty(d.formation), ...d, bench: [...d.bench, ...Array(7).fill(null)].slice(0, 7) };
+    }
+  } catch (e) {}
+  return null;
+}
+function sqSaveDraft() { try { localStorage.setItem(SQ_DRAFT_KEY, JSON.stringify({ ...state.sq, owner: state.me ? state.me.id : null })); } catch (e) {} }
+/* 만들던 스쿼드(선수가 한 명이라도 있으면)를 다른 것으로 바꾸기 전에 묻는다 */
+function sqConfirmReplace() {
+  const cur = state.sq || sqLoadDraft();
+  if (!cur || ![...cur.slots, ...cur.bench].some(Boolean)) return true;
+  return confirm('지금 만들던 스쿼드를 이 스쿼드로 바꿀까요? 저장하지 않은 내용은 사라져요.');
+}
+let sqSaving = false;
+const SQ_TWO_COL = window.matchMedia('(min-width: 1000px)'); // .sq-grid 두 칸 경계(CSS)와 같게
+function sqState() { if (!state.sq) state.sq = sqLoadDraft() || sqEmpty(); return state.sq; }
+
+/* BP 금액: 1조 2,300억 / 18억 9,000만 / 4,200만 */
+function fmtBP(n) {
+  if (!isNum(n)) return '-';
+  if (n === 0) return '0';
+  const jo = Math.floor(n / 1e12), eok = Math.floor((n % 1e12) / 1e8), man = Math.floor((n % 1e8) / 1e4);
+  const f = (v) => v.toLocaleString('ko-KR');
+  const p = [];
+  if (jo) p.push(`${f(jo)}조`);
+  if (eok) p.push(`${f(eok)}억`);
+  if (man && !jo) p.push(`${f(man)}만`);
+  return p.length ? p.join(' ') : f(Math.round(n));
+}
+const sqPrice = (p) => (p && p.bp ? p.bp[p.grade - 1] : null);
+/* 그 자리에서의 OVR. 자리에 맞는 포지션이 없으면 가장 높은 포지션 OVR에 fit:false */
+function sqOvr(p, group) {
+  if (!p) return null;
+  const b = SQ_BONUS[p.grade] || 0;
+  if (p.pos && isNum(p.pos[group])) return { ovr: p.pos[group] + b, fit: true };
+  const vals = Object.values(p.pos || {}).filter(isNum);
+  return vals.length ? { ovr: Math.max(...vals) + b, fit: false } : null;
+}
+function sqTotals(sq, cap) {
+  const lay = sqLayout(sq.formation);
+  let pay = 0, price = 0, priceAll = 0, ovrSum = 0, ovrN = 0, misfit = 0, empty = 0, missingPrice = 0;
+  sq.slots.forEach((p, i) => {
+    if (!p) { empty++; return; }
+    pay += p.pay || 0;
+    const pr = sqPrice(p);
+    if (isNum(pr)) { price += pr; priceAll += pr; } else missingPrice++;
+    const o = sqOvr(p, lay[i].group);
+    if (o && o.fit) { ovrSum += o.ovr; ovrN++; } else misfit++;
+  });
+  for (const p of sq.bench) if (p) { const pr = sqPrice(p); if (isNum(pr)) priceAll += pr; else missingPrice++; }
+  const pids = [...sq.slots, ...sq.bench].filter(Boolean).map((p) => pidOf(p.spid));
+  return { pay, cap, over: pay > cap, price, priceAll, avg: ovrN ? ovrSum / ovrN : null, ovrN, misfit, empty, missingPrice, dup: pids.length !== new Set(pids).size };
+}
+
+/* ---------- 서버 자료 ---------- */
+const SQ_ERR = {
+  upstream_paused: '넥슨 홈페이지가 요청을 막아서 30분 동안 쉬는 중이에요. 이미 받아 둔 선수는 그대로 쓸 수 있어요.',
+  day_limit: '오늘 클럽 전체가 넥슨 홈페이지에서 읽을 수 있는 양을 다 썼어요. 내일 다시 해 주세요(받아 둔 목록은 그대로 보여요).',
+  rate: '짧은 시간에 너무 많이 불러왔어요. 잠시 뒤 다시 해 주세요.',
+  upstream: '넥슨 홈페이지에서 선수 자료를 받지 못했어요. 잠시 뒤 다시 해 주세요.',
+  upstream_layout: '넥슨 홈페이지 화면이 바뀌어서 선수 자료를 읽지 못했어요. 운영진에게 알려 주세요.',
+  no_key: '한 줄 요청(Claude)은 아직 연결되지 않았어요. 아래 칸을 직접 채워 주세요.',
+  ai_busy: 'Claude가 바빠요. 잠시 뒤 다시 해 주세요.',
+  ai_error: 'Claude가 답을 주지 못했어요. 칸을 직접 채우거나 다시 해 주세요.',
+  ai_refused: 'Claude가 이 문장은 처리하지 않았어요. 다르게 써 주세요.',
+  bad_text: '요청은 2~300자로 써 주세요.',
+  too_many: '스쿼드는 한 사람이 30개까지 저장할 수 있어요. 안 쓰는 것을 지워 주세요.',
+  same_player: '같은 선수(시즌만 다른 카드 포함)가 두 번 들어 있어요.',
+  bad_name: '스쿼드 이름은 1~30자로 써 주세요.',
+  not_found: '그 스쿼드를 찾지 못했어요. 이미 지워졌어요.',
+  busy: '다른 클럽원이 랭커 픽을 받아 오는 중이에요. 잠시 뒤 다시 열어 주세요.',
+};
+const sqErrText = (e) => SQ_ERR[e && e.code] || errText(e);
+async function sqMeta() {
+  if (!state.sqMeta) state.sqMeta = await api('/api/squad/meta');
+  return state.sqMeta;
+}
+/* 같은 조건은 받는 중인 요청까지 함께 쓴다(실패하면 지워서 다시 물을 수 있게) */
+const sqListCache = new Map();
+function sqPlayers(params) {
+  const qs = new URLSearchParams(params).toString();
+  let pr = sqListCache.get(qs);
+  if (pr && pr.until && Date.now() > pr.until) { sqListCache.delete(qs); pr = null; }
+  if (!pr) {
+    pr = api(`/api/squad/players?${qs}`);
+    sqListCache.set(qs, pr);
+    const drop = () => { if (sqListCache.get(qs) === pr) sqListCache.delete(qs); };
+    /* 지난 목록(stale)은 1분만, 새 목록은 서버 캐시와 같은 12시간까지 다시 쓴다 */
+    pr.then((d) => { pr.until = Date.now() + (d && d.stale ? 60000 : 12 * 3600000); }, drop);
+  }
+  return pr;
+}
+/* 랭커 픽: 서버가 한 번에 세 포지션씩 받아 오므로 다 찰 때까지(최대 6번) 이어 부른다.
+   받는 중이면 그 요청을 함께 기다리고, 오류가 섞인 답은 1분만 다시 쓴다 */
+function sqRankers(onStep) {
+  const c = state.sqRank;
+  if (c && !c.pending && (!c.error || Date.now() - (state.sqRankAt || 0) < 60000)) return Promise.resolve(c);
+  state.sqRankStep = onStep || null;
+  if (!state.sqRankP) {
+    state.sqRankP = (async () => {
+      let d = null;
+      for (let i = 0; i < 6; i++) {
+        d = await api('/api/squad/rankers');
+        if (state.sqRankStep) state.sqRankStep(d);
+        if (!d.pending || d.error) break;
+      }
+      state.sqRank = d;
+      state.sqRankAt = Date.now();
+      return d;
+    })();
+    state.sqRankP.then(() => { state.sqRankP = null; }, () => { state.sqRankP = null; });
+  }
+  return state.sqRankP;
+}
+/* 랭커 픽 지도: spid → {그룹: 사용 비율%} */
+function sqRankMap(rk) {
+  const m = new Map();
+  if (!rk || !rk.positions) return m;
+  for (const [g, items] of Object.entries(rk.positions)) for (const it of items || []) {
+    const o = m.get(it.spid) || {};
+    o[g] = it.share;
+    m.set(it.spid, o);
+  }
+  return m;
+}
+const sqCardFromList = (c, grade) => ({ spid: c.spid, grade: grade || 1, pay: c.pay, name: c.name, season: c.season, pos: { ...c.pos }, bp: (c.bp || []).slice(0, 13) });
+const sqCardFromRanker = (it, group, grade) => ({ spid: it.spid, grade: grade || 1, pay: it.pay, name: it.name, season: it.season, pos: it.ovr ? { [it.pos || group]: it.ovr - (SQ_BONUS[it.grade || 1] || 0) } : {}, bp: (it.bp || []).slice(0, 13) });
+const sqInfoUrl = (spid, grade) => `https://fconline.nexon.com/DataCenter/PlayerInfo?spid=${spid}&n1Strong=${grade || 1}`;
+
+function squadNav(active) {
+  const items = [['make', '만들기', '#/squad'], ['auto', '자동 편성', '#/squad/auto'], ['saved', '저장·공유', '#/squad/saved']];
+  return h('nav', { class: 'snav', 'aria-label': '스쿼드 메뉴' }, items.map(([k, label, href]) => h('a', { href, 'aria-current': k === active ? 'page' : null }, label)));
+}
+const sqSource = () => h('p', { class: 'sq-src' }, '선수·급여·시세·랭커 사용 자료: FC온라인 공식 홈페이지 데이터센터(넥슨). 시세는 받아 둔 때 기준이고 팀컬러 보너스는 OVR에 넣지 않았어요.');
+
+/* ---------- 경기장 ---------- */
+function sqPitch(sq, opts) {
+  const lay = sqLayout(sq.formation);
+  const list = h('ol', { class: 'sq-spots' });
+  lay.forEach((s, i) => {
+    const p = sq.slots[i];
+    const o = sqOvr(p, s.group);
+    const sel = opts.sel && opts.sel.side === 'slot' && opts.sel.idx === i;
+    const label = p ? `${s.role} ${p.name} ${p.grade}강 OVR ${o ? o.ovr : '-'}` : `${s.role} 빈 자리`;
+    const inner = p
+      ? [h('span', { class: 'sq-face' }, faceEl(p.spid, 'pf-pk'), h('span', { class: `sq-ovr${o && !o.fit ? ' off' : ''}` }, o ? String(o.ovr) : '-'), h('span', { class: 'sq-gr' }, `+${p.grade}`)),
+        h('span', { class: 'sq-nm' }, seasonEl(p.spid), h('span', { class: 'pl-nm' }, p.name.split(' ').pop())),
+        h('span', { class: `sq-role pos-${sqLine(s.group)}` }, s.role, o && !o.fit ? ' · 자리 아님' : '')]
+      : [h('span', { class: 'sq-face sq-empty' }, '+'), h('span', { class: `sq-role pos-${sqLine(s.group)}` }, s.role)];
+    const el = opts.onPick
+      ? h('button', { type: 'button', class: `sq-spot${sel ? ' on' : ''}${p ? '' : ' none'}`, 'aria-pressed': sel ? 'true' : 'false', 'aria-label': label, onclick: () => opts.onPick('slot', i) }, inner)
+      : h('div', { class: `sq-spot${p ? '' : ' none'}`, 'aria-label': label }, inner);
+    list.append(h('li', { class: 'sq-li', style: `left:${s.x}%;top:${s.y}%` }, el));
+  });
+  const svg = document.createElementNS(NS, 'svg');
+  svg.setAttribute('class', 'pitch-lines'); svg.setAttribute('viewBox', '0 0 100 140'); svg.setAttribute('preserveAspectRatio', 'none'); svg.setAttribute('aria-hidden', 'true');
+  for (const d of ['M0 70H100', 'M20 0V22H80V0', 'M36 0V8H64V0', 'M20 140V118H80V140', 'M36 140V132H64V140']) {
+    const p = document.createElementNS(NS, 'path'); p.setAttribute('d', d); svg.append(p);
+  }
+  const c = document.createElementNS(NS, 'ellipse'); c.setAttribute('cx', '50'); c.setAttribute('cy', '70'); c.setAttribute('rx', '13'); c.setAttribute('ry', '9.3'); svg.append(c);
+  return h('div', { class: 'pitch sq-pitch' }, svg, list);
+}
+function sqSummary(t) {
+  const cell = (k, v, cls) => h('div', { class: `sq-sum-c${cls ? ' ' + cls : ''}` }, h('span', null, k), h('b', null, v));
+  return h('div', { class: 'sq-sum', role: 'status' },
+    cell('급여(선발)', `${t.pay} / ${t.cap}`, t.over ? 'bad' : ''),
+    cell('평균 OVR', t.avg ? t.avg.toFixed(1) : '-'),
+    cell('선발 BP', fmtBP(t.price)),
+    cell('벤치 포함 BP', fmtBP(t.priceAll)));
+}
+function sqWarnings(t) {
+  const w = [];
+  if (t.over) w.push(`급여가 ${t.pay - t.cap} 넘어요.`);
+  if (t.dup) w.push('같은 선수가 두 번 들어 있어요(시즌만 다른 카드도 같은 선수예요).');
+  if (t.misfit) w.push(`자리에 맞지 않는 선수 ${t.misfit}명은 평균 OVR에서 뺐어요.`);
+  if (t.missingPrice) w.push(`시세가 없는 강화 단계 ${t.missingPrice}명은 BP에서 뺐어요.`);
+  if (t.empty) w.push(`빈 자리 ${t.empty}개`);
+  return w.length ? h('p', { class: 'sq-warn' }, w.join(' ')) : null;
+}
+
+/* ---------- 만들기 ---------- */
+async function renderSquad(seq) {
+  setTitle('스쿼드 메이커');
+  const sq = sqState();
+  const head = () => [tabs(SQUAD_TAB), squadNav('make'), h('p', { class: 'idx' }, 'SQUAD MAKER'), h('h1', { class: 'h1', tabindex: '-1' }, '스쿼드 메이커'),
+    h('p', { class: 'desc' }, '자리를 누르고 선수를 고르세요. 급여는 선발 11명만 더하고, OVR은 강화 단계에 맞춰 바뀌어요.')];
+  let meta;
+  try { meta = await sqMeta(); } catch (e) {
+    if (e.handled || stale(seq)) return;
+    return show([head(), errorBox({ code: e.code }, () => renderSquad(++state.seq))]);
+  }
+  if (stale(seq)) return;
+  const cap = meta.salary_cap || 315;
+  const ui = state.sqUi || (state.sqUi = { sel: { side: 'slot', idx: 0 }, grade: 5, sort: 'ovr', name: '', pay: '', mode: 'search', moving: null });
+  const box = h('div', { class: 'sq-grid' });
+  const pitchBox = h('div', { class: 'sq-left' });
+  const side = h('div', { class: 'sq-right' });
+  box.append(pitchBox, side);
+  /* 포메이션을 바꾸면 같은 자리 이름 → 같은 포지션 그룹 → 선수가 뛸 수 있는 자리 → 남은 자리 순으로 옮긴다 */
+  const formSel = h('select', { class: 'input select sq-form', 'aria-label': '포메이션', onchange: (e) => {
+    const nf = e.target.value, oldLay = sqLayout(sq.formation), newLay = sqLayout(nf);
+    const olds = sq.slots.map((pl, i) => (pl ? { pl, role: oldLay[i].role, group: oldLay[i].group } : null)).filter(Boolean);
+    const slots = Array(11).fill(null);
+    const take = (test) => { for (const o of olds) { if (o.done) continue; const j = newLay.findIndex((x, k) => !slots[k] && test(o, x)); if (j >= 0) { slots[j] = o.pl; o.done = true; } } };
+    take((o, x) => x.role === o.role);
+    take((o, x) => x.group === o.group);
+    take((o, x) => { const r = sqOvr(o.pl, x.group); return !!(r && r.fit); });
+    take(() => true);
+    sq.formation = nf;
+    sq.slots.splice(0, 11, ...slots);
+    const next = slots.findIndex((x) => !x);
+    ui.sel = { side: 'slot', idx: next >= 0 ? next : 0 };
+    ui.moving = null;
+    changed();
+  } },
+    SQ_FORM_NAMES.map((f) => h('option', { value: f, selected: f === sq.formation ? true : null }, f)));
+  function changed() { sqSaveDraft(); draw(); }
+  function pick(sideName, idx) {
+    if (ui.moving) {
+      const from = ui.moving;
+      ui.moving = null;
+      const A = from.side === 'slot' ? sq.slots : sq.bench, Bx = sideName === 'slot' ? sq.slots : sq.bench;
+      const tmp = A[from.idx]; A[from.idx] = Bx[idx]; Bx[idx] = tmp;
+      ui.sel = { side: sideName, idx };
+      return changed();
+    }
+    ui.sel = { side: sideName, idx };
+    draw();
+    if (!SQ_TWO_COL.matches) side.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  function selGroup() {
+    if (ui.sel.side === 'slot') return sqLayout(sq.formation)[ui.sel.idx].group;
+    const p = sq.bench[ui.sel.idx];
+    if (p && p.pos) { const ks = Object.keys(p.pos); if (ks.length) return ks[0]; }
+    return ui.benchGroup || 'ST';
+  }
+  function place(card) {
+    const arr = ui.sel.side === 'slot' ? sq.slots : sq.bench;
+    const others = [...sq.slots, ...sq.bench].filter((p, i) => p && !(arr === sq.slots ? i === ui.sel.idx : i === 11 + ui.sel.idx));
+    if (others.some((p) => pidOf(p.spid) === pidOf(card.spid))) { toast('같은 선수가 이미 스쿼드에 있어요.'); return; }
+    arr[ui.sel.idx] = { ...card, grade: card.grade || ui.grade };
+    /* 다음 빈 선발 자리로 */
+    if (ui.sel.side === 'slot') { const next = sq.slots.findIndex((p) => !p); if (next >= 0) ui.sel = { side: 'slot', idx: next }; }
+    changed();
+  }
+  function draw() {
+    const ae = document.activeElement;
+    const back = ae === formSel ? 'form' : ae && ae.id === 'sqGrade' ? 'grade' : ae && (pitchBox.contains(ae) || side.contains(ae)) ? 'sel' : null;
+    drawBody();
+    const el = back === 'form' ? formSel
+      : back === 'grade' ? (document.getElementById('sqGrade') || box.querySelector('[aria-pressed="true"].sq-spot, [aria-pressed="true"].sq-bspot'))
+      : back === 'sel' ? box.querySelector('[aria-pressed="true"].sq-spot, [aria-pressed="true"].sq-bspot') : null;
+    if (el && document.activeElement !== el) el.focus({ preventScroll: true });
+  }
+  function drawBody() {
+    const t = sqTotals(sq, cap);
+    const benchList = h('ol', { class: 'sq-bench', 'aria-label': '벤치 7명' },
+      sq.bench.map((p, i) => {
+        const sel = ui.sel.side === 'bench' && ui.sel.idx === i;
+        return h('li', null, h('button', { type: 'button', class: `sq-bspot${sel ? ' on' : ''}${p ? '' : ' none'}`, 'aria-pressed': sel ? 'true' : 'false', onclick: () => pick('bench', i),
+          'aria-label': p ? `벤치 ${i + 1} ${p.name} ${p.grade}강` : `벤치 ${i + 1} 빈 자리` },
+        p ? [faceEl(p.spid, 'pf-xs'), h('span', { class: 'sq-bnm' }, p.name.split(' ').pop()), h('span', { class: 'sq-bgr' }, `+${p.grade}`)] : [h('span', { class: 'sq-bplus' }, '+'), h('span', { class: 'sq-bnm' }, `벤치 ${i + 1}`)]));
+      }));
+    pitchBox.replaceChildren(...sqKids(
+      h('div', { class: 'sq-bar' }, formSel, h('button', { type: 'button', class: 'btn btn-text', onclick: () => { if (confirm('스쿼드를 모두 비울까요?')) { const f = sq.formation; Object.assign(sq, sqEmpty(f)); ui.sel = { side: 'slot', idx: 0 }; changed(); } } }, '모두 비우기')),
+      sqSummary(t), sqWarnings(t),
+      ui.moving ? h('p', { class: 'info sq-moving' }, '옮길 자리(선발 또는 벤치)를 누르세요. ', h('button', { type: 'button', class: 'btn-text', onclick: () => { ui.moving = null; draw(); } }, '그만두기')) : null,
+      sqPitch(sq, { sel: ui.sel, onPick: pick }),
+      h('h2', { class: 'sq-h' }, '벤치'), benchList,
+      saveBox()));
+    drawSide();
+  }
+  /* 오른쪽(폰은 아래): 고른 자리의 선수 + 선수 찾기 */
+  function drawSide() {
+    const arr = ui.sel.side === 'slot' ? sq.slots : sq.bench;
+    const p = arr[ui.sel.idx];
+    const group = selGroup();
+    const where = ui.sel.side === 'slot' ? sqLayout(sq.formation)[ui.sel.idx].role : `벤치 ${ui.sel.idx + 1}`;
+    const cur = p ? h('div', { class: 'sq-cur' },
+      faceEl(p.spid, 'pf-lg'),
+      h('div', { class: 'pl-id' },
+        h('div', { class: 'pl-name' }, seasonEl(p.spid), h('span', { class: 'pl-nm' }, p.name)),
+        h('div', { class: 'pl-tags' }, Object.entries(p.pos || {}).map(([g, v]) => h('span', { class: `pos pos-${sqLine(g)}` }, `${g} ${v + (SQ_BONUS[p.grade] || 0)}`)), h('span', { class: 'ga' }, `급여 ${p.pay}`)),
+        h('div', { class: 'pl-st' }, `${p.grade}강 시세 ${fmtBP(sqPrice(p))} BP`)),
+      h('div', { class: 'sq-cur-tools' },
+        h('label', { class: 'sr-only', for: 'sqGrade' }, '강화 단계'),
+        h('select', { id: 'sqGrade', class: 'input select sq-gsel', onchange: (e) => { p.grade = Number(e.target.value); changed(); } },
+          Array.from({ length: 13 }, (_, i) => h('option', { value: i + 1, selected: p.grade === i + 1 ? true : null }, `${i + 1}강${p.bp && !isNum(p.bp[i]) ? ' (시세 없음)' : ''}`))),
+        h('button', { type: 'button', class: 'btn btn-ghost', onclick: () => { ui.moving = { ...ui.sel }; draw(); } }, '자리 옮기기'),
+        h('button', { type: 'button', class: 'btn btn-danger', onclick: () => { arr[ui.sel.idx] = null; changed(); } }, '빼기'),
+        h('a', { class: 'btn-text', href: sqInfoUrl(p.spid, p.grade), target: '_blank', rel: 'noopener noreferrer' }, '데이터센터에서 보기'))) : null;
+    const groupSel = h('select', { class: 'input select', 'aria-label': '포지션', 'data-fk': 'gsel', onchange: (e) => { ui.benchGroup = e.target.value; ui.groupOverride = e.target.value; drawSide(); } },
+      SQ_GROUPS.map((g) => h('option', { value: g, selected: g === (ui.groupOverride && ui.sel.side === 'bench' ? ui.groupOverride : group) ? true : null }, g)));
+    const nameIn = h('input', { class: 'input', type: 'search', placeholder: '선수 이름(비우면 포지션 상위 200명)', value: ui.name, maxlength: 30, 'aria-label': '선수 이름' });
+    const payIn = h('input', { class: 'input', type: 'number', min: 1, max: 59, inputmode: 'numeric', placeholder: '급여 상한', value: ui.pay, 'aria-label': '급여 상한' });
+    const gradeIn = h('select', { class: 'input select', 'aria-label': '목록 강화 단계', onchange: (e) => { ui.grade = Number(e.target.value); drawList(); } },
+      Array.from({ length: 13 }, (_, i) => h('option', { value: i + 1, selected: ui.grade === i + 1 ? true : null }, `${i + 1}강 기준`)));
+    const sortIn = h('select', { class: 'input select', 'aria-label': '정렬', onchange: (e) => { ui.sort = e.target.value; drawList(); } },
+      [['ovr', 'OVR 높은 순'], ['pay', '급여 낮은 순'], ['price', '시세 낮은 순'], ['value', 'OVR 대비 급여']].map(([v, l]) => h('option', { value: v, selected: ui.sort === v ? true : null }, l)));
+    const listBox = h('div', { class: 'sq-list-box', tabindex: '-1' });
+    const keepListFocus = () => { if (listBox.contains(document.activeElement)) listBox.focus({ preventScroll: true }); };
+    const modeBtns = h('div', { class: 'chips', role: 'group', 'aria-label': '목록 종류' },
+      [['search', '선수 찾기'], ['ranker', '랭커 픽']].map(([k, l]) => h('button', { type: 'button', class: 'chip', 'data-fk': `mode-${k}`, 'aria-pressed': ui.mode === k ? 'true' : 'false', onclick: () => { ui.mode = k; drawSide(); } }, l)));
+    const form = h('form', { class: 'sq-find', onsubmit: (e) => { e.preventDefault(); ui.name = nameIn.value.trim(); ui.pay = payIn.value.trim(); load(); } },
+      h('div', { class: 'sq-find-row' }, ui.sel.side === 'bench' ? groupSel : h('span', { class: `pos pos-${sqLine(group)} sq-gtag` }, group), nameIn),
+      h('div', { class: 'sq-find-row' }, payIn, gradeIn, sortIn, h('button', { class: 'btn btn-sky', type: 'submit' }, '찾기')));
+    const fk = side.contains(document.activeElement) && document.activeElement.dataset ? document.activeElement.dataset.fk : null;
+    side.replaceChildren(...sqKids(
+      h('h2', { class: 'sq-h' }, `${where} 선수`), cur || h('p', { class: 'hint' }, '빈 자리예요. 아래에서 선수를 골라 넣으세요.'),
+      modeBtns, ui.mode === 'search' ? form : (ui.sel.side === 'bench' ? h('div', { class: 'sq-find-row sq-find' }, groupSel) : null), listBox));
+    if (fk) { const el = side.querySelector(`[data-fk="${fk}"]`); if (el) el.focus({ preventScroll: true }); }
+    let rows = null, info = null, loadTok = 0;
+    async function load() {
+      const t = ++loadTok; /* 늦게 온 이전 검색이 새 목록을 덮지 않게 */
+      ui.shown = 40;
+      const g = ui.sel.side === 'bench' ? (ui.groupOverride || group) : group;
+      keepListFocus();
+      listBox.replaceChildren(...sqKids(loadingEl(ui.mode === 'ranker' ? '랭커 픽을 불러오는 중이에요.' : '넥슨 데이터센터에서 선수를 불러오는 중이에요.')));
+      try {
+        if (ui.mode === 'ranker') {
+          const rk = await sqRankers((d) => { if (t === loadTok && d.pending) listBox.replaceChildren(...sqKids(loadingEl(`랭커 픽을 불러오는 중이에요(${15 - d.pending}/15).`))); });
+          if (t !== loadTok) return;
+          info = rk;
+          rows = (rk.positions[g] || []).map((it) => ({ ...sqCardFromRanker(it, g, ui.grade), rkCount: it.count, rkShare: it.share }));
+        } else {
+          const params = ui.name ? { name: ui.name } : { g };
+          if (ui.pay) params.pay = ui.pay;
+          const d = await sqPlayers(params);
+          if (t !== loadTok) return;
+          info = { ...d, label: ui.name };
+          rows = d.players.map((c) => sqCardFromList(c, ui.grade));
+        }
+      } catch (e) {
+        if (e.handled || t !== loadTok) return;
+        keepListFocus();
+        const msg = e.code === 'bad_name' ? '선수 이름은 30자까지, 따옴표·<>·\\ 없이 써 주세요.' : sqErrText(e);
+        listBox.replaceChildren(...sqKids(h('div', { class: 'alert', role: 'alert' }, h('p', { style: 'margin:0 0 10px' }, msg), h('button', { class: 'btn btn-ghost', type: 'button', onclick: load }, '다시 불러오기'))));
+        return;
+      }
+      drawList();
+    }
+    function drawList() {
+      if (!rows) return;
+      const g = ui.sel.side === 'bench' ? (ui.groupOverride || group) : group;
+      const rkMap = sqRankMap(state.sqRank);
+      const list = rows.map((r) => {
+        const pr = r.bp ? r.bp[ui.grade - 1] : null;
+        const o = isNum(r.pos[g]) ? r.pos[g] : Math.max(...Object.values(r.pos), 0);
+        return { r, pr, o: o + (SQ_BONUS[ui.grade] || 0), fit: isNum(r.pos[g]) };
+      });
+      if (ui.mode === 'search') list.sort((a, b) => ui.sort === 'pay' ? a.r.pay - b.r.pay || b.o - a.o : ui.sort === 'price' ? (a.pr ?? 1e20) - (b.pr ?? 1e20) : ui.sort === 'value' ? (b.o - b.r.pay * 1.2) - (a.o - a.r.pay * 1.2) : b.o - a.o || a.r.pay - b.r.pay);
+      const ol = h('ol', { class: 'sq-plist' });
+      const shown = ui.shown || 40;
+      for (const x of list.slice(0, shown)) {
+        const r = x.r;
+        const rk = rkMap.get(r.spid);
+        ol.append(h('li', null, h('button', { type: 'button', class: 'sq-prow', onclick: () => place({ ...r, grade: ui.grade }), 'aria-label': `${r.name} ${ui.grade}강 OVR ${x.o} 급여 ${r.pay} 넣기` },
+          faceEl(r.spid, 'pf-sm'),
+          h('span', { class: 'pl-id' },
+            h('span', { class: 'pl-name' }, seasonEl(r.spid), h('span', { class: 'pl-nm' }, r.name)),
+            h('span', { class: 'pl-tags' },
+              Object.entries(r.pos).map(([pg, v]) => h('span', { class: `pos pos-${sqLine(pg)}${pg === g ? '' : ' sq-dim'}` }, `${pg} ${v + (SQ_BONUS[ui.grade] || 0)}`)),
+              rk && ui.mode !== 'ranker' ? h('span', { class: 'ga sq-rk' }, `랭커 ${Object.entries(rk).map(([kg, s]) => `${kg} ${s}%`).join(' · ')}`) : null,
+              isNum(r.rkCount) ? h('span', { class: 'ga sq-rk' }, `랭커 ${r.rkCount}명 사용(${r.rkShare}%)`) : null)),
+          h('span', { class: 'sq-pnum' }, h('b', { class: x.fit ? '' : 'off' }, String(x.o)), h('span', null, `급여 ${r.pay}`), h('span', null, x.pr != null ? fmtBP(x.pr) : '시세 없음')))));
+      }
+      const note = ui.mode === 'ranker'
+        ? h('p', { class: 'hint sq-note' }, info && (info.dates && info.dates[g] || info.date) ? `공식 경기 1vs1 랭커(1~10,000위)가 ${(info.dates && info.dates[g]) || info.date}에 ${g} 자리에서 많이 쓴 선수 ${rows.length}명이에요.` : '랭커 픽 자료가 아직 없어요.',
+          info && info.error ? [` (${sqErrText({ code: info.error })}) `, h('button', { type: 'button', class: 'btn-text', onclick: () => { state.sqRankAt = 0; load(); } }, '다시 불러오기')] : '')
+        : h('p', { class: 'hint sq-note' }, `${info && info.label ? `'${info.label}' 검색 결과` : `${g} OVR 상위`} ${rows.length}명${info && info.more ? '(더 있음)' : ''} · ${info && info.fetched_at ? `${fmtShort(info.fetched_at)} 기준` : ''}${info && info.stale ? ' · 새로 받지 못해 지난 목록' : ''}`);
+      const moreBtn = list.length > shown ? h('button', { type: 'button', class: 'btn btn-ghost sq-more', onclick: () => {
+        ui.shown = shown + 60; drawList();
+        const b = listBox.querySelectorAll('.sq-prow')[shown]; if (b) b.focus({ preventScroll: true });
+      } }, `더 보기 (${shown}/${list.length})`) : null;
+      keepListFocus();
+      listBox.replaceChildren(...sqKids(note, rows.length ? ol : h('p', { class: 'empty' }, '조건에 맞는 선수가 없어요.'), moreBtn));
+    }
+    load();
+  }
+  function saveBox() {
+    const nameIn = h('input', { class: 'input', maxlength: 30, placeholder: '스쿼드 이름', value: sq.name || '', 'aria-label': '스쿼드 이름', oninput: (e) => { sq.name = e.target.value; sqSaveDraft(); } });
+    const shareIn = h('input', { type: 'checkbox', checked: sq.shared ? true : null, onchange: (e) => { sq.shared = e.target.checked; sqSaveDraft(); } });
+    async function save(asNew) {
+      const body = { name: (sq.name || '').trim(), formation: sq.formation, slots: sq.slots, bench: sq.bench, shared: !!sq.shared };
+      if (!body.name) { toast('스쿼드 이름을 써 주세요.'); nameIn.focus(); return; }
+      if (sqSaving) return;
+      sqSaving = true;
+      try {
+        if (sq.id && !asNew) { await api(`/api/squads/${sq.id}`, { method: 'PUT', body }); toast('저장했어요.'); }
+        else { const r = await api('/api/squads', { method: 'POST', body }); sq.id = r.id; sqSaveDraft(); toast(sq.shared ? '저장했어요. 클럽원도 볼 수 있어요.' : '저장했어요.'); draw(); }
+        state.sqSaved = null;
+      } catch (e) {
+        if (e.handled) return;
+        if (e.status === 404 && sq.id && !asNew) { sq.id = null; sqSaveDraft(); draw(); toast('저장된 스쿼드가 지워졌어요. 다시 저장하면 새 스쿼드로 저장돼요.'); return; }
+        toast(sqErrText(e));
+      } finally { sqSaving = false; }
+    }
+    return h('section', { class: 'sq-save', 'aria-label': '저장' },
+      h('h2', { class: 'sq-h' }, sq.id ? '저장된 스쿼드 고치기' : '저장'),
+      h('div', { class: 'sq-find-row' }, nameIn, h('button', { type: 'button', class: 'btn btn-primary', onclick: () => save(false) }, sq.id ? '고친 내용 저장' : '저장'),
+        sq.id ? h('button', { type: 'button', class: 'btn btn-ghost', onclick: () => save(true) }, '새로 저장') : null),
+      h('label', { class: 'check' }, shareIn, '클럽원에게 공유(저장·공유 화면에 보여요)'));
+  }
+  show([head(), box, sqSource()]);
+  draw();
+}
+
+/* ---------- 자동 편성 ---------- */
+const SQ_TARGETS = [['all', '필드 전체'], ['fw', '공격수'], ['mf', '미드필더'], ['df', '수비수'], ['gk', '골키퍼'], ...SQ_GROUPS.map((g) => [g, g])];
+const SQ_TARGET_GROUPS = (t) => (t === 'all' ? SQ_GROUPS.filter((g) => g !== 'GK') : t === 'fw' ? ['ST', 'CF', 'LW', 'RW'] : t === 'mf' ? ['CAM', 'CM', 'CDM', 'LM', 'RM'] : t === 'df' ? ['CB', 'LB', 'RB', 'LWB', 'RWB'] : t === 'gk' ? ['GK'] : [t]);
+function sqAutoDefaults(meta) {
+  return { formation: sqState().formation || '4-2-3-1', budget: '', unit: '억', cap: String(meta.salary_cap || 315), gmin: 5, gmax: 8, ranker: 1, tcName: '', tcMin: 0, conds: [], text: '' };
+}
+/* 조건 → 포지션 그룹별 검색 조건(그룹마다 능력치 3·특성 3·제외 특성 3까지, 데이터센터 검색 칸 수) */
+function sqGroupQuery(conds, group) {
+  const q = {}; let a = 0, t = 0, x = 0;
+  for (const c of conds) {
+    if (!SQ_TARGET_GROUPS(c.target).includes(group)) continue;
+    if (c.kind === 'ability') { if (++a > 3) throw new Error(`${group} 자리 능력치 조건은 3개까지예요.`); q[`a${a}`] = c.key; q[`m${a}`] = String(c.min); }
+    else if (c.kind === 'trait') { if (++t > 3) throw new Error(`${group} 자리 특성 조건은 3개까지예요.`); q[`t${t}`] = c.key; }
+    else if (c.kind === 'no_trait') { if (++x > 3) throw new Error(`${group} 자리 제외 특성은 3개까지예요.`); q[`x${x}`] = c.key; }
+  }
+  return q;
+}
+let sqWorker = null, sqReqId = 0;
+function sqSolve(req) {
+  return new Promise((resolve, reject) => {
+    try { if (!sqWorker) sqWorker = new Worker('squad-worker.js'); } catch (e) { reject(new Error('이 브라우저에서는 자동 편성을 계산할 수 없어요.')); return; }
+    const w = sqWorker, id = ++sqReqId;
+    const off = () => { w.removeEventListener('message', done); w.removeEventListener('error', fail); };
+    const done = (e) => { if (!e.data || e.data.id !== id) return; off(); resolve(e.data.r); };
+    const fail = () => { off(); if (sqWorker === w) sqWorker = null; reject(new Error('계산 중 문제가 생겼어요.')); };
+    w.addEventListener('message', done);
+    w.addEventListener('error', fail);
+    w.postMessage({ id, req });
+  });
+}
+async function renderSquadAuto(seq) {
+  setTitle('자동 편성');
+  const head = () => [tabs(SQUAD_TAB), squadNav('auto'), h('p', { class: 'idx' }, 'AUTO SQUAD'), h('h1', { class: 'h1', tabindex: '-1' }, '자동 편성'),
+    h('p', { class: 'desc' }, '예산과 조건을 넣으면 급여 상한 안에서 평균 OVR이 가장 높게 짜 줘요. 랭커 픽 비중을 올리면 랭커들이 많이 쓰는 선수를 더 쳐줘요.')];
+  let meta;
+  try { meta = await sqMeta(); } catch (e) {
+    if (e.handled || stale(seq)) return;
+    return show([head(), errorBox({ code: e.code }, () => renderSquadAuto(++state.seq))]);
+  }
+  if (stale(seq)) return;
+  const f = state.sqAuto || (state.sqAuto = sqAutoDefaults(meta));
+  const abilityName = new Map(meta.abilities);
+  const tcByName = new Map(meta.teamcolors.map(([id, n]) => [n, id]));
+  const out = h('div', { class: 'sq-out', 'aria-live': 'polite' });
+  const formBox = h('div', { class: 'sq-auto-box' });
+  function field(label, control, hint) { return h('div', { class: 'field' }, h('span', { class: 'lab' }, label), control, hint ? h('p', { class: 'hint' }, hint) : null); }
+  function drawForm() {
+    const formSel = h('select', { class: 'input select', 'aria-label': '포메이션', onchange: (e) => { f.formation = e.target.value; } }, SQ_FORM_NAMES.map((n) => h('option', { value: n, selected: n === f.formation ? true : null }, n)));
+    const budIn = h('input', { class: 'input', 'aria-label': 'BP 예산(선발 11명)', type: 'number', min: 0, step: 'any', inputmode: 'decimal', placeholder: '비우면 제한 없음', value: f.budget, oninput: (e) => { f.budget = e.target.value; } });
+    const unitSel = h('select', { class: 'input select sq-unit', 'aria-label': '예산 단위', onchange: (e) => { f.unit = e.target.value; } }, ['억', '조'].map((u) => h('option', { value: u, selected: u === f.unit ? true : null }, u)));
+    const capIn = h('input', { class: 'input', 'aria-label': '급여 상한', type: 'number', min: 100, max: 400, inputmode: 'numeric', value: f.cap, oninput: (e) => { f.cap = e.target.value; } });
+    const gSel = (k) => h('select', { class: 'input select', 'aria-label': k === 'gmin' ? '강화 최소' : '강화 최대', onchange: (e) => { f[k] = Number(e.target.value); } },
+      Array.from({ length: 13 }, (_, i) => h('option', { value: i + 1, selected: f[k] === i + 1 ? true : null }, `${i + 1}강`)));
+    const rk = h('div', { class: 'chips', role: 'group', 'aria-label': '랭커 픽 비중' }, [[0, '안 봄'], [1, '보통'], [2, '많이']].map(([v, l]) =>
+      h('button', { type: 'button', class: 'chip', 'aria-pressed': f.ranker === v ? 'true' : 'false', onclick: (e) => { f.ranker = v; for (const b of e.currentTarget.parentNode.children) b.setAttribute('aria-pressed', b === e.currentTarget ? 'true' : 'false'); } }, l)));
+    const dl = h('datalist', { id: 'sqTcList' }, meta.teamcolors.map(([, n]) => h('option', { value: n })));
+    const tcIn = h('input', { class: 'input', 'aria-label': '팀컬러', list: 'sqTcList', placeholder: '예: 레알 마드리드 (비우면 안 봄)', value: f.tcName, oninput: (e) => { f.tcName = e.target.value; } });
+    const tcMin = h('select', { class: 'input select', 'aria-label': '팀컬러 최소 인원', onchange: (e) => { f.tcMin = Number(e.target.value); } },
+      Array.from({ length: 12 }, (_, i) => h('option', { value: i, selected: f.tcMin === i ? true : null }, i ? `${i}명 이상` : '인원 선택')));
+    const condList = h('div', { class: 'sq-conds' });
+    function drawConds() {
+      condList.replaceChildren(...sqKids(...f.conds.map((c, i) => {
+        const keySel = h('select', { class: 'input select', 'aria-label': '조건 항목', onchange: (e) => { c.key = e.target.value; } },
+          (c.kind === 'ability' ? meta.abilities : meta.traits.map((t) => [t, t])).map(([v, l]) => h('option', { value: v, selected: v === c.key ? true : null }, l)));
+        return h('div', { class: 'sq-cond' },
+          h('select', { class: 'input select', 'aria-label': '대상', onchange: (e) => { c.target = e.target.value; } }, SQ_TARGETS.map(([v, l]) => h('option', { value: v, selected: v === c.target ? true : null }, l))),
+          h('select', { class: 'input select', 'aria-label': '종류', onchange: (e) => { c.kind = e.target.value; c.key = c.kind === 'ability' ? meta.abilities[0][0] : meta.traits[0]; drawConds(); } },
+            [['ability', '능력치 최소'], ['trait', '특성 있음'], ['no_trait', '특성 없음']].map(([v, l]) => h('option', { value: v, selected: v === c.kind ? true : null }, l))),
+          keySel,
+          c.kind === 'ability' ? h('input', { class: 'input sq-min', type: 'number', min: 1, max: 200, inputmode: 'numeric', value: c.min, 'aria-label': '최소값(1강 기준)', oninput: (e) => { c.min = Number(e.target.value); } }) : h('span'),
+          h('button', { type: 'button', class: 'btn btn-text danger', 'aria-label': '조건 지우기', onclick: () => { f.conds.splice(i, 1); drawConds(); } }, '지우기'));
+      })));
+    }
+    drawConds();
+    const aiBox = meta.ai ? (() => {
+      const ta = h('textarea', { class: 'textarea short', 'aria-label': '한 줄 요청', maxlength: 300, placeholder: '예: 4-2-3-1, 예산 3조, 8카까지, 윙어는 빠르게, 레알 팀컬러 6명 이상', value: f.text, oninput: (e) => { f.text = e.target.value; } });
+      ta.value = f.text;
+      const btn = h('button', { type: 'button', class: 'btn btn-sky', onclick: async () => {
+        const text = ta.value.trim();
+        if ([...text].length < 2) { toast('요청을 써 주세요.'); return; }
+        btn.disabled = true; btn.textContent = '채우는 중…';
+        try {
+          const r = await api('/api/squad/ai', { method: 'POST', body: { text } });
+          const p = r.filters;
+          if (p.formation && SQ_FORM[p.formation]) f.formation = p.formation;
+          if (isNum(p.budget_eok)) { if (p.budget_eok >= 10000) { f.budget = String(+(p.budget_eok / 10000).toFixed(4)); f.unit = '조'; } else { f.budget = String(p.budget_eok); f.unit = '억'; } }
+          if (isNum(p.salary_cap)) f.cap = String(p.salary_cap);
+          const gMinSet = isNum(p.grade_min), gMaxSet = isNum(p.grade_max);
+          if (gMinSet) f.gmin = p.grade_min;
+          if (gMaxSet) f.gmax = p.grade_max;
+          if (f.gmin > f.gmax) {
+            if (gMinSet && !gMaxSet) f.gmax = 13; /* '9카 이상' → 9~13 */
+            else if (gMaxSet && !gMinSet) f.gmin = 1; /* '3카까지' → 1~3 */
+            else f.gmin = f.gmax;
+          }
+          if (p.ranker) f.ranker = { off: 0, normal: 1, strong: 2 }[p.ranker];
+          if (p.teamcolor && p.teamcolor.name) { f.tcName = p.teamcolor.name; if (!f.tcMin) f.tcMin = p.teamcolor_min || 5; }
+          if (p.teamcolor_min && f.tcName) f.tcMin = p.teamcolor_min;
+          if (p.conditions && p.conditions.length) f.conds = p.conditions.map((c) => ({ ...c, min: c.min ?? 100 }));
+          drawForm();
+          const extra = [p.note, p.teamcolor && !p.teamcolor.id ? `'${p.teamcolor.text}' 팀컬러는 목록에서 찾지 못했어요.` : '', p.teamcolor && p.teamcolor.candidates && p.teamcolor.candidates.length > 1 ? `팀컬러 후보: ${p.teamcolor.candidates.map((c) => c.name).join(', ')}` : ''].filter(Boolean).join(' ');
+          toast(extra ? `칸을 채웠어요. ${extra}` : '칸을 채웠어요. 확인하고 편성하기를 누르세요.');
+        } catch (e) { if (!e.handled) toast(e.code === 'rate' ? '한 줄 요청은 24시간에 20번까지예요. 칸을 직접 채워 주세요.' : e.code === 'day_limit' ? '오늘 클럽 전체 한 줄 요청 횟수를 다 썼어요. 칸을 직접 채워 주세요.' : sqErrText(e)); }
+        finally { btn.disabled = false; btn.textContent = '칸 채우기'; }
+      } }, '칸 채우기');
+      return h('section', { class: 'sq-ai', 'aria-label': '한 줄 요청' },
+        h('h2', { class: 'sq-h' }, '한 줄로 요청하기'),
+        ta, h('div', { class: 'sq-find-row' }, btn, h('p', { class: 'hint' }, '쓴 문장만 Anthropic(Claude)으로 보내 아래 칸을 채워요. 클럽원 정보는 보내지 않아요. 하루 20번까지.')));
+    })() : null;
+    formBox.replaceChildren(...sqKids(
+      aiBox,
+      h('form', { class: 'form sq-auto', onsubmit: (e) => { e.preventDefault(); run(); } },
+        h('div', { class: 'sq-auto-grid' },
+          field('포메이션', formSel),
+          field('BP 예산(선발 11명)', h('div', { class: 'sq-inline' }, budIn, unitSel)),
+          field('급여 상한', capIn, `지금 게임 상한은 ${meta.salary_cap}이에요.`),
+          field('강화 범위', h('div', { class: 'sq-inline' }, gSel('gmin'), h('span', { class: 'muted' }, '~'), gSel('gmax')))),
+        field('랭커 픽 반영', rk, '어제 공식 1vs1 랭커들이 자리별로 많이 쓴 선수(자리마다 16명)를 더 쳐줘요.'),
+        field('팀컬러', h('div', { class: 'sq-inline' }, tcIn, tcMin), '소속 팀컬러를 고르고 최소 인원을 정하면 그 팀컬러 선수를 그만큼 넣어요. 팀컬러 보너스 OVR은 셈하지 않아요.'), dl,
+        h('div', { class: 'field' }, h('span', { class: 'lab' }, '능력치·특성 조건'), condList,
+          h('button', { type: 'button', class: 'btn btn-ghost sq-add', onclick: () => { if (f.conds.length >= 9) return toast('조건은 9개까지예요.'); f.conds.push({ target: 'fw', kind: 'ability', key: 'sprintspeed', min: 110 }); drawConds(); } }, '+ 조건 더하기'),
+          h('p', { class: 'hint' }, '능력치 최소값은 1강 기준이에요(데이터센터 검색과 같아요).')),
+        h('div', { class: 'sq-find-row' }, h('button', { class: 'btn btn-primary', type: 'submit' }, '편성하기'),
+          h('button', { type: 'button', class: 'btn btn-text', onclick: () => { state.sqAuto = sqAutoDefaults(meta); renderSquadAuto(++state.seq); } }, '처음 값으로')))));
+  }
+  let lastRun = null, runTok = 0;
+  async function run(more) {
+    const fm = formBox.querySelector('form.sq-auto');
+    if (fm && !fm.reportValidity()) return; /* 숫자가 아닌 예산 등을 '제한 없음'으로 읽지 않게 */
+    const cap = Number(f.cap);
+    if (!Number.isInteger(cap) || cap < 100 || cap > 400) { toast('급여 상한은 100~400 사이로 써 주세요.'); return; }
+    const budget = f.budget === '' ? 0 : Math.round(Number(f.budget) * (f.unit === '조' ? 1e12 : 1e8));
+    if (f.budget !== '' && !(budget > 0)) { toast('예산은 0보다 큰 숫자로 써 주세요.'); return; }
+    let tcId = null;
+    if (f.tcName.trim()) {
+      tcId = tcByName.get(f.tcName.trim());
+      if (!tcId) { toast('팀컬러를 목록에서 골라 주세요.'); return; }
+      if (!f.tcMin) { toast('팀컬러 최소 인원을 골라 주세요.'); return; }
+    }
+    for (const c of f.conds) if (c.kind === 'ability' && !(Number.isInteger(c.min) && c.min >= 1 && c.min <= 200)) { toast(`${abilityName.get(c.key) || c.key} 최소값을 1~200으로 써 주세요.`); return; }
+    const lay = sqLayout(f.formation);
+    const groups = [...new Set(lay.map((s) => s.group))];
+    let queries;
+    try { queries = groups.map((g) => ({ g, q: sqGroupQuery(f.conds, g) })); } catch (e) { toast(e.message); return; }
+    const page = more ? (lastRun ? lastRun.page + 1 : 2) : 1;
+    const jobs = [];
+    for (const { g, q } of queries) {
+      for (let pg = 1; pg <= page; pg++) {
+        jobs.push({ g, tc: false, params: { g, ...q, page: String(pg) } });
+        if (tcId) jobs.push({ g, tc: true, params: { g, ...q, tc: String(tcId), page: String(pg) } });
+      }
+    }
+    /* 확인을 다 통과한 뒤에 차례를 잡는다(잘못 눌러 되돌아간 것이 돌던 편성을 끊지 않게). 화면을 떠나도 멈춘다 */
+    const tok = ++runTok;
+    const dead = () => tok !== runTok || stale(seq);
+    const prog = h('p', { class: 'loading', role: 'status' }, '선수를 불러오는 중이에요.');
+    out.replaceChildren(...sqKids(prog));
+    out.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const cards = new Map();
+    const ended = new Set(); /* 마지막 쪽이 200명보다 적었던 검색: 다음 쪽은 비었으니 묻지 않는다 */
+    let full = false;
+    try {
+      let i = 0;
+      for (const j of jobs) {
+        i++;
+        const k = `${j.g}|${j.tc}`;
+        if (ended.has(k)) continue;
+        prog.textContent = `${j.g}${j.tc ? ' 팀컬러' : ''} 선수를 불러오는 중이에요 (${i}/${jobs.length}).`;
+        const d = await sqPlayers(j.params);
+        if (dead()) return;
+        if (!d.more) ended.add(k);
+        for (const c of d.players) {
+          /* pos: 화면에 보일 전체 포지션, fit: 그 포지션 조건으로 찾은 검색에서 나온 자리만(편성은 fit으로) */
+          const o = cards.get(c.spid) || { spid: c.spid, pid: c.pid, name: c.name, season: c.season, pos: {}, fit: {}, pay: c.pay, bp: c.bp, tc: false };
+          Object.assign(o.pos, c.pos);
+          if (isNum(c.pos[j.g])) o.fit[j.g] = c.pos[j.g];
+          if (j.tc) o.tc = true;
+          cards.set(c.spid, o);
+        }
+      }
+      full = jobs.some((j) => !ended.has(`${j.g}|${j.tc}`));
+      if (f.ranker) {
+        prog.textContent = '랭커 픽을 불러오는 중이에요.';
+        const rk = await sqRankers((d) => { if (d.pending) prog.textContent = `랭커 픽을 불러오는 중이에요 (${15 - d.pending}/15).`; });
+        if (dead()) return;
+        const m = sqRankMap(rk);
+        for (const [spid, o] of m) { const c = cards.get(spid); if (c) c.rk = o; }
+      }
+    } catch (e) {
+      if (e.handled || dead()) return;
+      out.replaceChildren(...sqKids(h('div', { class: 'alert', role: 'alert' }, h('p', { style: 'margin:0 0 10px' }, sqErrText(e)), h('button', { class: 'btn btn-ghost', type: 'button', onclick: () => run(more) }, '다시 하기'))));
+      return;
+    }
+    if (dead()) return;
+    prog.textContent = `후보 ${cards.size}명으로 짜는 중이에요.`;
+    const req = { slots: lay.map((s) => ({ group: s.group })), cards: [...cards.values()].map((c) => ({ ...c, pos: c.fit })), budget, cap, gmin: Math.min(f.gmin, f.gmax), gmax: Math.max(f.gmin, f.gmax), colourMin: tcId ? f.tcMin : 0, ranker: f.ranker, timeMs: 1500 };
+    let r;
+    try { r = await sqSolve(req); } catch (e) { if (!dead()) out.replaceChildren(...sqKids(h('div', { class: 'alert', role: 'alert' }, e.message))); return; }
+    if (dead()) return;
+    lastRun = { page, full };
+    showResult(r, lay, cards, { budget, cap, tcId, full, page });
+  }
+  function showResult(r, lay, cards, o) {
+    if (!r.ok) {
+      /* 후보를 추렸거나 시간 안에 다 못 봤으면 '조합이 없다'고 단정하지 않는다 */
+      const sure = r.reason === 'error' || r.reason === 'empty' || (!r.thinned && (r.reason !== 'mix' || r.proven));
+      const why = !sure ? (r.thinned ? '자리마다 후보를 추린 범위에서는 조건을 모두 맞추는 조합을 찾지 못했어요(조합이 없다는 뜻은 아니에요). 조건을 조금 풀거나 후보를 더 불러와 다시 해 보세요.' : '정해진 시간 안에 조건을 모두 맞추는 조합을 찾지 못했어요. 다시 해 보세요.')
+        : r.reason === 'pay' ? `자리마다 가장 싼 선수만 넣어도 급여가 ${r.minPay}예요. 급여 상한을 올리거나 조건을 줄여 주세요.`
+        : r.reason === 'budget' ? `자리마다 가장 싼 선수만 넣어도 ${fmtBP(r.minPrice)} BP가 들어요. 예산을 올리거나 강화 범위를 낮춰 주세요.`
+        : r.reason === 'colour' ? `팀컬러 선수를 넣을 수 있는 자리가 ${r.colSlots}개뿐이에요. 최소 인원을 줄여 주세요.`
+        : r.reason === 'empty' ? `${(r.groups || []).join(', ')} 자리에 조건에 맞는 선수가 없어요. 조건을 줄여 주세요.`
+        : r.reason === 'error' ? `계산 중 문제가 생겼어요(${r.message}).`
+        : '급여·예산·팀컬러 조건을 한꺼번에 맞추는 조합을 찾지 못했어요.';
+      out.replaceChildren(...sqKids(h('div', { class: 'alert', role: 'alert' }, h('p', { style: 'margin:0 0 10px' }, why),
+        o.full && o.page < 3 ? h('button', { type: 'button', class: 'btn btn-ghost', onclick: () => run(true) }, '후보를 더 불러와서 다시 짜기') : null)));
+      return;
+    }
+    const sq = sqEmpty(f.formation);
+    r.pick.forEach((x, i) => { const c = cards.get(x.spid); sq.slots[i] = { spid: c.spid, grade: x.g, pay: c.pay, name: c.name, season: c.season, pos: { ...c.pos }, bp: c.bp.slice(0, 13) }; });
+    const t = sqTotals(sq, o.cap);
+    const rows = h('ol', { class: 'sq-res' }, r.pick.map((x, i) => {
+      const c = cards.get(x.spid);
+      return h('li', { class: 'sq-res-row' },
+        h('span', { class: `pos pos-${sqLine(lay[i].group)}` }, lay[i].role),
+        faceEl(c.spid, 'pf-xs'),
+        h('span', { class: 'pl-name' }, seasonEl(c.spid), h('a', { class: 'pl-nm', href: sqInfoUrl(c.spid, x.g), target: '_blank', rel: 'noopener noreferrer' }, c.name)),
+        h('span', { class: 'sq-res-nums' }, h('span', null, `+${x.g}`), h('b', null, `OVR ${x.ovr}`), h('span', null, `급여 ${x.pay}`), h('span', null, fmtBP(x.price))),
+        h('span', { class: 'sq-res-tags' }, x.col ? h('span', { class: 'ga' }, '팀컬러') : null, c.rk && c.rk[lay[i].group] ? h('span', { class: 'ga sq-rk' }, `랭커 ${c.rk[lay[i].group]}%`) : null));
+    }));
+    out.replaceChildren(...sqKids(
+      h('h2', { class: 'sq-h' }, '편성 결과'),
+      sqSummary(t),
+      h('p', { class: 'hint' }, [
+        o.budget ? `예산 ${fmtBP(o.budget)} 중 ${fmtBP(r.total.price)} 사용` : `제한 없이 ${fmtBP(r.total.price)} 사용`,
+        o.tcId ? `팀컬러 ${r.total.col}명` : '',
+        r.proven && !r.thinned ? '불러온 후보 안에서는 가장 좋은 조합이에요' : r.proven ? '자리마다 후보를 추린 뒤 찾은 가장 좋은 조합이에요' : '시간 안에서 찾은 가장 좋은 조합이에요',
+        `후보 ${cards.size}명 · 계산 ${(r.ms / 1000).toFixed(1)}초`,
+      ].filter(Boolean).join(' · ')),
+      sqPitch(sq, {}), rows,
+      h('div', { class: 'sq-find-row' },
+        h('button', { type: 'button', class: 'btn btn-primary', onclick: () => { if (!sqConfirmReplace()) return; state.sq = { ...sq, name: '', id: null, shared: false }; sqSaveDraft(); state.sqUi = null; go('#/squad'); } }, '스쿼드 메이커에서 열기'),
+        o.full && o.page < 3 ? h('button', { type: 'button', class: 'btn btn-ghost', onclick: () => run(true) }, '후보 더 불러와서 다시') : null)));
+  }
+  show([head(), formBox, out, state.me && state.me.is_admin ? sqUsageBox() : null, sqSource()]);
+  drawForm();
+}
+/* 관리자만: Claude 한 줄 요청 사용량(서버가 하루별로 센 횟수·토큰과 어림 금액). 정확한 청구는 Anthropic Console */
+function sqUsageBox() {
+  const box = h('section', { class: 'sq-usage', 'aria-label': 'Claude 사용량' }, h('h2', { class: 'sq-h' }, 'Claude 사용량 (관리자에게만 보여요)'), loadingEl('불러오는 중이에요.'));
+  const tok = (n) => n.toLocaleString('ko-KR');
+  const money = (v) => `약 $${v < 0.01 && v > 0 ? v.toFixed(4) : v.toFixed(2)}`;
+  const ymText = (ym) => `${ym.slice(0, 4)}.${ym.slice(4)}`;
+  api('/api/squad/ai/usage').then((u) => {
+    const row = (label, t) => h('div', { class: 'sq-us-row' }, h('span', null, label),
+      h('b', null, `${t.calls}번`), h('span', { class: 'muted' }, `입력 ${tok(t.input)} · 출력 ${tok(t.output)} 토큰`), h('b', null, money(t.usd)));
+    const recent = u.days.slice(0, 7);
+    box.replaceChildren(...sqKids(
+      h('h2', { class: 'sq-h' }, 'Claude 사용량 (관리자에게만 보여요)'),
+      u.key ? null : h('p', { class: 'alert' }, 'Claude 키(ANTHROPIC_API_KEY)가 아직 등록되지 않아서 한 줄 요청 칸이 숨겨져 있어요.'),
+      h('div', { class: 'sq-us' }, row('오늘', u.today), row(`이번 달(${ymText(u.month.ym)})`, u.month), row(`지난달(${ymText(u.prev_month.ym)})`, u.prev_month)),
+      recent.length ? h('details', { class: 'sq-us-days' }, h('summary', null, '최근 하루별'),
+        h('ol', null, recent.map((d) => h('li', null, `${d.date.slice(4, 6)}.${d.date.slice(6)} · ${d.calls}번(성공 ${d.ok}) · 입력 ${tok(d.input)} · 출력 ${tok(d.output)} · ${money(d.usd)}`)))) : null,
+      h('p', { class: 'hint' }, `${u.model} 표준 요금(1백만 토큰당 입력 $${u.price_per_mtok.input}, 출력 $${u.price_per_mtok.output})으로 어림한 값이에요. 실제 청구 금액은 Anthropic Console의 Usage·Cost 화면이 정확해요. 한도: 한 사람 하루 ${u.limits.member_day}번, 클럽 전체 하루 ${u.limits.club_day}번.`)));
+  }).catch((e) => { if (!e.handled) box.replaceChildren(...sqKids(h('h2', { class: 'sq-h' }, 'Claude 사용량'), h('p', { class: 'hint' }, sqErrText(e)))); });
+  return box;
+}
+
+/* ---------- 저장·공유 ---------- */
+async function renderSquadSaved(seq) {
+  setTitle('저장한 스쿼드');
+  const head = () => [tabs(SQUAD_TAB), squadNav('saved'), h('p', { class: 'idx' }, 'SAVED SQUADS'), h('h1', { class: 'h1', tabindex: '-1' }, '저장·공유'),
+    h('p', { class: 'desc' }, '내가 저장한 스쿼드와 클럽원이 공유한 스쿼드예요. 열면 스쿼드 메이커로 불러와요.')];
+  show([head(), loadingEl()]);
+  let d, meta;
+  try { [d, meta] = await Promise.all([api('/api/squads'), sqMeta()]); } catch (e) {
+    if (e.handled || stale(seq)) return;
+    return show([head(), errorBox({ code: e.code }, () => renderSquadSaved(++state.seq))]);
+  }
+  if (stale(seq)) return;
+  const cap = meta.salary_cap || 315;
+  const open = (s, mine) => {
+    if (!sqConfirmReplace()) return;
+    const data = s.data || {};
+    /* 복사본 이름은 30자 안으로 */
+    state.sq = { formation: s.formation, slots: (data.slots || []).slice(0, 11), bench: [...(data.bench || []), ...Array(7).fill(null)].slice(0, 7), name: mine ? s.name : `${[...s.name].slice(0, 25).join('').trimEnd()} (복사)`, id: mine ? s.id : null, shared: mine ? s.shared : false };
+    while (state.sq.slots.length < 11) state.sq.slots.push(null);
+    sqSaveDraft(); state.sqUi = null; go('#/squad');
+  };
+  const item = (s, mine) => {
+    const sq = { formation: s.formation, slots: (s.data && s.data.slots) || [], bench: (s.data && s.data.bench) || [] };
+    while (sq.slots.length < 11) sq.slots.push(null);
+    const t = sqTotals(sq, cap);
+    return h('li', { class: 'sq-saved' },
+      h('div', { class: 'sq-saved-main' },
+        h('div', { class: 'pl-name' }, h('span', { class: 'pl-nm' }, s.name), s.shared && mine ? badge('공유 중', 'pub') : null),
+        h('div', { class: 'pl-st' }, `${s.formation} · 평균 OVR ${t.avg ? t.avg.toFixed(1) : '-'} · 급여 ${t.pay}/${cap} · ${fmtBP(t.price)} BP`),
+        h('div', { class: 'pl-st muted' }, mine ? `${fmtShort(s.updated_at)} 저장` : `${s.owner || '클럽원'} · ${fmtShort(s.updated_at)}`)),
+      h('div', { class: 'sq-saved-tools' },
+        h('button', { type: 'button', class: 'btn btn-ghost', onclick: () => open(s, mine) }, mine ? '열기' : '복사해서 열기'),
+        mine || (state.me && state.me.is_staff) ? h('button', { type: 'button', class: 'btn btn-text danger', onclick: async () => {
+          if (!confirm(`'${s.name}' 스쿼드를 지울까요?`)) return;
+          try { await api(`/api/squads/${s.id}`, { method: 'DELETE' }); toast('지웠어요.'); if (state.sq && state.sq.id === s.id) { state.sq.id = null; sqSaveDraft(); } if (location.hash === '#/squad/saved') renderSquadSaved(++state.seq); } catch (e) { if (!e.handled) toast(sqErrText(e)); }
+        } }, '지우기') : null));
+  };
+  show([head(),
+    h('h2', { class: 'sq-h' }, `내 스쿼드 ${d.mine.length}/${d.max}`),
+    d.mine.length ? h('ol', { class: 'sq-saved-list' }, d.mine.map((s) => item(s, true))) : h('p', { class: 'empty' }, '아직 저장한 스쿼드가 없어요. 스쿼드 메이커에서 저장해 보세요.'),
+    h('h2', { class: 'sq-h' }, '클럽원 공유 스쿼드'),
+    d.shared.length ? h('ol', { class: 'sq-saved-list' }, d.shared.map((s) => item(s, false))) : h('p', { class: 'empty' }, '아직 공유된 스쿼드가 없어요.'),
+    sqSource()]);
+}
+
 /* ---------- 해외축구(#/football) ----------
    1) 같이 보기: 운영진이 올린 공식 퍼가기 영상(YouTube·Twitch·치지직 클립·SOOP). 서버(/api/football/video)가 주소를
       (provider, kind, id, start)로 나눠 검사해 주고, 화면은 그 조각으로만 플레이어 주소를 만든다(붙여 넣은 주소를 그대로 넣지 않음).
@@ -5060,6 +5994,8 @@ $('logoutBtn').addEventListener('click', async () => {
   clearToken();
   state.me = null;
   state.loginError = null;
+  state.sq = null; state.sqUi = null; state.sqAuto = null; state.sqRank = null;
+  try { localStorage.removeItem(SQ_DRAFT_KEY); } catch (e) {}
   renderWho();
   history.replaceState(null, '', location.pathname + location.search + '#/');
   route();
