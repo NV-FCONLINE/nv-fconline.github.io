@@ -1424,7 +1424,7 @@
   .sq-rk { color: #ffd59a; }
   .sq-pnum { display: grid; justify-items: end; gap: 1px; font-size: 12px; color: var(--ink-dim); font-variant-numeric: tabular-nums; white-space: nowrap; }
   .sq-pnum b { font-size: 18px; line-height: 1.15; color: var(--ink-hi); }
-  .sq-pnum b.off { color: var(--ink-dim); }
+  .sq-pnum b.off { color: var(--ink-dim); opacity: .55; }
   .sq-more { width: 100%; margin: 10px 0 0; }
   .sq-usage { margin: 30px 0 0; padding: 14px; box-shadow: inset 0 0 0 1px var(--rule); background: rgba(255, 255, 255, 0.02); }
   .sq-usage .sq-h { margin-top: 0; }
@@ -1549,6 +1549,15 @@
   .sq-bench { --w: 58px; list-style: none; margin: 0; padding: 2px 0 6px; display: grid; grid-auto-flow: column; grid-auto-columns: minmax(64px, 1fr); gap: 4px; overflow-x: auto; scrollbar-width: thin; }
   .sq-bspot { display: grid; justify-items: center; width: 100%; padding: 4px 0; border: 1px solid transparent; border-radius: 6px; background: none; color: var(--ink-hi); font: inherit; cursor: pointer; }
   .sq-bspot.on { border-color: rgba(230, 74, 88, .75); background: rgba(160, 7, 30, .14); }
+  /* 끌어서 옮기기: 길게 눌러도 메뉴·글자 선택이 뜨지 않게, 끄는 카드는 흐리게, 놓을 자리는 테두리 */
+  .sq-spot, .sq-bspot { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; touch-action: manipulation; }
+  .sq-spot img, .sq-bspot img { -webkit-user-drag: none; }
+  .sq-spot.sq-dragging, .sq-bspot.sq-dragging { opacity: .3; }
+  .sq-spot.sq-drop .sq-card { filter: drop-shadow(0 0 0 #fff) drop-shadow(0 0 8px rgba(68, 160, 192, .95)); transform: scale(1.06); }
+  .sq-bspot.sq-drop { border-color: var(--sky); background: rgba(68, 160, 192, .14); }
+  .sq-ghost { position: fixed !important; left: 0; top: 0; z-index: 1000; margin: 0; pointer-events: none; will-change: transform; filter: drop-shadow(0 10px 18px rgba(0, 0, 0, .7)); }
+  html.sq-drag-on, html.sq-drag-on * { cursor: grabbing !important; -webkit-user-select: none !important; user-select: none !important; }
+  .sq-draghint { margin: 0 0 8px; font-size: 12.5px; }
   .sq-bspot:focus-visible { outline: 2px solid var(--sky); outline-offset: -2px; }
   .sq-bnm { max-width: 64px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; font-weight: 600; margin-top: -2px; }
   .sq-bspot.none .sq-bnm { color: var(--ink-dim); }
@@ -1573,7 +1582,13 @@
   .sq-sum6 li i { position: absolute; left: 0; bottom: 0; height: 3px; border-radius: 2px; background: linear-gradient(90deg, var(--red-top), var(--red-bot)); }
   .sq-sum6 li::before { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 3px; border-radius: 2px; background: rgba(216, 216, 214, .1); }
   .sq-sum6 b, .sq-stats b { font-size: 15px; font-variant-numeric: tabular-nums; }
-  .v130 { color: #ff7a8a; } .v120 { color: #ffb3ba; } .v110 { color: var(--ink-hi); } .v90 { color: var(--ink-mid); } .v0 { color: var(--ink-dim); }
+  /* 능력치 색: FC온라인 공식 데이터센터(fo4_ssl.css의 .overN, 10 단위) 그대로.
+     60·70만 공식 색(#606972·#1f2d37)이 흰 바탕용이라 검은 바탕에서 안 보여 회색으로 밝혔다 */
+  .ov0, .ov10, .ov20, .ov30, .ov40, .ov50, .ov60 { --ov: #8f96a0; }
+  .ov70 { --ov: #9aa3ad; } .ov80 { --ov: #2194d6; } .ov90 { --ov: #175dde; } .ov100 { --ov: #6e3bff; } .ov110 { --ov: #b33bff; }
+  .ov120 { --ov: #cf13c0; } .ov130 { --ov: #dc0000; } .ov140 { --ov: #c99b00; } .ov150 { --ov: #ffa800; } .ov160 { --ov: #11caaa; } .ov170 { --ov: #01d549; }
+  .sq-stats b[class^="ov"], .sq-sum6 b[class^="ov"], .sq-pnum b[class^="ov"] { color: var(--ov); }
+  .sq-sum6 li i[class^="ov"] { background: var(--ov); }
   .sq-allst, .sq-clubs { margin: 10px 0 0; font-size: 13.5px; }
   .sq-allst summary, .sq-clubs summary { cursor: pointer; min-height: 36px; display: flex; align-items: center; color: var(--ink-mid); font-weight: 600; }
   .sq-stats { list-style: none; margin: 4px 0 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 0 14px; }
@@ -4656,7 +4671,7 @@ function sqPitch(sq, opts) {
     const inner = p
       ? [sqCardEl(p, s.group, 'pt'),
         h('span', { class: 'sq-nm' }, h('span', { class: 'pl-nm' }, p.name.split(' ').pop())),
-        tr.length ? h('span', { class: 'sq-trs' }, tr.map(sqTraitIcon)) : null]
+        tr.length ? h('span', { class: 'sq-trs', 'data-k': tr.map((t) => t.icon).join(',') }, tr.map(sqTraitIcon)) : null]
       : [h('span', { class: 'sq-card sq-card-pt sq-card-empty' }, h('span', null, '+')), h('span', { class: `sq-role pos-${sqLine(s.group)}` }, s.role)];
     const el = opts.onPick
       ? h('button', { type: 'button', class: `sq-spot${sel ? ' on' : ''}${p ? '' : ' none'}`, 'data-fk': `spot-slot-${i}`, 'aria-pressed': sel ? 'true' : 'false', 'aria-label': label, onclick: () => opts.onPick('slot', i) }, inner)
@@ -4734,7 +4749,8 @@ function sqTeamColorBox(sq, meta) {
     h('p', { class: 'hint' }, '소속은 선수의 클럽 경력, 국가는 국적으로 셌어요. 단계별로 오르는 능력치는 팀컬러마다 달라 데이터센터 팀컬러에서 확인해 주세요.'));
 }
 /* 선수 상세: 큰 카드 + 강화 13칸 + 특성 + 능력치 + 정보 + 클럽 경력 */
-const sqStatCls = (v) => (v >= 130 ? 'v130' : v >= 120 ? 'v120' : v >= 110 ? 'v110' : v >= 90 ? 'v90' : 'v0');
+/* 능력치 색 칸: 공식 데이터센터처럼 10 단위(ov0~ov170, 170 이상은 ov170). 색은 CSS '능력치 색' */
+const sqStatCls = (v) => `ov${Math.max(0, Math.min(170, Math.floor(v / 10) * 10))}`;
 function sqGradeTiles(cur, bp, onPick) {
   return h('div', { class: 'sq-gtiles', role: 'group', 'aria-label': '강화 단계' },
     Array.from({ length: 13 }, (_, i) => {
@@ -4755,7 +4771,7 @@ function sqDetailBody(p, d, meta, ui, err, retry) {
   const stat = ([k, l]) => { const v = isNum(d.stats[k]) ? d.stats[k] + b : null; return h('li', { class: 'sq-st' }, h('span', null, l), h('b', { class: v != null ? sqStatCls(v) : '' }, v != null ? String(v) : '-')); };
   return h('div', { class: 'sq-dt' },
     traits.length ? h('ul', { class: 'sq-traits', 'aria-label': '특성' }, traits.map((t) => h('li', { class: newT.has(t.name) ? 'new' : '' }, sqTraitIcon(t), h('span', null, t.name), newT.has(t.name) ? h('em', null, '새 특성') : null))) : h('p', { class: 'hint' }, '특성 없음'),
-    h('ul', { class: 'sq-sum6' }, (Array.isArray(d.summary) ? d.summary : []).map(([l, raw]) => { const v = isNum(raw) ? raw + b : null; return h('li', null, h('span', null, l), h('b', { class: v != null ? sqStatCls(v) : '' }, v != null ? String(v) : '-'), h('i', { style: `width:${v != null ? Math.max(4, Math.min(100, ((v - 40) / 110) * 100)) : 0}%` })); })),
+    h('ul', { class: 'sq-sum6' }, (Array.isArray(d.summary) ? d.summary : []).map(([l, raw]) => { const v = isNum(raw) ? raw + b : null; return h('li', null, h('span', null, l), h('b', { class: v != null ? sqStatCls(v) : '' }, v != null ? String(v) : '-'), h('i', { class: v != null ? sqStatCls(v) : null, style: `width:${v != null ? Math.max(4, Math.min(100, ((v - 40) / 130) * 100)) : 0}%` })); })),
     h('details', { class: 'sq-allst', open: ui && ui.openAll ? true : null, ontoggle: (e) => { if (ui) ui.openAll = e.currentTarget.open; } }, h('summary', null, `능력치 34개 (${p.grade}강 기준)`),
       h('ul', { class: 'sq-stats' }, (meta.abilities || []).map(([k]) => stat([k, labels.get(k) || k])))),
     facts.length ? h('p', { class: 'sq-facts' }, facts.join(' · ')) : null,
@@ -4842,7 +4858,9 @@ async function renderSquad(seq) {
       const old = btn.querySelector('.sq-trs');
       const d = view.traits ? sqDetailNow(p.spid) : null;
       const tr = d ? (d.traits || []).filter((t) => newT.has(t.name)).slice(0, 3) : [];
-      const neu = tr.length ? h('span', { class: 'sq-trs' }, tr.map(sqTraitIcon)) : null;
+      const k = tr.map((t) => t.icon).join(',');
+      if (old && old.dataset.k === k) return; /* 그대로면 두기(누르고 있는 아이콘이 빠지지 않게) */
+      const neu = tr.length ? h('span', { class: 'sq-trs', 'data-k': k }, tr.map(sqTraitIcon)) : null;
       if (old && neu) old.replaceWith(neu); else if (old) old.remove(); else if (neu) btn.append(neu);
     });
     tcWrap.replaceChildren(sqTeamColorBox(sq, meta));
@@ -4863,6 +4881,185 @@ async function renderSquad(seq) {
     draw();
     if (!SQ_TWO_COL.matches) side.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
+  /* 끌어서 자리 옮기기: 선발↔선발, 선발↔벤치, 벤치↔벤치, 빈 자리로도. 놓은 자리와 맞바꾼다.
+     마우스는 6px 넘게 움직이면 시작(Esc·창 바꾸기로 취소). 손가락(터치 이벤트가 오는 펜 포함)은 0.4초 누르고 있으면 시작하고,
+     그 전에 10px 넘게 움직이면 스크롤로 보고 그만둔다. 0.4초 눌렀다가 그대로 떼면 그냥 누르기(자리 고르기).
+     손가락 이벤트는 처음 누른 요소에 건다(그 요소가 다시 그려져 화면에서 빠져도 끝까지 받는다). 끈 뒤에 따라오는 click은 막는다.
+     키보드로는 '자리 옮기기' 단추 */
+  const spotOf = (el) => {
+    const b = el && el.closest ? el.closest('[data-fk^="spot-"]') : null;
+    if (!b || !box.contains(b)) return null;
+    const m = b.dataset.fk.match(/^spot-(slot|bench)-(\d+)$/);
+    return m ? { el: b, side: m[1], idx: Number(m[2]) } : null;
+  };
+  const arrOf = (sd) => (sd === 'slot' ? sq.slots : sq.bench);
+  let drag = null, eatClick = false, scrollRaf = 0;
+  /* 바로 뒤따르는 click 하나만 막는다(click은 pointerup과 같은 차례에 오므로 다음 차례에 푼다) */
+  const eatNextClick = () => { eatClick = true; setTimeout(() => { eatClick = false; }, 0); };
+  /* 화면 위·아래 끝 60px, 벤치 줄(폰에서 옆으로 넘칠 때)의 양 끝 30px 안에 머무는 동안 계속 스크롤 */
+  function edgeDelta(x, y) {
+    const dy = y < 60 ? -10 : y > window.innerHeight - 60 ? 10 : 0;
+    const bl = benchWrap.querySelector('.sq-bench');
+    let dx = 0;
+    if (bl && bl.scrollWidth > bl.clientWidth) {
+      const r = bl.getBoundingClientRect();
+      if (y >= r.top && y <= r.bottom) dx = x < r.left + 30 ? -8 : x > r.right - 30 ? 8 : 0;
+    }
+    return { dx, dy, bl };
+  }
+  function edgeScroll() {
+    scrollRaf = 0;
+    if (!drag || !drag.started || !drag.moved) return;
+    const { dx, dy, bl } = edgeDelta(drag.lastX, drag.lastY);
+    if (!dx && !dy) return;
+    if (dy) window.scrollBy(0, dy);
+    if (dx) bl.scrollLeft += dx;
+    dragMove(drag.lastX, drag.lastY);
+    if (!scrollRaf) scrollRaf = requestAnimationFrame(edgeScroll);
+  }
+  function dragStart(x, y) {
+    const card = drag.from.el.querySelector('.sq-card');
+    const r = (card || drag.from.el).getBoundingClientRect();
+    const ghost = card ? card.cloneNode(true) : h('span', { class: 'sq-card' });
+    ghost.classList.add('sq-ghost');
+    ghost.setAttribute('aria-hidden', 'true');
+    ghost.style.setProperty('--w', `${r.width}px`);
+    document.body.append(ghost);
+    /* 마우스는 이미 움직여서 시작, 손가락은 길게 누른 자리에서 시작하므로 10px 움직인 뒤부터 '움직임'으로 본다(자동 스크롤도 그때부터) */
+    Object.assign(drag, { ghost, w: r.width, h: r.height, started: true, moved: !drag.touch });
+    drag.from.el.classList.add('sq-dragging');
+    document.documentElement.classList.add('sq-drag-on');
+    dragMove(x, y);
+  }
+  function dragMove(x, y) {
+    drag.ghost.style.transform = `translate(${Math.round(x - drag.w / 2)}px, ${Math.round(y - drag.h * 0.55)}px)`;
+    const t = spotOf(document.elementFromPoint(x, y));
+    const to = t && !(t.side === drag.from.side && t.idx === drag.from.idx) ? t : null;
+    if (drag.over && (!to || drag.over !== to.el)) drag.over.classList.remove('sq-drop');
+    drag.over = to ? to.el : null;
+    drag.to = to;
+    if (drag.over) drag.over.classList.add('sq-drop');
+    drag.lastX = x; drag.lastY = y;
+    if (!drag.moved && Math.hypot(x - drag.x0, y - drag.y0) > 10) drag.moved = true;
+    if (!scrollRaf && drag.moved) { const ed = edgeDelta(x, y); if (ed.dx || ed.dy) scrollRaf = requestAnimationFrame(edgeScroll); }
+  }
+  function dragEnd(drop) {
+    const d = drag;
+    drag = null;
+    if (!d) return;
+    clearTimeout(d.timer);
+    stopPointer(); stopTouch(d);
+    if (scrollRaf) { cancelAnimationFrame(scrollRaf); scrollRaf = 0; }
+    if (!d.started) return;
+    eatNextClick();
+    d.ghost.remove();
+    d.from.el.classList.remove('sq-dragging');
+    if (d.over) d.over.classList.remove('sq-drop');
+    document.documentElement.classList.remove('sq-drag-on');
+    if (!box.isConnected) return; /* 끄는 사이 다른 화면으로 넘어갔으면 아무것도 바꾸지 않는다 */
+    if (drop && d.to) {
+      const A = arrOf(d.from.side), B = arrOf(d.to.side);
+      const tmp = A[d.from.idx]; A[d.from.idx] = B[d.to.idx]; B[d.to.idx] = tmp;
+      ui.sel = { side: d.to.side, idx: d.to.idx };
+      ui.moving = null;
+      if (document.activeElement === d.from.el) d.to.el.focus({ preventScroll: true }); /* 키보드 초점도 놓은 자리로 */
+      changed();
+    } else if (drop && d.touch && !d.moved) {
+      pick(d.from.side, d.from.idx); /* 길게 눌렀다가 그대로 뗀 손가락 = 누르기 */
+    }
+  }
+  const onPMove = (e) => {
+    if (!drag || e.pointerId !== drag.pid) return;
+    if (!(e.buttons & 1)) { dragEnd(false); return; } /* 버튼을 뗀 것을 놓쳤을 때(Alt+Tab, 메뉴 등) */
+    if (!drag.started) {
+      if (Math.hypot(e.clientX - drag.x0, e.clientY - drag.y0) < 6) return;
+      dragStart(e.clientX, e.clientY);
+    } else dragMove(e.clientX, e.clientY);
+    e.preventDefault();
+  };
+  const onPUp = (e) => { if (drag && e.pointerId === drag.pid) dragEnd(true); };
+  const onPCancel = (e) => { if (drag && e.pointerId === drag.pid) dragEnd(false); };
+  const onBlur = () => { if (drag && !drag.touch) dragEnd(false); };
+  const onKey = (e) => {
+    if (e.key !== 'Escape' || !drag) return;
+    e.preventDefault();
+    const { pid, started, touch } = drag;
+    dragEnd(false);
+    if (!started || touch) return;
+    /* Esc로 그만둔 뒤 같은 카드 위에서 버튼을 떼도 click이 고르기·옮기기로 이어지지 않게 그 pointerup까지 막는다 */
+    const done = (ev) => {
+      if (ev.pointerId !== pid) return;
+      document.removeEventListener('pointerup', done);
+      document.removeEventListener('pointercancel', done);
+      if (ev.type === 'pointerup') eatNextClick();
+    };
+    document.addEventListener('pointerup', done);
+    document.addEventListener('pointercancel', done);
+  };
+  function stopPointer() {
+    document.removeEventListener('pointermove', onPMove);
+    document.removeEventListener('pointerup', onPUp);
+    document.removeEventListener('pointercancel', onPCancel);
+    document.removeEventListener('keydown', onKey);
+    window.removeEventListener('blur', onBlur);
+  }
+  /* 끄기 시작한 손가락만 본다(다른 손가락이 닿거나 떨어져도 놓지 않게) */
+  const ownTouch = (list) => { if (!drag) return null; for (const t of list) if (t.identifier === drag.tid) return t; return null; };
+  const onTMove = (e) => {
+    if (!drag || !drag.touch) return;
+    const t = ownTouch(e.changedTouches) || ownTouch(e.touches);
+    if (!t) return;
+    drag.x = t.clientX; drag.y = t.clientY;
+    if (!drag.started) {
+      if (Math.hypot(drag.x - drag.x0, drag.y - drag.y0) > 10) dragEnd(false); /* 스크롤하려는 손가락 */
+      return;
+    }
+    e.preventDefault(); /* 끄는 동안은 화면이 스크롤되지 않게 */
+    dragMove(drag.x, drag.y);
+  };
+  const onTEnd = (e) => { if (!drag || !drag.touch || !ownTouch(e.changedTouches)) return; if (drag.started) e.preventDefault(); dragEnd(true); };
+  const onTCancel = (e) => { if (drag && drag.touch && ownTouch(e.changedTouches)) dragEnd(false); };
+  function stopTouch(d) {
+    const tg = d && d.tgt;
+    if (!tg) return;
+    tg.removeEventListener('touchmove', onTMove, { passive: false });
+    tg.removeEventListener('touchend', onTEnd);
+    tg.removeEventListener('touchcancel', onTCancel);
+  }
+  box.addEventListener('pointerdown', (e) => {
+    if (e.pointerType === 'touch' || e.button !== 0 || drag) return;
+    const from = spotOf(e.target);
+    if (!from || !arrOf(from.side)[from.idx]) return;
+    drag = { from, x0: e.clientX, y0: e.clientY, pid: e.pointerId, started: false };
+    document.addEventListener('pointermove', onPMove);
+    document.addEventListener('pointerup', onPUp);
+    document.addEventListener('pointercancel', onPCancel);
+    document.addEventListener('keydown', onKey);
+    window.addEventListener('blur', onBlur);
+  });
+  box.addEventListener('touchstart', (e) => {
+    if (drag && !drag.touch && !drag.started) dragEnd(false); /* 펜도 터치 이벤트가 오면(iPad·안드로이드) 손가락처럼 길게 눌러 끈다 */
+    if (e.touches.length !== 1) { if (drag && drag.touch && !drag.started) dragEnd(false); return; } /* 두 손가락(확대 등) */
+    if (drag) dragEnd(false); /* 끝을 놓친 이전 끌기가 남아 있으면 정리 */
+    const from = spotOf(e.target);
+    if (!from || !arrOf(from.side)[from.idx]) return;
+    const t = e.touches[0];
+    drag = { from, tid: t.identifier, tgt: e.target, x0: t.clientX, y0: t.clientY, x: t.clientX, y: t.clientY, touch: true, started: false, moved: false };
+    drag.timer = setTimeout(() => {
+      if (!drag || drag.started || !drag.touch) return;
+      if (navigator.vibrate) { try { navigator.vibrate(15); } catch (err) {} }
+      dragStart(drag.x, drag.y);
+    }, 400);
+    e.target.addEventListener('touchmove', onTMove, { passive: false });
+    e.target.addEventListener('touchend', onTEnd);
+    e.target.addEventListener('touchcancel', onTCancel);
+  }, { passive: true });
+  /* iOS 사파리: 손가락이 닿는 순간 이미 '막을 수 있는' touchmove가 있어야 끄는 동안 스크롤을 막을 수 있다(나중에 붙인 것은 무시됨) */
+  box.addEventListener('touchmove', () => {}, { passive: false });
+  /* 끈 직후의 click, 그림 기본 끌기, 길게 누를 때 나오는 메뉴는 막는다 */
+  box.addEventListener('click', (e) => { if (eatClick && spotOf(e.target)) { e.preventDefault(); e.stopPropagation(); eatClick = false; } }, true);
+  box.addEventListener('dragstart', (e) => { if (spotOf(e.target)) e.preventDefault(); });
+  box.addEventListener('contextmenu', (e) => { if (drag || spotOf(e.target)) e.preventDefault(); });
   function selGroup() {
     if (ui.sel.side === 'slot') return sqLayout(sq.formation)[ui.sel.idx].group;
     const p = sq.bench[ui.sel.idx];
@@ -4885,6 +5082,7 @@ async function renderSquad(seq) {
       h('div', { class: 'sq-bar' }, formSel,
         h('div', { class: 'sq-togs', role: 'group', 'aria-label': '보기' }, tog('bg', '카드 배경'), tog('traits', '새 특성')),
         h('button', { type: 'button', class: 'btn btn-text', 'data-fk': 'clear', onclick: () => { if (confirm('스쿼드를 모두 비울까요?')) { const f = sq.formation; Object.assign(sq, sqEmpty(f)); ui.sel = { side: 'slot', idx: 0 }; changed(); } } }, '모두 비우기')),
+      h('p', { class: 'hint sq-draghint' }, '카드를 끌어 다른 자리·벤치로 옮길 수 있어요. 폰은 카드를 잠깐 누른 뒤 끌어요.'),
       sqSummary(t), sqWarnings(t),
       ui.moving ? h('p', { class: 'info sq-moving' }, '옮길 자리(선발 또는 벤치)를 누르세요. ', h('button', { type: 'button', class: 'btn-text', 'data-fk': 'stopmove', onclick: () => { ui.moving = null; draw(); } }, '그만두기')) : null));
   }
@@ -5010,7 +5208,7 @@ async function renderSquad(seq) {
               Object.entries(r.pos).map(([pg, v]) => h('span', { class: `pos pos-${sqLine(pg)}${pg === g ? '' : ' sq-dim'}` }, `${pg} ${v + (SQ_BONUS[ui.grade] || 0)}`)),
               rk && ui.mode !== 'ranker' ? h('span', { class: 'ga sq-rk' }, `랭커 ${Object.entries(rk).map(([kg, s]) => `${kg} ${s}%`).join(' · ')}`) : null,
               isNum(r.rkCount) ? h('span', { class: 'ga sq-rk' }, `랭커 ${r.rkCount}명 사용(${r.rkShare}%)`) : null)),
-          h('span', { class: 'sq-pnum' }, h('b', { class: x.fit ? '' : 'off' }, String(x.o)), h('span', null, sqGradeEl(ui.grade), ` 급여 ${r.pay}`), h('span', null, x.pr != null ? fmtBP(x.pr) : '시세 없음')))));
+          h('span', { class: 'sq-pnum' }, h('b', { class: x.fit ? sqStatCls(x.o) : 'off' }, String(x.o)), h('span', null, sqGradeEl(ui.grade), ` 급여 ${r.pay}`), h('span', null, x.pr != null ? fmtBP(x.pr) : '시세 없음')))));
       }
       const note = ui.mode === 'ranker'
         ? h('p', { class: 'hint sq-note' }, info && (info.dates && info.dates[g] || info.date) ? `공식 경기 1vs1 랭커(1~10,000위)가 ${(info.dates && info.dates[g]) || info.date}에 ${g} 자리에서 많이 쓴 선수 ${rows.length}명이에요.` : '랭커 픽 자료가 아직 없어요.',
