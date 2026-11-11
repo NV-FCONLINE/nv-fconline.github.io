@@ -1512,6 +1512,15 @@
   .sq-or-word { font-size: 12.5px; color: var(--sky); font-weight: 700; }
   .sq-or-add, .sq-or-del { padding-left: 4px; padding-right: 4px; }
   .sq-or-note { margin: 2px 0 0; }
+  .sq-ftr { display: grid; gap: 6px; }
+  .sq-ftr-row { display: grid; grid-template-columns: max-content minmax(0, 1fr) auto; gap: 6px; align-items: center; }
+  .sq-ftr-row > .input { width: 100%; min-width: 0; padding-left: 10px; }
+  .sq-ftr-add { justify-self: start; padding-left: 0; }
+  .sq-ftr-note { margin: 0; }
+  @media (max-width: 400px) {
+    .sq-ftr-row { grid-template-columns: minmax(0, 1fr) auto; }
+    .sq-ftr-row > [data-fk^="ftr-key-"] { grid-column: 1 / -1; grid-row: 2; }
+  }
   .sq-out { margin: 26px 0 0; scroll-margin-top: 12px; }
   .sq-out .pitch { margin: 14px auto; }
   .sq-res { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--rule); }
@@ -5156,6 +5165,8 @@ async function renderSquad(seq) {
   function draw(o) { keepFocus(() => { drawTop(); drawPitch(); drawSave(); drawCur(); if (!o || o.find !== false) drawFind(); }); fetchDetails(); }
   /* 선수 정보가 도착하면: 경기장·벤치·팀컬러, 고른 선수면 상세 */
   let refreshTimer = 0;
+  /* 선수 찾기 차례: 새 목록(다른 자리·모드)이 그려지거나 화면을 떠나면 이전 검색은 남은 조합을 읽지 않고 멈춘다 */
+  let findTok = 0;
   const refreshFor = new Set();
   function onDetail(spid) {
     refreshFor.add(spid);
@@ -5466,37 +5477,100 @@ async function renderSquad(seq) {
       [['ovr', 'OVR 높은 순'], ['pay', '급여 낮은 순'], ['price', '시세 낮은 순'], ['value', 'OVR 대비 급여']].map(([v, l]) => h('option', { value: v, selected: ui.sort === v ? true : null }, l)));
     const listBox = h('div', { class: 'sq-list-box', tabindex: '-1' });
     const keepListFocus = () => { if (listBox.contains(document.activeElement)) listBox.focus({ preventScroll: true }); };
+    /* 특성 조건: 줄마다 있음(그중 하나만 있어도 되는 '또는' 포함)·없음. 데이터센터는 특성을 '모두 있음'으로만 찾아서 '또는'은 조합마다 따로 찾아 합친다.
+       자리를 고를 때마다 같은 조건으로 다시 찾으므로 조합은 4가지까지 */
+    if (!Array.isArray(ui.traits)) ui.traits = [];
+    if (!Array.isArray(ui.trDraft)) ui.trDraft = ui.traits.map((c) => ({ ...c, or: [...(c.or || [])] }));
+    const trBox = h('div', { class: 'sq-ftr' });
+    const trNote = h('p', { class: 'hint sq-ftr-note', 'aria-live': 'polite' });
+    const findParams = (g) => { const b = ui.name ? { name: ui.name } : { g }; if (ui.pay) b.pay = ui.pay; return b; };
+    function updTrNote() {
+      const d = ui.trDraft;
+      const applied = JSON.stringify(d) === JSON.stringify(ui.traits);
+      if (!d.length) {
+        trNote.hidden = applied;
+        trNote.textContent = applied ? '' : "'찾기'를 누르면 특성 조건이 풀려요.";
+        return;
+      }
+      trNote.hidden = false;
+      let text;
+      try {
+        const qs = sqCondQueries(d, '선수 찾기', SQ_FIND_COMBO_MAX);
+        const g = ui.sel.side === 'bench' ? (ui.groupOverride || group) : group;
+        const fresh = sqFreshCount(qs.map((q, i) => ({ k: String(i), params: { ...findParams(g), ...q } })));
+        text = [qs.length > 1 ? `'또는' 특성은 그중 하나만 있어도 돼요. 데이터센터는 특성을 '모두 있음'으로만 찾아서 조합 ${qs.length}가지를 따로 찾아 합쳐요${fresh ? `(새로 ${fresh}쪽)` : ''}.` : '',
+          applied ? '' : "'찾기'를 누르면 적용돼요."].filter(Boolean).join(' ');
+      } catch (e) { text = e.message; }
+      trNote.textContent = text;
+      if (!text) trNote.hidden = true;
+    }
+    const redrawTr = (...fks) => { drawTr(); for (const fk of fks) { const el = trBox.querySelector(`[data-fk="${fk}"]`); if (el) { el.focus({ preventScroll: true }); return; } } };
+    function drawTr() {
+      const d = ui.trDraft;
+      const rows = d.map((c, i) => h('div', { class: 'sq-ftr-row' },
+        h('select', { class: 'input select', 'aria-label': `특성 조건 ${i + 1} 종류`, 'data-fk': `ftr-kind-${i}`, onchange: (e) => { c.kind = e.target.value; c.or = []; redrawTr(`ftr-kind-${i}`); } },
+          [['trait', '특성 있음'], ['no_trait', '특성 없음']].map(([v, l]) => h('option', { value: v, selected: v === c.kind ? true : null }, l))),
+        h('select', { class: 'input select', 'aria-label': `특성 조건 ${i + 1}`, 'data-fk': `ftr-key-${i}`, onchange: (e) => { c.key = e.target.value; updTrNote(); } }, sqTraitOptions(meta, c.key)),
+        h('button', { type: 'button', class: 'btn btn-text danger', 'aria-label': `특성 조건 ${i + 1} 지우기`, 'data-fk': `ftr-del-${i}`, onclick: () => { d.splice(i, 1); redrawTr(`ftr-del-${i}`, `ftr-del-${i - 1}`, 'ftr-add'); } }, '지우기'),
+        c.kind === 'trait' ? sqOrRow(c, meta, { label: `특성 조건 ${i + 1}`, sel: (j) => `ftr-or-sel-${i}-${j}`, del: (j) => `ftr-or-del-${i}-${j}`, add: `ftr-or-add-${i}`, redraw: redrawTr, changed: updTrNote }) : null));
+      const add = d.length < 6 ? h('button', { type: 'button', class: 'btn btn-text sq-ftr-add', 'data-fk': 'ftr-add', onclick: () => {
+        const used = new Set(d.flatMap((c) => [c.key, ...(c.or || [])]));
+        const nw = (meta.new_traits || []).concat(meta.traits);
+        d.push({ kind: 'trait', key: nw.find((v) => !used.has(v)) || meta.traits[0], or: [] });
+        redrawTr(`ftr-key-${d.length - 1}`);
+      } }, '+ 특성 조건') : null;
+      trBox.replaceChildren(...sqKids(...rows, add, trNote));
+      updTrNote();
+    }
+    drawTr();
     const modeBtns = h('div', { class: 'chips', role: 'group', 'aria-label': '목록 종류' },
       [['search', '선수 찾기'], ['ranker', '랭커 픽']].map(([k, l]) => h('button', { type: 'button', class: 'chip', 'data-fk': `mode-${k}`, 'aria-pressed': ui.mode === k ? 'true' : 'false', onclick: () => { ui.mode = k; keepFocus(drawFind); } }, l)));
-    const form = h('form', { class: 'sq-find', onsubmit: (e) => { e.preventDefault(); ui.name = nameIn.value.trim(); ui.pay = payIn.value.trim(); load(); } },
+    const form = h('form', { class: 'sq-find', onsubmit: (e) => { e.preventDefault(); ui.name = nameIn.value.trim(); ui.pay = payIn.value.trim(); ui.traits = ui.trDraft.map((c) => ({ ...c, or: [...(c.or || [])] })); updTrNote(); load(); } },
       h('div', { class: 'sq-find-row' }, ui.sel.side === 'bench' ? groupSel : h('span', { class: `pos pos-${sqLine(group)} sq-gtag` }, group), nameIn),
+      trBox,
       h('div', { class: 'sq-find-row' }, payIn, gradeIn, sortIn, h('button', { class: 'btn btn-sky', type: 'submit', 'data-fk': 'find' }, '찾기')));
     findBox.replaceChildren(...sqKids(
       h('h2', { class: 'sq-h' }, '선수 고르기'),
       modeBtns, ui.mode === 'search' ? form : (ui.sel.side === 'bench' ? h('div', { class: 'sq-find-row sq-find' }, groupSel) : null), listBox));
-    let rows = null, info = null, loadTok = 0;
+    let rows = null, info = null;
     async function load() {
-      const t = ++loadTok; /* 늦게 온 이전 검색이 새 목록을 덮지 않게 */
+      const t = ++findTok; /* 늦게 온 이전 검색이 새 목록을 덮지 않게 */
+      const gone = () => t !== findTok || stale(seq) || !listBox.isConnected;
       ui.shown = 40;
       const g = ui.sel.side === 'bench' ? (ui.groupOverride || group) : group;
       keepListFocus();
       listBox.replaceChildren(...sqKids(loadingEl(ui.mode === 'ranker' ? '랭커 픽을 불러오는 중이에요.' : '넥슨 데이터센터에서 선수를 불러오는 중이에요.')));
       try {
         if (ui.mode === 'ranker') {
-          const rk = await sqRankers((d) => { if (t === loadTok && d.pending) listBox.replaceChildren(...sqKids(loadingEl(`랭커 픽을 불러오는 중이에요(${15 - d.pending}/15).`))); });
-          if (t !== loadTok) return;
+          const rk = await sqRankers((d) => { if (!gone() && d.pending) listBox.replaceChildren(...sqKids(loadingEl(`랭커 픽을 불러오는 중이에요(${15 - d.pending}/15).`))); });
+          if (gone()) return;
           info = rk;
           rows = (rk.positions[g] || []).map((it) => ({ ...sqCardFromRanker(it, g, ui.grade), rkCount: it.count, rkShare: it.share }));
         } else {
-          const params = ui.name ? { name: ui.name } : { g };
-          if (ui.pay) params.pay = ui.pay;
-          const d = await sqPlayers(params);
-          if (t !== loadTok) return;
-          info = { ...d, label: ui.name };
-          rows = d.players.map((c) => sqCardFromList(c, ui.grade));
+          let qs;
+          try { qs = sqCondQueries(ui.traits, '선수 찾기', SQ_FIND_COMBO_MAX); } catch (err) {
+            keepListFocus();
+            listBox.replaceChildren(...sqKids(h('div', { class: 'alert', role: 'alert' }, err.message)));
+            return;
+          }
+          /* '또는' 조합마다 찾아 합친다(같은 선수는 한 번). 조합이 없으면(모두 '특성 없음'과 겹침) 빈 목록 */
+          const ds = [], base = findParams(g);
+          for (let i = 0; i < qs.length; i++) {
+            if (gone()) return;
+            if (qs.length > 1) listBox.replaceChildren(...sqKids(loadingEl(`특성 조합 ${i + 1}/${qs.length}을 불러오는 중이에요.`)));
+            const d = await sqPlayers({ ...base, ...qs[i] });
+            if (gone()) return;
+            ds.push(d);
+          }
+          const seen = new Set(), players = [];
+          for (const d of ds) for (const c of d.players) if (!seen.has(c.spid)) { seen.add(c.spid); players.push(c); }
+          info = { label: ui.name, more: ds.some((d) => d.more), stale: ds.some((d) => d.stale), fetched_at: ds.length ? Math.min(...ds.map((d) => d.fetched_at || Date.now())) : null,
+            tr: ui.traits.length ? sqTrLabel(ui.traits) : '', combos: qs.length };
+          rows = players.map((c) => sqCardFromList(c, ui.grade));
+          updTrNote();
         }
       } catch (e) {
-        if (e.handled || t !== loadTok) return;
+        if (e.handled || gone()) return;
         keepListFocus();
         const msg = e.code === 'bad_name' ? '선수 이름은 30자까지, 따옴표·<>·\\ 없이 써 주세요.' : sqErrText(e);
         listBox.replaceChildren(...sqKids(h('div', { class: 'alert', role: 'alert' }, h('p', { style: 'margin:0 0 10px' }, msg), h('button', { class: 'btn btn-ghost', type: 'button', onclick: load }, '다시 불러오기'))));
@@ -5532,7 +5606,7 @@ async function renderSquad(seq) {
       const note = ui.mode === 'ranker'
         ? h('p', { class: 'hint sq-note' }, info && (info.dates && info.dates[g] || info.date) ? `공식 경기 1vs1 랭커(1~10,000위)가 ${(info.dates && info.dates[g]) || info.date}에 ${g} 자리에서 많이 쓴 선수 ${rows.length}명이에요.` : '랭커 픽 자료가 아직 없어요.',
           info && info.error ? [` (${sqErrText({ code: info.error })}) `, h('button', { type: 'button', class: 'btn-text', onclick: () => { state.sqRankAt = 0; load(); } }, '다시 불러오기')] : '')
-        : h('p', { class: 'hint sq-note' }, `${info && info.label ? `'${info.label}' 검색 결과` : `${g} OVR 상위`} ${rows.length}명${info && info.more ? '(더 있음)' : ''} · ${info && info.fetched_at ? `${fmtShort(info.fetched_at)} 기준` : ''}${info && info.stale ? ' · 새로 받지 못해 지난 목록' : ''}`);
+        : h('p', { class: 'hint sq-note' }, `${info && info.label ? `'${info.label}' 검색 결과` : `${g} OVR 상위`}${info && info.tr ? ` · 특성 ${info.tr}` : ''} ${rows.length}명${info && info.more ? '(더 있음)' : ''}${info && info.combos > 1 ? ` · 조합 ${info.combos}가지 합침` : ''} · ${info && info.fetched_at ? `${fmtShort(info.fetched_at)} 기준` : ''}${info && info.stale ? ' · 새로 받지 못해 지난 목록' : ''}`);
       const moreBtn = list.length > shown ? h('button', { type: 'button', class: 'btn btn-ghost sq-more', onclick: () => {
         ui.shown = shown + 60; drawList();
         const b = listBox.querySelectorAll('.sq-prow')[shown]; if (b) b.focus({ preventScroll: true });
@@ -5579,29 +5653,56 @@ function sqAutoDefaults(meta) {
 /* 특성 '또는': 한 조건 줄에 특성을 4개까지 묶고(그중 하나만 있으면 됨), 줄끼리는 모두 맞아야 한다.
    데이터센터 검색은 특성을 '모두 있음'으로만 찾으므로 묶음마다 하나씩 골라 만든 조합을 따로 검색해 합친다.
    조합은 자리마다 8가지, '또는'이 들어간 편성 한 번에 새로 읽는 쪽은 30쪽까지(한 사람 1시간 40쪽 한도 안) */
-const SQ_OR_MAX = 4, SQ_COMBO_MAX = 8, SQ_OR_READ_CAP = 30;
+const SQ_OR_MAX = 4, SQ_COMBO_MAX = 8, SQ_OR_READ_CAP = 30, SQ_FIND_COMBO_MAX = 4;
 const sqTraitSet = (c) => [...new Set([c.key, ...(Array.isArray(c.or) ? c.or : [])])].slice(0, SQ_OR_MAX);
 /* 조건 → 포지션 그룹별 검색 조건 목록(그룹마다 능력치 3·특성 3·제외 특성 3까지, 데이터센터 검색 칸 수).
    조합 안 같은 특성은 하나로, 이름순으로(같은 조합은 같은 캐시 키). 다른 조합을 품는 더 좁은 조합은 뺀다:
    (A 또는 B) 그리고 (A 또는 C) → A 하나로 찾은 목록에 A+C가 다 들어 있으므로 A, B+C 두 번만 읽는다.
    같은 자리 '특성 없음'에 든 특성이 들어간 조합은 늘 비므로 뺀다(모두 빠지면 빈 목록 = 그 자리 후보 없음) */
 function sqGroupQueries(conds, group) {
+  return sqCondQueries(conds.filter((c) => SQ_TARGET_GROUPS(c.target).includes(group)), `${group} 자리`);
+}
+/* where: 오류 문구 앞말('ST 자리', '선수 찾기'), max: 조합 상한 */
+function sqCondQueries(conds, where, max = SQ_COMBO_MAX) {
   const q = {}; let a = 0, t = 0, x = 0;
   const sets = [];
   for (const c of conds) {
-    if (!SQ_TARGET_GROUPS(c.target).includes(group)) continue;
-    if (c.kind === 'ability') { if (++a > 3) throw new Error(`${group} 자리 능력치 조건은 3개까지예요.`); q[`a${a}`] = c.key; q[`m${a}`] = String(c.min); }
-    else if (c.kind === 'trait') { if (++t > 3) throw new Error(`${group} 자리 특성 조건은 3개까지예요.`); sets.push(sqTraitSet(c)); }
-    else if (c.kind === 'no_trait') { if (++x > 3) throw new Error(`${group} 자리 제외 특성은 3개까지예요.`); q[`x${x}`] = c.key; }
+    if (c.kind === 'ability') { if (++a > 3) throw new Error(`${where} 능력치 조건은 3개까지예요.`); q[`a${a}`] = c.key; q[`m${a}`] = String(c.min); }
+    else if (c.kind === 'trait') { if (++t > 3) throw new Error(`${where} 특성 조건은 3개까지예요.`); sets.push(sqTraitSet(c)); }
+    else if (c.kind === 'no_trait') { if (++x > 3) throw new Error(`${where} 제외 특성은 3개까지예요.`); q[`x${x}`] = c.key; }
   }
   let combos = [[]];
   for (const set of sets) combos = combos.flatMap((cb) => set.map((k) => [...cb, k]));
   const uniq = [...new Map(combos.map((cb) => { const u = [...new Set(cb)].sort(); return [u.join('|'), u]; })).values()];
   const xs = [q.x1, q.x2, q.x3].filter(Boolean);
   const keep = uniq.filter((u) => !uniq.some((v) => v.length < u.length && v.every((k) => u.includes(k)))).filter((u) => !u.some((k) => xs.includes(k)));
-  if (keep.length > SQ_COMBO_MAX) throw new Error(`${group} 자리 특성 '또는' 조합이 ${keep.length}가지예요. ${SQ_COMBO_MAX}가지까지 찾을 수 있어요. 묶은 특성을 줄여 주세요.`);
+  if (keep.length > max) throw new Error(`${where} 특성 '또는' 조합이 ${keep.length}가지예요. ${max}가지까지 찾을 수 있어요. 묶은 특성을 줄여 주세요.`);
   return keep.map((u) => { const o = { ...q }; u.forEach((k, i) => { o[`t${i + 1}`] = k; }); return o; });
 }
+/* 특성 고르기 칸: 새 특성(데이터센터 검색 화면 앞 17개)과 그 밖의 특성으로 나눠 보여 준다 */
+function sqTraitOptions(meta, sel) {
+  const nw = new Set(meta.new_traits || []);
+  const opt = (v) => h('option', { value: v, selected: v === sel ? true : null }, v);
+  const a = meta.traits.filter((v) => nw.has(v)), b = meta.traits.filter((v) => !nw.has(v));
+  return a.length && b.length ? [h('optgroup', { label: '새 특성' }, a.map(opt)), h('optgroup', { label: '그 밖의 특성' }, b.map(opt))] : meta.traits.map(opt);
+}
+/* 특성 있음 줄 아래 '또는' 특성(그중 하나만 있어도 됨). 고른 특성과 겹치지 않는 첫 특성을 넣어 준다.
+   o.label: 화면 읽기 이름 앞말, o.sel/o.del: (j) => data-fk, o.add: data-fk, o.redraw(...초점 줄 data-fk), o.changed(): 값만 바뀜 */
+function sqOrRow(c, meta, o) {
+  if (!Array.isArray(c.or)) c.or = [];
+  const items = c.or.map((t, j) => h('span', { class: 'sq-or-item' },
+    h('span', { class: 'sq-or-word' }, '또는'),
+    h('select', { class: 'input select', 'aria-label': `${o.label}의 또는 특성 ${j + 1}`, 'data-fk': o.sel(j), onchange: (e) => { c.or[j] = e.target.value; o.changed(); } }, sqTraitOptions(meta, t)),
+    h('button', { type: 'button', class: 'btn btn-text sq-or-del', 'aria-label': `${o.label}의 또는 특성 ${j + 1} 빼기`, 'data-fk': o.del(j), onclick: () => { c.or.splice(j, 1); o.redraw(o.del(j), o.del(j - 1), o.add); } }, '빼기')));
+  const add = 1 + c.or.length < SQ_OR_MAX ? h('button', { type: 'button', class: 'btn btn-text sq-or-add', 'data-fk': o.add, onclick: () => {
+    const used = new Set([c.key, ...c.or]);
+    c.or.push(meta.traits.find((v) => !used.has(v)) || meta.traits[0]);
+    o.redraw(o.sel(c.or.length - 1));
+  } }, '+ 또는 다른 특성') : null;
+  return h('div', { class: 'sq-or', role: 'group', 'aria-label': `${o.label}: 이 중 하나만 있어도 됨` }, ...sqKids(...items, add));
+}
+/* 조건 한 줄을 읽을 수 있게: 'A 또는 B', 제외는 'A 없음' */
+const sqTrLabel = (list) => list.map((c) => (c.kind === 'no_trait' ? `${c.key} 없음` : sqTraitSet(c).join(' 또는 '))).join(', ');
 /* 자리별 검색 차례: 조합마다·쪽마다(팀컬러를 고르면 팀컬러 검색도). k는 '다음 쪽이 비었는지' 기억하는 단위 */
 function sqAutoJobs(queries, tcId, page) {
   const jobs = [];
@@ -5686,7 +5787,7 @@ async function renderSquadAuto(seq) {
     function drawConds() {
       condList.replaceChildren(...sqKids(...f.conds.map((c, i) => {
         const keySel = h('select', { class: 'input select', 'aria-label': '조건 항목', onchange: (e) => { c.key = e.target.value; } },
-          (c.kind === 'ability' ? meta.abilities : meta.traits.map((t) => [t, t])).map(([v, l]) => h('option', { value: v, selected: v === c.key ? true : null }, l)));
+          c.kind === 'ability' ? meta.abilities.map(([v, l]) => h('option', { value: v, selected: v === c.key ? true : null }, l)) : sqTraitOptions(meta, c.key));
         return h('div', { class: 'sq-cond' },
           h('select', { class: 'input select', 'aria-label': '대상', onchange: (e) => { c.target = e.target.value; } }, SQ_TARGETS.map(([v, l]) => h('option', { value: v, selected: v === c.target ? true : null }, l))),
           h('select', { class: 'input select', 'aria-label': '종류', onchange: (e) => { c.kind = e.target.value; c.key = c.kind === 'ability' ? meta.abilities[0][0] : meta.traits[0]; c.or = []; drawConds(); } },
@@ -5701,20 +5802,7 @@ async function renderSquadAuto(seq) {
     /* 특성 있음 줄 아래: '또는' 특성(그중 하나만 있어도 됨). 고른 특성과 겹치지 않는 첫 특성을 넣어 준다 */
     /* 다시 그린 뒤 초점을 같은 단추(없으면 대신할 것)로 돌려준다 */
     const redrawConds = (...fks) => { drawConds(); for (const fk of fks) { const el = condList.querySelector(`[data-fk="${fk}"]`); if (el) { el.focus({ preventScroll: true }); return; } } };
-    function orRow(c, i) {
-      if (!Array.isArray(c.or)) c.or = [];
-      const items = c.or.map((t, j) => h('span', { class: 'sq-or-item' },
-        h('span', { class: 'sq-or-word' }, '또는'),
-        h('select', { class: 'input select', 'aria-label': `${i + 1}번째 조건의 또는 특성 ${j + 1}`, 'data-fk': `or-sel-${i}-${j}`, onchange: (e) => { c.or[j] = e.target.value; updOrNote(); } },
-          meta.traits.map((v) => h('option', { value: v, selected: v === t ? true : null }, v))),
-        h('button', { type: 'button', class: 'btn btn-text sq-or-del', 'aria-label': `${i + 1}번째 조건의 또는 특성 ${j + 1} 빼기`, 'data-fk': `or-del-${i}-${j}`, onclick: () => { c.or.splice(j, 1); redrawConds(`or-del-${i}-${j}`, `or-del-${i}-${j - 1}`, `or-add-${i}`); } }, '빼기')));
-      const add = 1 + c.or.length < SQ_OR_MAX ? h('button', { type: 'button', class: 'btn btn-text sq-or-add', 'data-fk': `or-add-${i}`, onclick: () => {
-        const used = new Set([c.key, ...c.or]);
-        c.or.push(meta.traits.find((v) => !used.has(v)) || meta.traits[0]);
-        redrawConds(`or-sel-${i}-${c.or.length - 1}`);
-      } }, '+ 또는 다른 특성') : null;
-      return h('div', { class: 'sq-or', role: 'group', 'aria-label': `${i + 1}번째 조건: 이 중 하나만 있어도 됨` }, ...sqKids(...items, add));
-    }
+    const orRow = (c, i) => sqOrRow(c, meta, { label: `${i + 1}번째 조건`, sel: (j) => `or-sel-${i}-${j}`, del: (j) => `or-del-${i}-${j}`, add: `or-add-${i}`, redraw: redrawConds, changed: updOrNote });
     drawConds();
     const aiBox = meta.ai ? (() => {
       const ta = h('textarea', { class: 'textarea short', 'aria-label': '한 줄 요청', maxlength: 300, placeholder: '예: 4-2-3-1, 예산 3조, 8카까지, 윙어는 빠르게, 레알 팀컬러 6명 이상', value: f.text, oninput: (e) => { f.text = e.target.value; } });
