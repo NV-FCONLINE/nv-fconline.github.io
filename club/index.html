@@ -9,7 +9,7 @@
 <meta name="robots" content="noindex, follow">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="theme-color" content="#000000">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https://cdn.discordapp.com https://fco.dn.nexoncdn.co.kr https://ssl.nexon.com https://crests.football-data.org data:; connect-src 'self' https://*.workers.dev https://open.api.nexon.com http://localhost:* http://127.0.0.1:*; worker-src 'self'; frame-src https://www.youtube-nocookie.com https://player.twitch.tv https://clips.twitch.tv https://chzzk.naver.com https://play.sooplive.com https://vod.sooplive.com https://sportscore.com; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https://nv-api.e2jinsoopark.workers.dev http://localhost:* http://127.0.0.1:* https://cdn.discordapp.com https://fco.dn.nexoncdn.co.kr https://ssl.nexon.com https://crests.football-data.org data: blob:; connect-src 'self' https://*.workers.dev https://open.api.nexon.com http://localhost:* http://127.0.0.1:*; worker-src 'self'; frame-src https://www.youtube-nocookie.com https://player.twitch.tv https://clips.twitch.tv https://chzzk.naver.com https://play.sooplive.com https://vod.sooplive.com https://sportscore.com; base-uri 'none'; form-action 'none'">
 <link rel="icon" type="image/png" sizes="32x32" href="../favicon-32.png">
 <link rel="apple-touch-icon" href="../apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -384,6 +384,58 @@
     font-size: 16.5px; line-height: 1.85; color: var(--ink); white-space: pre-wrap; overflow-wrap: anywhere;
   }
   .post-body a, .c-body a { color: #8fd3ea; text-decoration: underline; text-underline-offset: 3px; word-break: break-all; }
+
+  /* ---------- 사진(관리 페이지에서 '사진 올리기'를 켠 게시판, 2026-11-11) ---------- */
+  .gal { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; margin: 22px 0 0; }
+  .gal.one { grid-template-columns: minmax(0, 1fr); }
+  .gal-btn { display: block; position: relative; width: 100%; padding: 0; border: 0; background: #0b0b0b; cursor: zoom-in; aspect-ratio: 1 / 1; overflow: hidden; }
+  .gal.odd .gal-btn:first-child { grid-column: 1 / -1; aspect-ratio: 16 / 9; }
+  .gal.one .gal-btn { aspect-ratio: auto; }
+  .gal-btn img { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .gal.one .gal-btn img { height: auto; max-height: 72vh; object-fit: contain; }
+  .gal-btn:focus-visible { outline: 2px solid var(--sky); outline-offset: 2px; }
+  .lb {
+    width: 100vw; max-width: 100vw; height: 100vh; height: 100dvh; max-height: 100vh; max-height: 100dvh;
+    margin: 0; padding: 0; border: 0; background: #000; color: var(--ink-hi); overscroll-behavior: contain;
+  }
+  .lb::backdrop { background: rgba(0, 0, 0, 0.85); }
+  .lb-fig { position: absolute; inset: 60px 8px 72px; display: flex; align-items: center; justify-content: center; margin: 0; }
+  .lb-fig img { display: block; max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; }
+  .lb-close { position: absolute; top: 8px; right: 8px; }
+  .lb-bar { position: absolute; left: 0; right: 0; bottom: 8px; display: flex; align-items: center; justify-content: center; gap: 16px; }
+  .lb-bar .btn { min-width: 52px; }
+  .lb-bar .btn svg { width: 18px; height: 18px; }
+  .lb-n { min-width: 4.5em; text-align: center; font-size: 14.5px; color: var(--ink-mid); font-variant-numeric: tabular-nums; }
+  .ph-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+  .ph-head .count { margin-right: auto; }
+  .ph-input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+  .ph-grid { list-style: none; margin: 4px 0 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(112px, 1fr)); gap: 8px; }
+  .ph-grid:empty { display: none; }
+  .ph-item { position: relative; aspect-ratio: 1 / 1; background: #0b0b0b; border: 1px solid var(--rule); overflow: hidden; }
+  .ph-item img { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .ph-item.busy img { opacity: 0.45; }
+  .ph-item.fail { border-color: rgba(230, 74, 88, 0.7); }
+  .ph-st { position: absolute; left: 0; right: 0; top: 0; padding: 4px 7px; font-size: 12px; font-weight: 600; background: rgba(0, 0, 0, 0.72); color: var(--ink-hi); }
+  .ph-item.fail .ph-st { color: #ff9aa3; }
+  .ph-tools { position: absolute; left: 0; right: 0; bottom: 0; display: flex; background: rgba(0, 0, 0, 0.78); }
+  .ph-tools button { flex: 1 1 0; min-width: 0; min-height: 40px; padding: 0; border: 0; background: none; color: var(--ink-hi); font: inherit; font-size: 13px; cursor: pointer; }
+  .ph-tools button:disabled { opacity: 0.3; cursor: default; }
+  .ph-tools button:hover:not(:disabled) { background: rgba(230, 74, 88, 0.28); }
+  .ph-tools button:focus-visible { outline: 2px solid var(--sky); outline-offset: -2px; }
+  .ph-field.drop { outline: 2px dashed var(--sky); outline-offset: 6px; }
+  .ph-msg { margin: 0; font-size: 13.5px; color: #ff9aa3; }
+  .ph-msg:empty { display: none; }
+  .row.has-th { grid-template-columns: minmax(0, 1fr) auto; }
+  .row.has-th.has-rc { grid-template-columns: minmax(0, 1fr) auto auto; }
+  .row-th { grid-column: 2; grid-row: 1 / span 2; width: 64px; height: 64px; background: #0b0b0b; border: 1px solid var(--rule); overflow: hidden; }
+  .row-th img { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .row.has-th .row-rc { grid-column: 3; }
+  @media (max-width: 560px) {
+    .row.has-th, .row.has-th.has-rc { grid-template-columns: minmax(0, 1fr) auto; }
+    .row-th { width: 56px; height: 56px; }
+    .row.has-th .row-rc { grid-column: 1; grid-row: auto; }
+    .ph-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+  }
   .ack {
     display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 16px;
     margin: 26px 0 0; padding: 16px 18px; border: 1px solid rgba(68, 160, 192, 0.4); background: rgba(68, 160, 192, 0.07);
@@ -1705,6 +1757,14 @@ const ERR = {
   comment_required: '댓글 내용을 써 주세요.',
   comment_too_long: '댓글은 1,000자까지 쓸 수 있어요.',
   too_large: '글이 너무 길어요.',
+  image_type: '사진은 JPG·PNG·WebP 파일만 올릴 수 있어요.',
+  image_too_large: '사진이 너무 커요. 다른 사진을 골라 주세요.',
+  image_decode: '이 사진 파일은 열 수 없어요. JPG나 PNG로 바꿔서 다시 골라 주세요.',
+  image_rate: '사진을 짧은 시간에 너무 많이 올렸어요. 잠시 뒤에 다시 해 주세요.',
+  image_pending: '글에 붙이지 않은 사진이 너무 많아요. 쓰다 만 글의 사진은 하루 뒤 정리돼요. 그 뒤에 다시 올려 주세요.',
+  storage_full: '사진 저장 공간이 꽉 찼어요. 운영진에게 알려 주세요.',
+  images_off: '이 게시판에는 사진을 올릴 수 없어요.',
+  bad_images: '사진을 글에 붙이지 못했어요. 사진을 다시 골라 주세요.',
 };
 const errText = (e) => ERR[e && e.code] || ERR.server;
 
@@ -1795,7 +1855,8 @@ async function api(path, opt) {
   const headers = {};
   if (state.token) headers.Authorization = 'Bearer ' + state.token;
   let body;
-  if (opt.body !== undefined) { headers['Content-Type'] = 'application/json'; body = JSON.stringify(opt.body); }
+  if (opt.raw !== undefined) { headers['Content-Type'] = opt.raw.type; body = opt.raw; }
+  else if (opt.body !== undefined) { headers['Content-Type'] = 'application/json'; body = JSON.stringify(opt.body); }
   let res;
   try {
     res = await fetch(API_BASE + path, { method: opt.method || 'GET', headers, body, cache: 'no-store' });
@@ -2106,13 +2167,17 @@ function postRow(p, b) {
   top.push(h('span', { class: 'row-title' }, p.title));
   const meta = [p.author.name, fmtShort(p.created_at)];
   if (p.comment_count) meta.push(`${b.private_own ? '답변·댓글' : '댓글'} ${p.comment_count}`);
+  if (p.image_count) meta.push(`사진 ${p.image_count}`);
   const rc = p.receipts
     ? h('span', { class: 'row-rc' }, '열람 ', h('b', null, `${p.receipts.opened}/${p.receipts.total}`), h('br'), '확인 ', h('b', null, `${p.receipts.acked}/${p.receipts.total}`))
     : null;
-  return h('li', null, h('a', { class: 'row', href: `#/p/${p.id}` },
+  const th = p.thumb
+    ? h('span', { class: 'row-th', 'aria-hidden': 'true' }, h('img', { src: API_BASE + p.thumb, alt: '', loading: 'lazy', decoding: 'async', referrerpolicy: 'no-referrer' }))
+    : null;
+  return h('li', null, h('a', { class: 'row' + (th ? ' has-th' : '') + (rc ? ' has-rc' : ''), href: `#/p/${p.id}` },
     h('span', { class: 'row-top' }, top),
     h('span', { class: 'row-meta' }, meta.join(' · ')),
-    rc));
+    th, rc));
 }
 function noBoardText(e) {
   return e && e.code === 'not_found' ? '게시판을 찾을 수 없어요. 숨겨졌거나 볼 수 없는 게시판이에요.' : errText(e);
@@ -2263,6 +2328,190 @@ function counter(input, max) {
   upd();
   return c;
 }
+/* ---------- 사진 고르기 ----------
+   긴 쪽 1600px로 줄이고 WebP(안 되는 브라우저는 JPEG)로 다시 저장해서 올린다.
+   다시 그려 저장하므로 사진 속 위치(GPS) 같은 EXIF 정보는 남지 않는다.
+   사진은 한 장씩 차례로 처리한다(휴대폰에서 여러 장을 한꺼번에 풀면 메모리가 모자랄 수 있음). */
+const PHOTO_MAX = 10, PHOTO_EDGE = 1600, PHOTO_BYTES = 2 * 1024 * 1024;
+async function decodePhoto(file) {
+  if (window.createImageBitmap) {
+    try { return await createImageBitmap(file, { imageOrientation: 'from-image' }); } catch (e) {}
+  }
+  const url = URL.createObjectURL(file);
+  try {
+    const img = new Image();
+    img.src = url;
+    await img.decode();
+    return img;
+  } finally { URL.revokeObjectURL(url); }
+}
+const canvasBlob = (c, type, q) => new Promise((res) => c.toBlob(res, type, q));
+async function prepPhoto(file) {
+  let src;
+  try { src = await decodePhoto(file); } catch (e) { throw new ApiError(0, 'image_decode'); }
+  const sw = src.naturalWidth || src.width, sh = src.naturalHeight || src.height;
+  try {
+    if (!sw || !sh) throw new ApiError(0, 'image_decode');
+    for (const [edge, q] of [[PHOTO_EDGE, 0.82], [PHOTO_EDGE, 0.7], [1280, 0.7], [1024, 0.62]]) {
+      const k = Math.min(1, edge / Math.max(sw, sh));
+      const w = Math.max(1, Math.round(sw * k)), hh = Math.max(1, Math.round(sh * k));
+      const c = document.createElement('canvas');
+      c.width = w; c.height = hh;
+      const ctx = c.getContext('2d');
+      ctx.imageSmoothingQuality = 'high';
+      ctx.drawImage(src, 0, 0, w, hh);
+      let blob = await canvasBlob(c, 'image/webp', q);
+      if (!blob || blob.type !== 'image/webp') {
+        // WebP로 못 저장하는 브라우저(사파리 등): 투명한 곳은 흰색으로 채워 JPEG로
+        ctx.globalCompositeOperation = 'destination-over';
+        ctx.fillStyle = '#fff';
+        ctx.fillRect(0, 0, w, hh);
+        blob = await canvasBlob(c, 'image/jpeg', q);
+      }
+      if (blob && blob.size <= PHOTO_BYTES && /^image\/(webp|jpeg)$/.test(blob.type)) return { blob, w, h: hh };
+    }
+    throw new ApiError(0, 'image_too_large');
+  } finally { if (src.close) src.close(); }
+}
+function photoPicker(b, existing, opts) {
+  const canAdd = !opts || opts.canAdd !== false; // 게시판 사진이 꺼진 뒤 고치기: 이미 붙은 사진 빼기·순서만
+  const items = [];
+  const initial = (existing || []).map((x) => x.id).join(',');
+  const uid = Math.random().toString(36).slice(2, 8);
+  const lab = h('span', { class: 'lab', id: `ph-${uid}`, tabindex: '-1' }, '사진'); // 마지막 사진을 뺐을 때 포커스 둘 곳
+  const count = h('span', { class: 'count' });
+  const grid = h('ul', { class: 'ph-grid', 'aria-labelledby': lab.id });
+  const msg = h('p', { class: 'ph-msg', role: 'alert' });
+  const input = h('input', { class: 'ph-input', type: 'file', accept: 'image/*', multiple: true, tabindex: '-1', 'aria-hidden': 'true' });
+  const add = canAdd ? h('button', { class: 'btn btn-ghost', type: 'button', onclick: () => input.click() }, '사진 추가') : null;
+  let queue = Promise.resolve();
+  let busy = 0;
+  let stopped = false; // 로그인이 끝나는 등 처리된 오류가 나면 남은 사진은 올리지 않음
+  // 고르다 뺀 사진(이번에 올렸고 아직 글에 안 붙은 것)은 서버에서도 바로 버린다. 실패해도 하루 뒤 정리됨
+  const discard = (id) => { api(`/api/images/${id}`, { method: 'DELETE', noAuthRedirect: true }).catch(() => {}); };
+  // 사진 칸(li·그림·버튼)은 한 번 만들고 계속 쓴다: 다시 그릴 때마다 새로 만들면 누르던 버튼이 사라지고 포커스가 빠짐
+  function makeItem(it) {
+    it.st = h('span', { class: 'ph-st' });
+    it.prev = h('button', { type: 'button', 'data-k': 'prev', onclick: () => move(items.indexOf(it), -1) }, '◀');
+    it.del = h('button', { type: 'button', 'data-k': 'del', onclick: () => remove(items.indexOf(it)) }, '빼기');
+    it.next = h('button', { type: 'button', 'data-k': 'next', onclick: () => move(items.indexOf(it), 1) }, '▶');
+    it.li = h('li', { class: 'ph-item' }, it.st, h('span', { class: 'ph-tools' }, it.prev, it.del, it.next));
+    items.push(it);
+    return it;
+  }
+  for (const x of existing || []) makeItem({ id: x.id, src: API_BASE + x.url, w: x.width, h: x.height });
+  function paint(focus) {
+    items.forEach((it, i) => {
+      if (it.src && !it.img) { it.img = h('img', { src: it.src, alt: '', width: it.w || null, height: it.h || null }); it.li.prepend(it.img); }
+      if (it.img) it.img.alt = `사진 ${i + 1}`;
+      const st = it.fail ? '올리지 못함' : it.busy ? (it.src ? '올리는 중' : '기다리는 중') : i === 0 ? '대표 사진' : '';
+      it.st.textContent = st;
+      it.st.hidden = !st;
+      it.li.className = 'ph-item' + (it.busy ? ' busy' : '') + (it.fail ? ' fail' : '');
+      it.prev.disabled = i === 0;
+      it.next.disabled = i === items.length - 1;
+      it.prev.setAttribute('aria-label', `사진 ${i + 1} 앞으로`);
+      it.del.setAttribute('aria-label', `사진 ${i + 1} 빼기`);
+      it.next.setAttribute('aria-label', `사진 ${i + 1} 뒤로`);
+    });
+    // 순서가 바뀐 경우에만 칸을 옮긴다(상태만 바뀔 때는 그대로 둬서 포커스·누르는 중인 버튼 유지)
+    const kids = grid.children;
+    if (kids.length !== items.length || items.some((it, i) => kids[i] !== it.li)) grid.replaceChildren(...items.map((it) => it.li));
+    count.textContent = canAdd ? `${items.length} / ${PHOTO_MAX}` : `${items.length}장`;
+    if (add) add.disabled = items.length >= PHOTO_MAX;
+    if (focus) {
+      const it = items[focus.i];
+      let btn = it && it[focus.k];
+      if (btn && btn.disabled) btn = it.del;
+      (btn || add || lab).focus();
+    }
+  }
+  function move(i, d) {
+    const j = i + d;
+    if (i < 0 || j < 0 || j >= items.length) return;
+    [items[i], items[j]] = [items[j], items[i]];
+    paint({ i: j, k: d < 0 ? 'prev' : 'next' });
+  }
+  function remove(i) {
+    if (i < 0) return;
+    const [it] = items.splice(i, 1);
+    it.gone = true;
+    if (it.own && it.src) URL.revokeObjectURL(it.src);
+    if (it.own && it.id) discard(it.id);
+    it.li.remove();
+    if (!items.some((x) => x.fail)) msg.textContent = '';
+    paint(items.length ? { i: Math.min(i, items.length - 1), k: 'del' } : null);
+    if (!items.length) (add || lab).focus();
+  }
+  async function run(it, file) {
+    try {
+      if (it.gone || stopped || !el.isConnected) return; // 뺐거나, 글쓰기 화면을 떠났거나, 앞에서 멈춤
+      const p = await prepPhoto(file);
+      if (it.gone || stopped || !el.isConnected) return;
+      it.src = URL.createObjectURL(p.blob); it.own = true; it.w = p.w; it.h = p.h;
+      paint();
+      const r = await api(`/api/boards/${b.slug}/images?w=${p.w}&h=${p.h}`, { method: 'POST', raw: p.blob });
+      if (it.gone) discard(r.id); // 올리는 사이에 뺀 사진
+      else it.id = r.id;
+    } catch (e) {
+      if (it.gone) return;
+      it.fail = e;
+      if (e.handled) stopped = true;
+      else msg.textContent = errText(e);
+    } finally {
+      it.busy = false;
+      busy--;
+      if (!it.gone && el.isConnected) paint();
+    }
+  }
+  function addFiles(files) {
+    if (!canAdd || !files.length) return;
+    const room = PHOTO_MAX - items.length;
+    msg.textContent = files.length > room ? `사진은 ${PHOTO_MAX}장까지예요. ${Math.max(0, room)}장만 넣었어요.` : '';
+    stopped = false;
+    for (const f of files.slice(0, Math.max(0, room))) {
+      const it = makeItem({ id: null, src: null, busy: true, fail: null, w: 0, h: 0 });
+      busy++;
+      queue = queue.then(() => run(it, f));
+    }
+    paint();
+  }
+  input.addEventListener('change', () => { const files = [...input.files]; input.value = ''; addFiles(files); });
+  const el = h('div', { class: 'field ph-field' },
+    h('div', { class: 'ph-head' }, lab, count, add),
+    input, grid, msg,
+    h('p', { class: 'hint' }, canAdd
+      ? `${PHOTO_MAX}장까지 올릴 수 있어요. 첫 사진이 목록에 작게 보여요. 긴 쪽을 1600px로 줄여서 올리고, 사진 속 위치 정보는 지워져요.`
+      : '이 게시판은 이제 사진을 새로 올릴 수 없어요. 이미 붙인 사진은 빼거나 순서를 바꿀 수 있어요.'));
+  const isFiles = (ev) => ev.dataTransfer && [...ev.dataTransfer.types].includes('Files');
+  if (canAdd) {
+    el.addEventListener('dragover', (ev) => { if (isFiles(ev)) { ev.preventDefault(); el.classList.add('drop'); } });
+    el.addEventListener('dragleave', (ev) => { if (!el.contains(ev.relatedTarget)) el.classList.remove('drop'); });
+    el.addEventListener('drop', (ev) => {
+      if (!isFiles(ev)) return;
+      ev.preventDefault();
+      el.classList.remove('drop');
+      addFiles([...ev.dataTransfer.files].filter((f) => /^image\//.test(f.type)));
+    });
+  }
+  // 사진 칸 밖에 떨어뜨려도 브라우저가 그림을 열며 쓰던 글을 버리지 않게(이 폼이 화면에 있는 동안만)
+  const guard = (ev) => {
+    if (!el.isConnected) { window.removeEventListener('dragover', guard); window.removeEventListener('drop', guard); return; }
+    if (!isFiles(ev) || ev.defaultPrevented) return;
+    ev.preventDefault();
+    if (ev.type === 'drop') addFiles([...ev.dataTransfer.files].filter((f) => /^image\//.test(f.type)));
+  };
+  window.addEventListener('dragover', guard);
+  window.addEventListener('drop', guard);
+  paint();
+  return {
+    el,
+    busy: () => busy > 0,
+    failed: () => items.some((x) => x.fail),
+    ids: () => items.filter((x) => x.id && !x.fail).map((x) => x.id),
+    changed() { return this.ids().join(',') !== initial; },
+  };
+}
 function postForm({ board, post, inline, seq }) {
   const b = board || (post && post.board) || {};
   const uid = Math.random().toString(36).slice(2, 8);
@@ -2271,14 +2520,18 @@ function postForm({ board, post, inline, seq }) {
   if (inline) body.style.minHeight = '140px';
   if (post) { title.value = post.title; body.value = post.body; }
   const pin = !post && state.me.is_staff ? h('input', { type: 'checkbox', name: 'pinned' }) : null;
+  const hasPhotos = !!(post && post.images && post.images.length);
+  const photos = b.slug && (b.allow_images || hasPhotos) ? photoPicker(b, post && post.images, { canAdd: !!b.allow_images }) : null;
+  const photoBoards = state.boards.filter((x) => x.allow_images).map((x) => x.name);
   const err = h('p', { class: 'alert form-err', role: 'alert' });
   const submit = h('button', { class: 'btn btn-primary', type: 'submit' }, post ? '고친 내용 저장' : b.anonymous ? (inline ? '익명으로 보내기' : '익명으로 올리기') : inline ? '보내기' : b.receipts ? '공지 올리기' : '올리기');
   const form = h('form', { class: 'form', novalidate: true },
     h('div', { class: 'field' }, h('label', { for: title.id }, '제목'), title, counter(title, 80)),
     h('div', { class: 'field' }, h('label', { for: body.id }, '내용'), body, counter(body, 5000)),
+    photos ? photos.el : null,
     pin ? h('label', { class: 'check' }, pin, b.receipts ? '공지 목록 맨 위에 고정' : '목록 맨 위에 고정') : null,
     b.public_titles ? h('p', { class: 'hint pub-hint' }, '이 게시판은 글 제목이 홈페이지에 공개돼요. 내용과 쓴 사람은 클럽원만 봐요.') : null,
-    h('p', { class: 'hint' }, '줄바꿈과 링크는 그대로 보여요. 사진은 아직 올릴 수 없어요.'),
+    h('p', { class: 'hint' }, photos || !photoBoards.length ? '줄바꿈과 링크는 그대로 보여요.' : `줄바꿈과 링크는 그대로 보여요. 사진은 ${photoBoards.join('·')} 게시판에서 올릴 수 있어요.`),
     err,
     h('div', { class: 'actions' }, submit, inline ? null : h('a', { class: 'btn btn-ghost', href: post ? `#/p/${post.id}` : `#/b/${b.slug}` }, '취소')));
   form.addEventListener('submit', async (ev) => {
@@ -2287,14 +2540,16 @@ function postForm({ board, post, inline, seq }) {
     const t = title.value.trim(), bd = body.value.trim();
     if (!t) { err.textContent = ERR.title_required; title.focus(); return; }
     if (!bd) { err.textContent = ERR.body_required; body.focus(); return; }
+    if (photos && photos.busy()) { err.textContent = '사진을 올리는 중이에요. 다 올라가면 다시 눌러 주세요.'; return; }
+    if (photos && photos.failed()) { err.textContent = '올리지 못한 사진이 있어요. 그 사진을 빼고 다시 눌러 주세요.'; return; }
     submit.disabled = true;
     try {
       if (post) {
-        await api(`/api/posts/${post.id}`, { method: 'PATCH', body: { title: t, body: bd } });
+        await api(`/api/posts/${post.id}`, { method: 'PATCH', body: { title: t, body: bd, images: photos && photos.changed() ? photos.ids() : undefined } });
         toast('고친 내용을 저장했어요.');
         go(`#/p/${post.id}`);
       } else {
-        const r = await api(`/api/boards/${b.slug}/posts`, { method: 'POST', body: { title: t, body: bd, pinned: pin ? pin.checked : undefined } });
+        const r = await api(`/api/boards/${b.slug}/posts`, { method: 'POST', body: { title: t, body: bd, pinned: pin ? pin.checked : undefined, images: photos ? photos.ids() : undefined } });
         if (r.audience) toast(`올렸어요. 클럽 멤버 ${r.audience.count}명을 기준으로 셉니다.`);
         else toast(b.anonymous ? (inline ? '익명으로 보냈어요.' : '익명으로 올렸어요.') : inline ? '보냈어요.' : '글을 올렸어요.');
         if (inline) renderBoard(b.slug, ++state.seq); else go(`#/p/${r.id}`);
@@ -2369,7 +2624,8 @@ async function renderPost(id, seq, opts) {
     h('h1', { class: 'h1 post-title', id: 'p-h', tabindex: '-1' }, isMemo ? '메모' : p.title),
     h('p', { class: 'post-meta' }, authorName(p.author), h('span', { 'aria-hidden': 'true' }, '·'), timeEl(p.created_at),
       edited ? [h('span', { 'aria-hidden': 'true' }, '·'), h('span', null, '수정 ', timeEl(p.updated_at))] : null),
-    h('div', { class: 'post-body' }, linkify(p.body)));
+    h('div', { class: 'post-body' }, linkify(p.body)),
+    p.images && p.images.length ? gallery(p.images) : null);
 
   if (p.board.receipts && d.read) {
     const box = h('div');
@@ -2423,6 +2679,62 @@ async function renderPost(id, seq, opts) {
   if (manage.length) article.append(h('div', { class: 'manage' }, manage));
 
   show([tabs(slug), h('a', { class: 'back', href: `#/b/${slug}` }, icon('back'), `${p.board.name} 목록`), article, commentsSection(d, reload)], { keepScroll: opts && opts.keep });
+}
+function gallery(imgs) {
+  const n = imgs.length;
+  return h('div', { class: 'gal' + (n === 1 ? ' one' : n % 2 ? ' odd' : '') },
+    imgs.map((im, i) => h('button', { class: 'gal-btn', type: 'button', 'aria-label': `사진 ${i + 1}/${n} 크게 보기`, onclick: () => lightbox(imgs, i) },
+      h('img', { src: API_BASE + im.url, alt: '', width: im.width, height: im.height, loading: i < 3 ? null : 'lazy', decoding: 'async', referrerpolicy: 'no-referrer' }))));
+}
+function lightbox(imgs, start) {
+  let i = start;
+  const n = imgs.length;
+  const opener = document.activeElement;
+  const img = h('img', { alt: '', referrerpolicy: 'no-referrer' });
+  const num = h('span', { class: 'lb-n', 'aria-live': 'polite' });
+  const step = (d) => { const j = i + d; if (j < 0 || j >= n) return; i = j; paint(); };
+  const prev = h('button', { class: 'btn btn-ghost', type: 'button', 'aria-label': '이전 사진', onclick: () => step(-1) }, icon('back'));
+  const next = h('button', { class: 'btn btn-ghost', type: 'button', 'aria-label': '다음 사진', onclick: () => step(1) }, icon('next'));
+  const dlg = h('dialog', { class: 'lb', 'aria-label': '사진 크게 보기' },
+    h('button', { class: 'btn btn-ghost lb-close', type: 'button', onclick: () => dlg.close() }, '닫기'),
+    h('figure', { class: 'lb-fig' }, img),
+    n > 1 ? h('div', { class: 'lb-bar' }, prev, num, next) : null);
+  function paint() {
+    const im = imgs[i];
+    img.src = API_BASE + im.url;
+    img.width = im.width; img.height = im.height;
+    img.alt = `사진 ${i + 1}/${n}`;
+    num.textContent = `${i + 1} / ${n}`;
+    // 끝에서 누르던 단추가 꺼지면 포커스가 대화상자 밖으로 빠지므로, 상태를 바꾼 뒤 다른 단추로 옮긴다
+    const f = document.activeElement;
+    prev.disabled = i === 0; next.disabled = i === n - 1;
+    if (f === next && next.disabled) prev.focus();
+    else if (f === prev && prev.disabled) next.focus();
+  }
+  dlg.addEventListener('keydown', (ev) => { if (ev.key === 'ArrowLeft') step(-1); else if (ev.key === 'ArrowRight') step(1); });
+  dlg.addEventListener('click', (ev) => { if (ev.target === dlg || ev.target.classList.contains('lb-fig')) dlg.close(); });
+  let sx = null;
+  dlg.addEventListener('touchstart', (ev) => { sx = ev.touches.length === 1 ? ev.touches[0].clientX : null; }, { passive: true });
+  dlg.addEventListener('touchend', (ev) => {
+    if (sx == null || !ev.changedTouches.length) return;
+    const dx = ev.changedTouches[0].clientX - sx;
+    sx = null;
+    if (Math.abs(dx) > 50) step(dx < 0 ? 1 : -1);
+  });
+  // 뒤로 가기 등으로 화면이 바뀌면 닫는다(대화상자는 view 밖 body에 붙어 있음)
+  const onHash = () => dlg.close();
+  window.addEventListener('hashchange', onHash);
+  const html = document.documentElement, overflow = html.style.overflow;
+  dlg.addEventListener('close', () => {
+    window.removeEventListener('hashchange', onHash);
+    html.style.overflow = overflow;
+    dlg.remove();
+    if (opener && opener.isConnected) opener.focus({ preventScroll: true });
+  });
+  paint();
+  document.body.append(dlg);
+  html.style.overflow = 'hidden';
+  dlg.showModal();
 }
 async function act(fn, okMsg, after) {
   try { await fn(); toast(okMsg); if (after) after(); }
@@ -6234,6 +6546,7 @@ const ADMIN_ERR = {
   bad_layout: '모양 값이 잘못됐어요. 화면을 새로 불러와 주세요.',
   memo_with_receipts: '메모 게시판에서는 읽음 확인 집계를 쓸 수 없어요. 메모에는 제목이 없어서 공지로 쓰기 어려워요.',
   memo_with_public_titles: '메모 게시판은 홈페이지 제목 공개를 켤 수 없어요. 메모 첫 줄이 그대로 밖에 보이게 돼요.',
+  memo_with_images: '메모 게시판에서는 사진 올리기를 켤 수 없어요. 모양을 목록으로 바꾸거나 사진 올리기를 꺼 주세요.',
   intro_too_long: '소개 문구는 120자까지 쓸 수 있어요.',
   bad_intro: '소개 문구 값이 잘못됐어요. 화면을 새로 불러와 주세요.',
   no_staff_roles: '운영진 역할을 하나 이상 골라 주세요.',
@@ -6467,9 +6780,16 @@ async function renderAdminBoards(seq, keep) {
       '운영진과 관리자는 ‘특정 역할’ 게시판도 볼 수 있어요. 게시판은 지우지 않고 숨겨요. 숨겨도 글은 남아요.',
     ]),
     rolesErr ? h('p', { class: 'alert', role: 'alert' }, '디스코드 역할 목록을 불러오지 못했어요. 지금은 ‘특정 역할’을 고를 수 없어요.') : null,
+    photoUsage(boards.images),
     h('div', { class: 'b-list' }, boards.boards.map((b) => boardEditor(b, roles.roles, false, reload))),
     h('h2', { class: 'sub-h' }, '새 게시판'),
     boardEditor(null, roles.roles, true, reload)]), { keepScroll: !!keep });
+}
+function photoUsage(im) {
+  if (!im) return null;
+  if (!im.enabled) return h('p', { class: 'info' }, '사진 저장소가 아직 연결되지 않았어요. ‘사진 올리기’를 켜도 지금은 사진이 올라가지 않아요.');
+  const size = (x) => (x >= 1024 ** 3 ? `${(x / 1024 ** 3).toFixed(1)}GB` : `${(x / 1024 ** 2).toFixed(1)}MB`);
+  return h('p', { class: 'info' }, `사진 저장소: ${Number(im.count || 0).toLocaleString('ko-KR')}장 · ${size(im.bytes || 0)} 사용 (한도 ${size(im.limit || 0)})`);
 }
 function policyField(k, d, roles, uid) {
   const LABEL = { read: '읽기', write: '쓰기', comment: '댓글' };
@@ -6488,7 +6808,7 @@ function toggle(cb, title, help) {
   return h('label', { class: 'check tgl' }, cb, h('span', null, title, h('small', null, help)));
 }
 function boardEditor(b, roles, isNew, reload) {
-  const d = b || { slug: '', name: '', read_policy: 'members', read_roles: [], write_policy: 'members', write_roles: [], comment_policy: 'members', comment_roles: [], private_own: false, receipts_enabled: false, public_titles: false, anonymous: false, layout: 'list', intro: '', sort_order: '', hidden: false, post_count: 0 };
+  const d = b || { slug: '', name: '', read_policy: 'members', read_roles: [], write_policy: 'members', write_roles: [], comment_policy: 'members', comment_roles: [], private_own: false, receipts_enabled: false, public_titles: false, anonymous: false, allow_images: false, layout: 'list', intro: '', sort_order: '', hidden: false, post_count: 0 };
   const uid = isNew ? 'new' : d.slug;
   const slug = isNew ? h('input', { class: 'input', id: `bs-${uid}`, maxlength: 20, autocomplete: 'off', autocapitalize: 'off', spellcheck: 'false', placeholder: '예: league' }) : null;
   const name = h('input', { class: 'input', id: `bn-${uid}`, maxlength: 20, autocomplete: 'off' });
@@ -6504,6 +6824,7 @@ function boardEditor(b, roles, isNew, reload) {
   const rc = h('input', { type: 'checkbox' }); rc.checked = !!d.receipts_enabled;
   const pub = h('input', { type: 'checkbox' }); pub.checked = !!d.public_titles;
   const anon = h('input', { type: 'checkbox' }); anon.checked = !!d.anonymous;
+  const pics = h('input', { type: 'checkbox' }); pics.checked = !!d.allow_images;
   const hid = isNew ? null : h('input', { type: 'checkbox' });
   if (hid) hid.checked = !!d.hidden;
   const err = h('p', { class: 'alert form-err', role: 'alert' });
@@ -6511,7 +6832,7 @@ function boardEditor(b, roles, isNew, reload) {
   const form = h('form', { class: 'panel b-edit' + (d.hidden ? ' is-hidden' : ''), novalidate: true, 'aria-labelledby': `bh-${uid}` },
     h('div', { class: 'b-head' },
       h('h3', { class: 'h3', id: `bh-${uid}` }, isNew ? '새 게시판 만들기' : d.name),
-      isNew ? null : h('span', { class: 'b-meta' }, `#/b/${d.slug} · 글 ${d.post_count}개`, d.public_titles ? badge('홈페이지 공개', 'pub') : null, d.anonymous ? badge('익명', 'anon') : null, d.layout === 'memo' ? badge('메모', 'pub') : null, d.hidden ? badge('숨김', 'hidden') : null)),
+      isNew ? null : h('span', { class: 'b-meta' }, `#/b/${d.slug} · 글 ${d.post_count}개`, d.public_titles ? badge('홈페이지 공개', 'pub') : null, d.anonymous ? badge('익명', 'anon') : null, d.allow_images ? badge('사진', 'anon') : null, d.layout === 'memo' ? badge('메모', 'pub') : null, d.hidden ? badge('숨김', 'hidden') : null)),
     h('div', { class: 'b-grid' },
       slug ? h('div', { class: 'field f-slug' }, h('label', { for: slug.id }, '주소 (영어 소문자·숫자·-, 2~20자)'), slug) : null,
       h('div', { class: 'field' }, h('label', { for: name.id }, '이름'), name),
@@ -6523,6 +6844,7 @@ function boardEditor(b, roles, isNew, reload) {
       toggle(own, '작성자 본인 글은 볼 수 있음', '읽기가 막혀 있어도 쓴 사람은 자기 글과 답을 봐요. 건의사항이 이렇게 돼 있어요.'),
       toggle(rc, '읽음 확인 집계', '‘확인했어요’ 버튼과 읽음 현황을 써요. 공지사항이 이렇게 돼 있어요.'),
       toggle(anon, '익명 글', '쓴 사람 이름 대신 ‘익명’으로 보여요. 운영진과 관리자에게도 이름이 보이지 않고, 쓴 사람만 ‘나’로 보여요. 건의사항이 이렇게 돼 있어요. 읽음 확인 집계와는 같이 못 써요.'),
+      toggle(pics, '사진 올리기', '글마다 사진을 10장까지 붙일 수 있어요. 긴 쪽 1600px로 줄여 저장하고 사진 속 위치 정보는 지워요. 목록 모양 게시판만 켤 수 있어요. 친목·정모처럼 사진이 필요한 게시판에 켜 주세요.'),
       toggle(pub, '홈페이지에 제목 공개', '로그인하지 않은 사람도 홈페이지 ‘클럽 소식’에서 최근 글 제목과 날짜를 봐요. 내용과 쓴 사람은 클럽원만 봐요. 읽기가 ‘클럽원 전체’인 게시판만 켤 수 있어요.'),
       hid ? toggle(hid, '숨기기', '탭에서 빠져요. 글은 지우지 않아요.') : null),
     err,
@@ -6530,7 +6852,7 @@ function boardEditor(b, roles, isNew, reload) {
   form.addEventListener('submit', async (ev) => {
     ev.preventDefault();
     err.textContent = '';
-    const body = { name: name.value.trim(), private_own: own.checked, receipts_enabled: rc.checked, public_titles: pub.checked, anonymous: anon.checked, layout: layout.value, intro: intro.value.trim() };
+    const body = { name: name.value.trim(), private_own: own.checked, receipts_enabled: rc.checked, public_titles: pub.checked, anonymous: anon.checked, allow_images: pics.checked, layout: layout.value, intro: intro.value.trim() };
     if (order.value !== '') body.sort_order = Number(order.value);
     for (const p of pols) Object.assign(body, p.get());
     if (hid) body.hidden = hid.checked;
