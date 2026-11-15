@@ -1517,6 +1517,33 @@
   .sq-ftr-row > .input { width: 100%; min-width: 0; padding-left: 10px; }
   .sq-ftr-add { justify-self: start; padding-left: 0; }
   .sq-ftr-note { margin: 0; }
+  /* 집중훈련 */
+  .sq-ft { margin: 16px 0 0; padding: 12px 0 0; border-top: 1px solid var(--rule); display: grid; gap: 8px; }
+  .sq-ft-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; }
+  .sq-h3 { margin: 0; font-size: 15px; font-weight: 700; }
+  .sq-ft-pos { width: auto; min-width: 0; }
+  .sq-ft .hint, .sq-ft-sub, .sq-ft-now { margin: 0; }
+  .sq-ft-sub { font-size: 13px; font-weight: 700; }
+  .sq-ft-now { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; font-size: 13.5px; }
+  .sq-ft-plans { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+  .sq-ft-plans li { display: grid; grid-template-columns: max-content minmax(0, 1fr) auto; gap: 4px 10px; align-items: center; padding: 8px 10px; background: rgba(255, 255, 255, .03); }
+  .sq-ft-plans li span { font-size: 13px; color: var(--ink-dim); min-width: 0; }
+  @media (max-width: 480px) { .sq-ft-plans li { grid-template-columns: minmax(0, 1fr) auto; } .sq-ft-plans li span { grid-column: 1 / -1; grid-row: 2; } }
+  .sq-ft-manual summary, .sq-ft-guide summary { cursor: pointer; font-size: 13.5px; font-weight: 700; }
+  .sq-ft-rows { list-style: none; margin: 8px 0; padding: 0; display: grid; gap: 4px; }
+  .sq-ft-rows li { display: grid; grid-template-columns: minmax(0, 1fr) 40px auto; gap: 8px; align-items: center; font-size: 13px; }
+  .sq-ft-rows small { color: var(--ink-dim); font-size: 11.5px; }
+  .sq-ft-seg { display: inline-flex; gap: 4px; }
+  .sq-ft-seg .chip { min-width: 40px; padding: 4px 8px; }
+  .sq-ft-seg .chip[aria-pressed="true"] { border-color: var(--sky); color: #fff; background: rgba(68, 160, 192, .22); }
+  .sq-ft-seg .chip:disabled { opacity: .3; cursor: default; color: var(--ink-dim); }
+  .sq-ft-addrow { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .sq-ft-add { width: auto; max-width: 100%; }
+  .sq-ft-guide ul { margin: 8px 0; padding-left: 18px; display: grid; gap: 4px; font-size: 13px; }
+  .sq-ft-table { list-style: none !important; padding-left: 0 !important; }
+  .sq-ft-table li { display: grid; grid-template-columns: 70px minmax(0, 1fr); gap: 8px; }
+  .sq-ft-table b { color: var(--sky); }
+  .sq-ft-mark { color: #01d549; font-weight: 700; }
   @media (max-width: 400px) {
     .sq-ftr-row { grid-template-columns: minmax(0, 1fr) auto; }
     .sq-ftr-row > [data-fk^="ftr-key-"] { grid-column: 1 / -1; grid-row: 2; }
@@ -4686,6 +4713,94 @@ const SQUAD_TAB = ':squad';
 /* replaceChildren에 null을 넘기면 'null' 글자가 들어가므로 빈 것은 뺀다 */
 const sqKids = (...a) => a.flat().filter((x) => x != null && x !== false);
 const SQ_BONUS = [0, 0, 1, 2, 4, 6, 8, 11, 15, 17, 19, 21, 24, 27];
+/* 포지션 OVR 계산식: OVR = 버림(Σ 능력치×비중 / 100). 비중(합 100)은 커뮤니티에 공개된 표(devcomma 계산기·FIFA 18 가이드·인벤 표가 같음),
+   포지션마다 쓰는 능력치는 공식 데이터센터 화면(data-positon)과 같다. 데이터센터 화면 3개(LW·ST)에서 5/5 일치(반올림하면 안 맞음).
+   센터백은 자료마다 태클·슬라이딩 태클이 17/10·10/17로 엇갈려 선수의 공식 OVR과 맞는 쪽을 쓴다 */
+const SQ_OVR_W = {
+  ST: { finishing: 18, positioning: 13, ballcontrol: 10, headingaccuracy: 10, shotpower: 10, reactions: 8, dribbling: 7, shortpassing: 5, sprintspeed: 5, strength: 5, acceleration: 4, longshots: 3, volleys: 2 },
+  CF: { ballcontrol: 15, dribbling: 14, positioning: 13, finishing: 11, reactions: 9, shortpassing: 9, vision: 8, acceleration: 5, shotpower: 5, sprintspeed: 5, longshots: 4, headingaccuracy: 2 },
+  LW: { dribbling: 16, ballcontrol: 14, finishing: 10, crossing: 9, positioning: 9, shortpassing: 9, acceleration: 7, reactions: 7, sprintspeed: 6, vision: 6, longshots: 4, agility: 3 },
+  RW: { dribbling: 16, ballcontrol: 14, finishing: 10, crossing: 9, positioning: 9, shortpassing: 9, acceleration: 7, reactions: 7, sprintspeed: 6, vision: 6, longshots: 4, agility: 3 },
+  CAM: { shortpassing: 16, ballcontrol: 15, vision: 14, dribbling: 13, positioning: 9, finishing: 7, reactions: 7, longshots: 5, acceleration: 4, longpassing: 4, agility: 3, sprintspeed: 3 },
+  CM: { shortpassing: 17, ballcontrol: 14, longpassing: 13, vision: 13, reactions: 8, dribbling: 7, positioning: 6, stamina: 6, interceptions: 5, standingtackle: 5, longshots: 4, finishing: 2 },
+  CDM: { interceptions: 14, shortpassing: 14, standingtackle: 12, ballcontrol: 10, longpassing: 10, marking: 9, reactions: 7, stamina: 6, aggression: 5, slidingtackle: 5, strength: 4, vision: 4 },
+  LM: { dribbling: 15, ballcontrol: 13, shortpassing: 11, crossing: 10, positioning: 8, acceleration: 7, reactions: 7, vision: 7, finishing: 6, sprintspeed: 6, longpassing: 5, stamina: 5 },
+  RM: { dribbling: 15, ballcontrol: 13, shortpassing: 11, crossing: 10, positioning: 8, acceleration: 7, reactions: 7, vision: 7, finishing: 6, sprintspeed: 6, longpassing: 5, stamina: 5 },
+  CB: { standingtackle: 17, marking: 14, interceptions: 13, headingaccuracy: 10, slidingtackle: 10, strength: 10, aggression: 7, reactions: 5, shortpassing: 5, ballcontrol: 4, jumping: 3, sprintspeed: 2 },
+  LB: { slidingtackle: 14, interceptions: 12, standingtackle: 11, crossing: 9, marking: 8, reactions: 8, stamina: 8, ballcontrol: 7, shortpassing: 7, sprintspeed: 7, acceleration: 5, headingaccuracy: 4 },
+  RB: { slidingtackle: 14, interceptions: 12, standingtackle: 11, crossing: 9, marking: 8, reactions: 8, stamina: 8, ballcontrol: 7, shortpassing: 7, sprintspeed: 7, acceleration: 5, headingaccuracy: 4 },
+  LWB: { crossing: 12, interceptions: 12, slidingtackle: 11, shortpassing: 10, stamina: 10, ballcontrol: 8, reactions: 8, standingtackle: 8, marking: 7, sprintspeed: 6, acceleration: 4, dribbling: 4 },
+  RWB: { crossing: 12, interceptions: 12, slidingtackle: 11, shortpassing: 10, stamina: 10, ballcontrol: 8, reactions: 8, standingtackle: 8, marking: 7, sprintspeed: 6, acceleration: 4, dribbling: 4 },
+  GK: { gkdiving: 21, gkhandling: 21, gkpositioning: 21, gkreflexes: 21, reactions: 11, gkkicking: 5 },
+};
+const SQ_OVR_W_CB2 = { slidingtackle: 17, marking: 14, interceptions: 13, headingaccuracy: 10, standingtackle: 10, strength: 10, aggression: 7, reactions: 5, shortpassing: 5, ballcontrol: 4, jumping: 3, sprintspeed: 2 };
+/* 집중훈련(공식 공지): 한 번에 상세 능력치 하나 +1, 능력치마다 +2까지, 1~10강 5개·11강 이상 6개(2025.8) */
+const sqFtSlots = (grade) => (grade >= 11 ? 6 : 5);
+/* 1강 능력치로 Σ 능력치×비중(정수)을 셈. 공식 1강 OVR(p.pos)과 맞는지(exact)도 같이.
+   센터백: 한 표만 공식 OVR과 맞으면 그 표, 두 표가 다 맞거나 공식 OVR이 없으면 정할 수 없으므로 amb(두 표)를 달아 두 표 모두에서 성립하는 폭만 쓴다 */
+function sqOvrModel(p, stats, g) {
+  if (!stats || !SQ_OVR_W[g]) return null;
+  const sum = (w) => { let t = 0; for (const [k, v] of Object.entries(w)) { if (!isNum(stats[k])) return null; t += stats[k] * v; } return t; };
+  const off = p.pos && isNum(p.pos[g]) ? p.pos[g] : null;
+  const cands = (g === 'CB' ? [SQ_OVR_W.CB, SQ_OVR_W_CB2] : [SQ_OVR_W[g]]).map((w) => ({ w, s: sum(w) }));
+  if (cands.some((c) => c.s == null)) return null;
+  const hit = off == null ? [] : cands.filter((c) => Math.floor(c.s / 100) === off);
+  if (hit.length === 1) return { ...hit[0], off, exact: true };
+  if (cands.length > 1 && (hit.length > 1 || off == null)) return { ...cands[0], off, exact: false, amb: hit.length > 1 ? hit : cands };
+  return { ...cands[0], off, exact: false };
+}
+/* 집중훈련으로 오르는 OVR: 강화·팀컬러는 모든 능력치에 같은 값을 더해 OVR에 그대로 더해지므로 오르는 폭과 상관없다(표를 정할 수 없으면 작은 쪽) */
+function sqFtGain(m, ft) {
+  if (m.amb) return Math.min(...m.amb.map((c) => sqFtGain(c, ft)));
+  let t = 0;
+  for (const [k, n] of Object.entries(ft || {})) t += (m.w[k] || 0) * n;
+  return Math.floor((m.s + t) / 100) - Math.floor(m.s / 100);
+}
+/* OVR +1, +2 …를 만드는 가장 적은 훈련(+1 횟수). 칸 수(slots) 안에서 능력치마다 +1·+2를 고르는 작은 배낭 문제 */
+function sqFtPlans(m, slots) {
+  /* 표를 정할 수 없으면: 능력치마다 두 표 중 작은 비중으로 셈하고, 두 표에서 모자란 양 중 큰 쪽을 채우는 훈련만(두 표 모두에서 성립) */
+  const amb = m.amb || [m];
+  const w = {};
+  for (const k of Object.keys(amb[0].w)) w[k] = Math.min(...amb.map((c) => c.w[k] || 0));
+  const items = Object.entries(w).filter(([, x]) => x > 0).sort((a, b) => b[1] - a[1] || (a[0] < b[0] ? -1 : 1));
+  let dp = new Map([['0|0', { steps: 0, used: 0, t: 0, picks: [] }]]);
+  for (const [k, w] of items) {
+    const next = new Map(dp);
+    for (const st of dp.values()) {
+      if (st.used >= slots) continue;
+      for (const n of [1, 2]) {
+        const c = { steps: st.steps + n, used: st.used + 1, t: st.t + w * n, picks: [...st.picks, [k, n]] };
+        const key = `${c.used}|${c.t}`;
+        const old = next.get(key);
+        if (!old || c.steps < old.steps) next.set(key, c);
+      }
+    }
+    dp = next;
+  }
+  const need = (gain) => Math.max(...amb.map((c) => (Math.floor(c.s / 100) + gain) * 100 - c.s));
+  const all = [...dp.values()];
+  const tmax = Math.max(...all.map((x) => x.t));
+  let max = 0;
+  while (need(max + 1) <= tmax) max++;
+  const plans = [];
+  for (let gain = 1; gain <= max; gain++) {
+    const need_ = need(gain);
+    const ok = all.filter((x) => x.t >= need_).sort((a, b) => a.steps - b.steps || a.used - b.used || b.t - a.t);
+    if (ok.length) plans.push({ gain, steps: ok[0].steps, picks: ok[0].picks });
+  }
+  return plans;
+}
+/* 선수의 포지션별(데이터센터에 OVR이 있는 자리) 집중훈련 OVR 변화 */
+function sqFtDeltas(p, stats) {
+  const out = {};
+  for (const g of Object.keys(p.pos || {})) {
+    const m = sqOvrModel(p, stats, g);
+    const d = m ? sqFtGain(m, p.ft) : 0;
+    if (d) out[g] = d;
+  }
+  return out;
+}
+const sqFtd = (p, g) => (p && p.ftd && isNum(p.ftd[g]) ? p.ftd[g] : 0);
 const SQ_ROLE_GROUP = {
   GK: 'GK', LB: 'LB', RB: 'RB', LWB: 'LWB', RWB: 'RWB', LCB: 'CB', CB: 'CB', RCB: 'CB', LDM: 'CDM', CDM: 'CDM', RDM: 'CDM',
   LCM: 'CM', CM: 'CM', RCM: 'CM', LM: 'LM', RM: 'RM', LAM: 'CAM', CAM: 'CAM', RAM: 'CAM', LF: 'CF', CF: 'CF', RF: 'CF', LW: 'LW', RW: 'RW', LS: 'ST', ST: 'ST', RS: 'ST',
@@ -4783,8 +4898,8 @@ const sqPrice = (p) => (p && p.bp ? p.bp[p.grade - 1] : null);
 function sqOvr(p, group) {
   if (!p) return null;
   const b = SQ_BONUS[p.grade] || 0;
-  if (p.pos && isNum(p.pos[group])) return { ovr: p.pos[group] + b, fit: true };
-  const vals = Object.values(p.pos || {}).filter(isNum);
+  if (p.pos && isNum(p.pos[group])) return { ovr: p.pos[group] + b + sqFtd(p, group), fit: true };
+  const vals = Object.entries(p.pos || {}).filter(([, v]) => isNum(v)).map(([g, v]) => v + sqFtd(p, g));
   return vals.length ? { ovr: Math.max(...vals) + b, fit: false } : null;
 }
 function sqTotals(sq, cap) {
@@ -4930,7 +5045,7 @@ function sqCardEl(p, group, size) {
   const co = sqColor(st.o, '#fff');
   const style = `--c-o:${co};--c-n:${sqColor(st.n, co)};--c-y:${sqColor(st.y, co)};--c-ys:${sqColor(st.ys, sqColor(st.y, co))};--c-yf:${sqColor(st.yf, 'rgba(0,0,0,.35)')}`;
   const o = group ? sqOvr(p, group) : null;
-  const best = Object.entries(p.pos || {}).sort((a, b) => b[1] - a[1])[0];
+  const best = Object.entries(p.pos || {}).map(([g, v]) => [g, v + sqFtd(p, g)]).sort((a, b) => b[1] - a[1])[0];
   const ovr = o ? o.ovr : best ? best[1] + (SQ_BONUS[p.grade] || 0) : null;
   const posLabel = o && o.fit ? group : best ? best[0] : group || '';
   const bg = view.bg && p.season ? h('img', { class: 'sq-card-bg', src: SQ_CARD_BG(p.season), alt: '', loading: 'lazy', decoding: 'async' }) : null;
@@ -5099,11 +5214,15 @@ function sqDetailBody(p, d, meta, ui, err, retry) {
   const traits = (d.traits || []).slice().sort((x, y) => (newT.has(y.name) ? 1 : 0) - (newT.has(x.name) ? 1 : 0));
   const info = d.info || {};
   const facts = [info.height, info.weight, info.physical, d.skill ? `개인기 ${'★'.repeat(d.skill)}${p.grade > 1 ? '(1강 기준, 강화하면 늘 수 있어요)' : ''}` : null, d.foot ? `약발 ${d.foot}` : null, info.season_name, info.team, info.nation ? `${info.nation}${info.national_team ? '(국가대표)' : ''}` : null].filter(Boolean);
-  const stat = ([k, l]) => { const v = isNum(d.stats[k]) ? d.stats[k] + b : null; return h('li', { class: 'sq-st' }, h('span', null, l), h('b', { class: v != null ? sqStatCls(v) : '' }, v != null ? String(v) : '-')); };
+  const stat = ([k, l]) => {
+    const t = (p.ft && p.ft[k]) || 0;
+    const v = isNum(d.stats[k]) ? d.stats[k] + b + t : null;
+    return h('li', { class: 'sq-st' }, h('span', null, l, t ? h('small', { class: 'sq-ft-mark', title: '집중훈련' }, ` +${t}`) : null), h('b', { class: v != null ? sqStatCls(v) : '' }, v != null ? String(v) : '-'));
+  };
   return h('div', { class: 'sq-dt' },
     traits.length ? h('ul', { class: 'sq-traits', 'aria-label': '특성' }, traits.map((t) => h('li', { class: newT.has(t.name) ? 'new' : '' }, sqTraitIcon(t), h('span', null, t.name), newT.has(t.name) ? h('em', null, '새 특성') : null))) : h('p', { class: 'hint' }, '특성 없음'),
     h('ul', { class: 'sq-sum6' }, (Array.isArray(d.summary) ? d.summary : []).map(([l, raw]) => { const v = isNum(raw) ? raw + b : null; return h('li', null, h('span', null, l), h('b', { class: v != null ? sqStatCls(v) : '' }, v != null ? String(v) : '-'), h('i', { class: v != null ? sqStatCls(v) : null, style: `width:${v != null ? Math.max(4, Math.min(100, ((v - 40) / 130) * 100)) : 0}%` })); })),
-    h('details', { class: 'sq-allst', open: ui && ui.openAll ? true : null, ontoggle: (e) => { if (ui) ui.openAll = e.currentTarget.open; } }, h('summary', null, `능력치 34개 (${p.grade}강 기준)`),
+    h('details', { class: 'sq-allst', open: ui && ui.openAll ? true : null, ontoggle: (e) => { if (ui) ui.openAll = e.currentTarget.open; } }, h('summary', null, `능력치 34개 (${p.grade}강 기준${p.ft && Object.keys(p.ft).length ? ', 집중훈련 포함' : ''})`),
       h('ul', { class: 'sq-stats' }, (meta.abilities || []).map(([k]) => stat([k, labels.get(k) || k])))),
     facts.length ? h('p', { class: 'sq-facts' }, facts.join(' · ')) : null,
     d.clubs && d.clubs.length ? h('details', { class: 'sq-clubs', open: ui && ui.openClubs ? true : null, ontoggle: (e) => { if (ui) ui.openClubs = e.currentTarget.open; } }, h('summary', null, `클럽 경력 ${d.clubs.length}곳`),
@@ -5198,7 +5317,13 @@ async function renderSquad(seq) {
     });
     tcWrap.replaceChildren(sqTeamColorBox(sq, meta));
     const dl = cur && curBox.querySelector('.sq-dl');
-    if (dl) keepFocus(() => dl.replaceWith(sqDetailBody(cur, sqDetailNow(cur.spid), meta, ui, sqDetailErr.get(cur.spid), () => { sqDetailErr.delete(cur.spid); keepFocus(drawCur); })));
+    if (dl) keepFocus(() => {
+      const retry = () => { sqDetailErr.delete(cur.spid); sqDetail(cur.spid).then(() => onDetail(cur.spid), () => onDetail(cur.spid)); keepFocus(drawCur); };
+      const dNow = sqDetailNow(cur.spid);
+      dl.replaceWith(sqDetailBody(cur, dNow, meta, ui, sqDetailErr.get(cur.spid), retry));
+      const fb = curBox.querySelector('.sq-ft');
+      if (fb) fb.replaceWith(ftBox(cur, dNow, ui.sel.side === 'slot' ? sqLayout(sq.formation)[ui.sel.idx].group : null));
+    });
   }
   function fetchDetails() { sqFetchDetails([...sq.slots, ...sq.bench].filter(Boolean).map((p) => p.spid), onDetail); }
   function pick(sideName, idx) {
@@ -5458,14 +5583,98 @@ async function renderSquad(seq) {
         sqCardEl(p, group, 'lg'),
         h('div', { class: 'sq-cur-main' },
           h('div', { class: 'pl-name' }, seasonEl(p.spid), h('span', { class: 'pl-nm' }, p.name)),
-          h('div', { class: 'pl-tags' }, Object.entries(p.pos || {}).map(([g, v]) => h('span', { class: `pos pos-${sqLine(g)}` }, `${g} ${v + (SQ_BONUS[p.grade] || 0)}`)), h('span', { class: 'ga' }, `급여 ${p.pay}`)),
+          h('div', { class: 'pl-tags' }, Object.entries(p.pos || {}).map(([g, v]) => h('span', { class: `pos pos-${sqLine(g)}` }, `${g} ${v + (SQ_BONUS[p.grade] || 0) + sqFtd(p, g)}`)), h('span', { class: 'ga' }, `급여 ${p.pay}`)),
           h('p', { class: 'sq-cur-grade' }, sqGradeEl(p.grade), ` ${sqTierLabel(p.grade)} · 시세 ${price != null ? fmtBP(price) + ' BP' : '없음'}`),
           sqGradeTiles(p.grade, p.bp, (g) => { p.grade = g; changed({ find: false }); }),
           h('div', { class: 'sq-cur-tools' },
             h('button', { type: 'button', class: 'btn btn-ghost', 'data-fk': 'move', onclick: () => { ui.moving = { ...ui.sel }; draw({ find: false }); } }, '자리 옮기기'),
             h('button', { type: 'button', class: 'btn btn-danger', 'data-fk': 'remove', onclick: () => { arr[ui.sel.idx] = null; changed({ find: false }); } }, '빼기'),
             h('a', { class: 'btn-text', href: sqInfoUrl(p.spid, p.grade), target: '_blank', rel: 'noopener noreferrer' }, '데이터센터에서 보기')))),
-      sqDetailBody(p, d, meta, ui, err, () => { sqDetailErr.delete(p.spid); sqDetail(p.spid).then(() => onDetail(p.spid), () => onDetail(p.spid)); keepFocus(drawCur); }));
+      sqDetailBody(p, d, meta, ui, err, () => { sqDetailErr.delete(p.spid); sqDetail(p.spid).then(() => onDetail(p.spid), () => onDetail(p.spid)); keepFocus(drawCur); }),
+      ftBox(p, d, group));
+  }
+  /* 집중훈련: 고른 포지션에서 OVR을 가장 많이 올리는 훈련(가장 적은 횟수)과 직접 고르기, 가이드.
+     p.ft = {능력치: +1|+2}, p.ftd = {포지션: OVR 변화}(카드·합계 OVR에 더함). 계산은 1강 능력치(선수 상세)로만, 넥슨에 더 묻지 않음 */
+  function ftBox(p, d, slotGroup) {
+    const labels = new Map(meta.abilities || []);
+    const lab = (k) => labels.get(k) || k;
+    const slots = sqFtSlots(p.grade);
+    const ft = p.ft || {};
+    const used = Object.keys(ft).length;
+    const posKeys = Object.keys(p.pos || {}).sort((a, b) => p.pos[b] - p.pos[a]);
+    if (!ui.ftPos || ui.ftPos.spid !== p.spid || ui.ftPos.slot !== slotGroup) ui.ftPos = { spid: p.spid, slot: slotGroup, g: slotGroup || posKeys[0] || 'ST' };
+    const g = ui.ftPos.g;
+    const guide = h('details', { class: 'sq-ft-guide', open: ui.ftGuide ? true : null, ontoggle: (e) => { ui.ftGuide = e.currentTarget.open; } },
+      h('summary', null, '집중훈련 가이드'),
+      h('ul', null,
+        h('li', null, '훈련 한 번에 상세 능력치 하나가 +1, 한 능력치는 +2까지 올라가요.'),
+        h('li', null, '훈련할 수 있는 능력치는 1~10강 5개, 11강 이상 6개예요(2025년 8월 업데이트 공지).'),
+        h('li', null, 'OVR은 포지션마다 정해진 능력치 비중으로 셈하고 소수점은 버려요. 비중이 큰 능력치를 올려야 OVR이 오르고, 소수점이 모자라면 같은 훈련이라도 선수마다 오르는 폭이 달라요.'),
+        h('li', null, '강화·팀컬러는 모든 능력치에 같은 값을 더해서, 집중훈련으로 오르는 OVR 폭은 강화 단계와 상관없어요.'),
+        h('li', null, '훈련 비용(TC)·초기화 환급률은 지금 기준 공식 안내를 찾지 못해 넣지 않았어요. 게임에서 확인해 주세요.')),
+      h('p', { class: 'hint' }, '포지션별로 OVR에 크게 들어가는 능력치(비중 %)'),
+      h('ul', { class: 'sq-ft-table' }, [['ST'], ['CF'], ['LW', 'RW'], ['CAM'], ['CM'], ['CDM'], ['LM', 'RM'], ['CB'], ['LB', 'RB'], ['LWB', 'RWB'], ['GK']].map((gs) =>
+        h('li', null, h('b', null, gs.join('·')), h('span', null, Object.entries(SQ_OVR_W[gs[0]]).sort((a, b) => b[1] - a[1]).slice(0, 6).map(([k, w]) => `${lab(k)} ${w}`).join(' · '))))),
+      h('p', { class: 'hint' }, '비중은 커뮤니티에 공개된 FC온라인 OVR 계산표예요(공식 데이터센터 OVR과 맞춰 봤어요). 센터백은 자료마다 태클·슬라이딩 태클 비중이 엇갈려 선수의 공식 OVR과 맞는 쪽을 써요.'));
+    const head = h('h3', { class: 'sq-h3' }, '집중훈련');
+    if (!d || !d.stats) return h('section', { class: 'sq-ft', 'aria-label': '집중훈련' }, head, h('p', { class: 'hint' }, '능력치를 받으면 집중훈련 계산을 보여 드려요.'), guide);
+    const m = sqOvrModel(p, d.stats, g);
+    if (!m) return h('section', { class: 'sq-ft', 'aria-label': '집중훈련' }, head, h('p', { class: 'hint' }, '이 선수는 능력치가 모자라 계산하지 못했어요.'), guide);
+    const b = SQ_BONUS[p.grade] || 0;
+    const baseOvr = (m.off != null ? m.off : Math.floor(m.s / 100)) + b;
+    const gain = sqFtGain(m, ft);
+    const plans = sqFtPlans(m, slots);
+    /* 고친 뒤: 0이면 빼고, 포지션별 OVR 변화를 다시 셈 */
+    const setFt = (next, fks = []) => {
+      const clean = {};
+      for (const [k, n] of Object.entries(next)) if (n === 1 || n === 2) clean[k] = n;
+      if (Object.keys(clean).length) { p.ft = clean; p.ftd = sqFtDeltas(p, d.stats); } else { delete p.ft; delete p.ftd; }
+      changed({ find: false });
+      for (const fk of [...fks, 'ft-manual', 'ft-pos']) {
+        const el = curBox.querySelector(`[data-fk="${fk}"]`);
+        if (el && !el.disabled) { el.focus({ preventScroll: true }); break; }
+      }
+    };
+    const pickText = (picks) => picks.map(([k, n]) => `${lab(k)} +${n}`).join(', ');
+    const posSel = h('select', { class: 'input select sq-ft-pos', 'aria-label': '집중훈련 기준 포지션', 'data-fk': 'ft-pos', onchange: (e) => { ui.ftPos.g = e.target.value; keepFocus(drawCur); } },
+      [...new Set([...(slotGroup ? [slotGroup] : []), ...posKeys, ...SQ_GROUPS])].map((x) => h('option', { value: x, selected: x === g ? true : null }, `${x}${p.pos && isNum(p.pos[x]) ? '' : ' (계산값)'}`)));
+    const note = m.amb ? `센터백은 계산표 두 개(태클·슬라이딩 태클 비중이 서로 바뀜) 중 어느 쪽인지 ${m.off == null ? '이 선수 공식 OVR이 없어' : '이 선수로는'} 정할 수 없어서, 두 표 모두에서 오르는 폭만 보여 줘요.`
+      : m.exact ? `계산이 이 선수의 공식 ${g} OVR과 맞아요.`
+      : m.off == null ? `데이터센터에 이 선수의 ${g} OVR이 없어서 계산값으로 보여 줘요.`
+      : `계산(${Math.floor(m.s / 100)})이 공식 ${g} OVR(${m.off}, 1강)과 달라서 오르는 폭은 예상이에요.`;
+    const now = used ? h('p', { class: 'sq-ft-now' }, `지금 설정: ${pickText(Object.entries(ft))} → ${g} OVR ${gain ? `+${gain}` : '그대로'}`,
+      h('button', { type: 'button', class: 'btn btn-text danger', 'data-fk': 'ft-clear', onclick: () => setFt({}, ['ft-plan-1']) }, '모두 빼기')) : null;
+    const over = used > slots ? h('p', { class: 'alert' }, `${p.grade}강은 ${slots}개까지 훈련할 수 있어요. ${used - slots}개를 빼 주세요(11강 아래로 내려갈 때 6번째 능력치가 어떻게 되는지는 공식 안내가 없어요).`) : null;
+    const planList = plans.length ? h('ol', { class: 'sq-ft-plans' }, plans.map((pl) => h('li', null,
+      h('b', null, `${g} ${baseOvr} → ${baseOvr + pl.gain}`),
+      h('span', null, `${pickText(pl.picks)} (훈련 ${pl.steps}번)`),
+      h('button', { type: 'button', class: 'btn btn-ghost', 'data-fk': `ft-plan-${pl.gain}`, onclick: () => setFt(Object.fromEntries(pl.picks), [`ft-plan-${pl.gain}`]) }, '이대로 설정'))))
+      : h('p', { class: 'hint' }, `이 선수는 ${g}에서 집중훈련으로 OVR이 오르지 않아요.`);
+    const weighted = Object.entries(m.w).sort((a, b) => b[1] - a[1]).map(([k]) => k);
+    const rowsKeys = [...weighted, ...Object.keys(ft).filter((k) => !weighted.includes(k))];
+    const manual = h('details', { class: 'sq-ft-manual', open: ui.ftManual ? true : null, ontoggle: (e) => { ui.ftManual = e.currentTarget.open; } },
+      h('summary', { 'data-fk': 'ft-manual' }, `직접 고르기 (${used}/${slots}개)`),
+      h('ul', { class: 'sq-ft-rows' }, rowsKeys.map((k) => {
+        const n = ft[k] || 0;
+        const v = isNum(d.stats[k]) ? d.stats[k] + b + n : null;
+        return h('li', null,
+          h('span', { class: 'sq-ft-lab' }, lab(k), m.w[k] ? h('small', null, ` 비중 ${m.w[k]}`) : h('small', null, ` ${g} OVR엔 안 들어가요`)),
+          h('b', { class: v != null ? sqStatCls(v) : '' }, v != null ? String(v) : '-'),
+          h('span', { class: 'sq-ft-seg', role: 'group', 'aria-label': `${lab(k)} 집중훈련` }, [0, 1, 2].map((x) => h('button', { type: 'button', class: 'chip', 'aria-pressed': n === x ? 'true' : 'false', 'data-fk': `ft-${k}-${x}`,
+            disabled: x > 0 && !n && used >= slots ? true : null, title: x > 0 && !n && used >= slots ? `${slots}개를 다 골랐어요` : null,
+            onclick: () => setFt({ ...ft, [k]: x }, [`ft-${k}-${x}`, `ft-${k}-0`]) }, x ? `+${x}` : '0'))));
+      })),
+      used < slots ? h('div', { class: 'sq-ft-addrow' },
+        h('select', { class: 'input select sq-ft-add', 'aria-label': `${g} OVR엔 안 들어가는 능력치 고르기`, 'data-fk': 'ft-add' },
+          h('option', { value: '' }, `${g} OVR엔 안 들어가는 능력치`), (meta.abilities || []).filter(([k]) => !rowsKeys.includes(k)).map(([k, l]) => h('option', { value: k }, l))),
+        h('button', { type: 'button', class: 'btn btn-ghost', 'data-fk': 'ft-add-btn', onclick: (e) => {
+          const v = e.currentTarget.previousElementSibling.value;
+          if (v) setFt({ ...ft, [v]: 1 }, [`ft-${v}-1`, 'ft-add']); else e.currentTarget.previousElementSibling.focus();
+        } }, '+1 더하기')) : null);
+    return h('section', { class: 'sq-ft', 'aria-label': '집중훈련' },
+      h('div', { class: 'sq-ft-head' }, head, posSel, h('span', { class: 'muted' }, `${slots}개까지 · 능력치마다 +2까지`)),
+      h('p', { class: 'hint' }, note), now, over,
+      h('p', { class: 'sq-ft-sub' }, `${g} OVR을 올리는 가장 적은 훈련`), planList, manual, guide);
   }
   /* 오른쪽 아래: 선수 찾기·랭커 픽 */
   function drawFind() {
