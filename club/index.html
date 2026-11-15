@@ -4445,7 +4445,7 @@ async function renderPicks(type, seq) {
       h('div', { class: 'pkr-bars', role: 'group', 'aria-label': '평균 평점 비교' },
         bar('NV', p.avg_rating, 'pb-nv'),
         rk ? bar('랭커', rk.avg_rating, 'pb-rk') : h('p', { class: 'pb-none' }, '랭커 기록 없음'),
-        rk && isNum(rk.matches) && rk.matches ? h('p', { class: 'pb-rk-st' }, `랭커는 경기당 ${fx(rk.goals / rk.matches, 1)}골 ${fx(rk.assists / rk.matches, 1)}도움`) : null));
+        rk && isNum(rk.matches) && rk.matches ? h('p', { class: 'pb-rk-st' }, `랭커 ${rk.matches.toLocaleString('ko-KR')}경기 · 경기당 ${fx(rk.goals / rk.matches, 1)}골 ${fx(rk.assists / rk.matches, 1)}도움${isNum(rk.pass_pct) ? ` · 패스 ${fx(rk.pass_pct, 1)}%` : ''}`) : null));
   }
   const inLine = (p) => line === 'all' || posLine(p.pos) === line;
   const paint = () => {
@@ -4462,8 +4462,8 @@ async function renderPicks(type, seq) {
       h('span', null, `클럽원 ${d.members_counted ?? 0}명의 최근 ${winSize(d)}경기 선발을 모았어요.`),
       h('span', null, d.updated_at ? ['갱신 ', timeEl(d.updated_at, true)] : '아직 모은 기록이 없어요')),
     refillNote(d, null),
-    h('p', { class: 'hint pk-explain' }, '랭커 평점은 TOP 10,000 랭커가 이 선수를 쓴 20경기의 평균이에요. NV 평점은 클럽원 선발 경기의 평균이에요.'),
-    d.ranker_partial ? h('p', { class: 'pm-partial' }, '몇몇 선수는 이번에 랭커 기록을 다 받지 못했어요.') : null,
+    h('p', { class: 'hint pk-explain' }, '랭커 기록은 공식 데이터센터 기준으로 어제 TOP 10,000 랭커가 이 카드로 뛴 경기의 평균이에요. 강화 단계는 구분하지 않아요. NV 평점은 클럽원 선발 경기의 평균이에요.'),
+    d.ranker_pending ? h('p', { class: 'pm-partial' }, `랭커 기록은 한 시간마다 조금씩 받아 와요. 아직 ${d.ranker_pending}장은 받기 전이에요.`) : null,
     players.length ? [chips, list] : h('div', { class: 'st-empty', style: 'margin-top:18px' }, h('p', null, '아직 모은 선수가 없어요.'), h('p', null, '클럽원 기록을 모으면 여기에 보여요.')),
     statsAttr()]);
 }
