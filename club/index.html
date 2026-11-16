@@ -1445,9 +1445,12 @@
   .sq-auto-box { margin-top: 22px; }
   .sq-left, .sq-right { min-width: 0; }
   @media (min-width: 1000px) {
-    /* PC: 경기장 왼쪽, 선수 찾기 오른쪽. 본문 폭(920px)보다 넓게 */
-    .sq-grid { grid-template-columns: minmax(0, 520px) minmax(0, 1fr); margin-inline: calc(50% - min(620px, 50vw - 24px)); }
-    .sq-right { position: sticky; top: 12px; align-self: start; max-height: calc(100vh - 24px); overflow: auto; overscroll-behavior: contain; padding-right: 4px; }
+    /* PC 경기장 폭 --sq-pw: 화면 높이에 맞춤(경기장 5:8이 위 고정 머리 아래에 다 들어가게), 오른쪽 칸은 420px 이상 남김, 520~860px.
+       사용자 요청 2026-11-16 'PC에서 너무 작다, 카드가 잘 안 보인다'(3440×1440 모니터에서 520px 고정이었음) */
+    :root { --sq-pw: clamp(520px, min(calc((100vh - 96px) * .625), calc(100vw - 496px)), 860px); }
+    /* PC: 경기장 왼쪽, 선수 찾기 오른쪽(최대 692px). 본문 폭(920px)보다 넓게 */
+    .sq-grid { grid-template-columns: minmax(0, var(--sq-pw)) minmax(0, 1fr); margin-inline: calc(50% - min(calc(var(--sq-pw) / 2 + 360px), 50vw - 24px)); }
+    .sq-right { position: sticky; top: calc(73px + env(safe-area-inset-top, 0px)); align-self: start; max-height: calc(100vh - 85px - env(safe-area-inset-top, 0px)); overflow: auto; overscroll-behavior: contain; padding-right: 4px; } /* 위 고정 머리(60px+선) 아래에 붙음 */
     .sq-right > .sq-h:first-child { margin-top: 0; }
   }
   .sq-bar { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 0 0 12px; }
@@ -1633,6 +1636,31 @@
   .sq-pitch.rows-5 { --w: 21cqw; aspect-ratio: 1 / 2; }
   @media (max-width: 359px) { .sq-pitch { --w: 22.5cqw; } } /* 아주 좁은 폰: 이름·특성 줄 높이는 그대로라 카드만 조금 작게 */
   @media (min-width: 760px) { .sq-pitch { --w: 21.5cqw; aspect-ratio: 5 / 8; } .sq-pitch.rows-5 { --w: 17.5cqw; aspect-ratio: 5 / 8; } }
+  /* PC 큰 경기장: 카드는 cqw라 같이 커지고, 이름·특성·빈 자리 글자도 경기장 폭을 따라 키움(520px일 때 비율을 넘지 않게 상한) */
+  @media (min-width: 1000px) {
+    .sq-pitch { max-width: var(--sq-pw, 520px); }
+    .sq-pitch .sq-spot { grid-template-rows: auto auto clamp(19px, 3.6cqw, 25px); }
+    .sq-pitch .sq-nm { font-size: clamp(13px, 2.5cqw, 17px); }
+    .sq-pitch .sq-trs .sq-trait-ic { width: clamp(18px, 3.4cqw, 24px); height: clamp(18px, 3.4cqw, 24px); }
+    .sq-pitch .sq-role { font-size: clamp(10.5px, 2cqw, 14px); }
+    .sq-grid .sq-bench { --w: clamp(72px, calc(var(--sq-pw, 520px) / 7 - 14px), 100px); grid-auto-columns: minmax(calc(var(--w) + 4px), 1fr); }
+    .sq-grid .sq-bnm { max-width: calc(var(--w) - 8px); }
+  }
+  /* 넓은 PC(1280px~): 벤치를 경기장 오른쪽에 세로 한 줄로 — 급여·평균 OVR 줄, 경기장 전체, 벤치가 한 화면에 들어오게.
+     경기장 높이 = 화면 - 머리·요약 줄·경고 한 줄(180px), 벤치 카드는 7장이 경기장 높이 안에 들어가는 크기(72~104px) */
+  @media (min-width: 1280px) {
+    :root {
+      --sq-pw: clamp(520px, min(calc((100vh - 180px) * .625), calc(100vw - 636px)), 860px);
+      --sq-bw: clamp(72px, calc((var(--sq-pw) * 1.6 - 48px) / 8.2355 - 24px), 104px);
+    }
+    .sq-grid { grid-template-columns: minmax(0, calc(var(--sq-pw) + var(--sq-bw) + 30px)) minmax(0, 1fr); margin-inline: calc(50% - min(calc((var(--sq-pw) + var(--sq-bw) + 30px) / 2 + 360px), 50vw - 24px)); }
+    .sq-left { display: grid; grid-template-columns: minmax(0, var(--sq-pw)) calc(var(--sq-bw) + 16px); column-gap: 14px; align-content: start; }
+    .sq-left > * { grid-column: 1 / -1; min-width: 0; }
+    .sq-left > .sq-pwrap { grid-column: 1; }
+    .sq-left > .sq-bwrap { grid-column: 2; grid-row: 2; }
+    .sq-bwrap > .sq-h { margin: 0 0 6px; text-align: center; }
+    .sq-grid .sq-bench { --w: var(--sq-bw); grid-auto-flow: row; grid-auto-columns: auto; grid-template-columns: minmax(0, 1fr); overflow: visible; padding: 0; }
+  }
   .sq-li { position: absolute; width: var(--w); margin-left: calc(var(--w) / -2); transform: translateY(-52%); }
   .sq-spot { display: grid; justify-items: center; width: 100%; padding: 0; margin: 0; border: 0; background: none; color: inherit; font: inherit; cursor: pointer; border-radius: 6px; }
   div.sq-spot { cursor: default; }
@@ -1744,7 +1772,7 @@
   /* 고른 선수 상세 */
   .sq-cur { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 12px 14px; align-items: start; padding: 12px; margin: 0 0 10px; background: rgba(255, 255, 255, .025); box-shadow: inset 0 0 0 1px var(--rule); }
   .sq-cur > .sq-card { --w: 132px; margin: -6px -10px -10px -12px; }
-  @media (min-width: 1000px) { .sq-cur > .sq-card { --w: 150px; } }
+  @media (min-width: 1000px) { .sq-cur > .sq-card { --w: clamp(150px, calc(var(--sq-pw, 520px) * .23), 190px); } }
   .sq-cur-main { min-width: 0; }
   .sq-cur-grade { margin: 6px 0 0; font-size: 14px; color: var(--ink-mid); }
   .sq-cur-grade .sq-g { font-size: 13px; }
@@ -5716,7 +5744,7 @@ async function renderSquad(seq) {
   const side = h('div', { class: 'sq-right' });
   box.append(pitchBox, side);
   /* 왼쪽은 칸을 나눠 두고, 선수 정보가 도착하면 경기장·벤치·팀컬러만 다시 그린다(저장 칸에 쓰던 글이 지워지지 않게) */
-  const topBox = h('div'), pitchWrap = h('div'), benchWrap = h('div'), tcWrap = h('div'), saveWrap = h('div');
+  const topBox = h('div'), pitchWrap = h('div', { class: 'sq-pwrap' }), benchWrap = h('div', { class: 'sq-bwrap' }), tcWrap = h('div'), saveWrap = h('div');
   pitchBox.append(topBox, pitchWrap, benchWrap, tcWrap, saveWrap);
   const curBox = h('div', { class: 'sq-cur-box' }), findBox = h('div');
   side.append(curBox, findBox);
