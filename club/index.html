@@ -9,7 +9,7 @@
 <meta name="robots" content="noindex, follow">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="theme-color" content="#000000">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https://nv-api.e2jinsoopark.workers.dev http://localhost:* http://127.0.0.1:* https://cdn.discordapp.com https://fco.dn.nexoncdn.co.kr https://ssl.nexon.com https://crests.football-data.org data: blob:; connect-src 'self' https://*.workers.dev https://open.api.nexon.com http://localhost:* http://127.0.0.1:*; worker-src 'self'; frame-src https:; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https://nv-api.e2jinsoopark.workers.dev http://localhost:* http://127.0.0.1:* https://cdn.discordapp.com https://fco.dn.nexoncdn.co.kr https://ssl.nexon.com https://crests.football-data.org data: blob:; connect-src 'self' https: http://localhost:* http://127.0.0.1:*; media-src https: blob:; worker-src 'self'; frame-src https:; base-uri 'none'; form-action 'none'">
 <link rel="icon" type="image/png" sizes="32x32" href="../favicon-32.png">
 <link rel="apple-touch-icon" href="../apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1008,6 +1008,28 @@
   .fb-sec { margin-top: 8px; }
   .fb-meta { margin: 8px 0 0; font-size: 13px; color: var(--ink-dim); }
   .fb-meta time { color: var(--ink-mid); font-weight: 600; }
+  .fb-watch { position: relative; margin-top: 8px; }
+  .fb-player-tools { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 8px 0; }
+  .fb-player-label { flex: 1; min-width: 120px; color: var(--ink-hi); font-size: 14px; font-weight: 600; }
+  .fb-player-tools .btn { min-height: 44px; font-size: 13px; padding: 9px 13px; }
+  .fb-watch .fb-video { max-height: calc(100svh - 170px); }
+  .fb-video video { display: block; width: 100%; height: 100%; object-fit: contain; background: #000; }
+  .fb-hls-player { position: absolute; inset: 0; background: #000; }
+  .fb-hls-player video { position: absolute; inset: 0; }
+  .fb-hls-player[data-state="idle"] video, .fb-hls-player[data-state="error"] video { visibility: hidden; }
+  .fb-hls-player[data-state="error"] .fb-hls-retry { top: auto; bottom: 42px; transform: translateX(-50%); }
+  .fb-hls-start, .fb-hls-retry { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 2; min-height: 48px; min-width: 120px; padding: 12px 22px; border: 1px solid var(--red-bot); border-radius: 8px; background: #a0071e; color: #fff; font-weight: 700; cursor: pointer; }
+  .fb-hls-status { position: absolute; z-index: 2; top: 12px; left: 12px; right: 12px; margin: 0; padding: 7px 10px; background: rgba(0,0,0,.72); border-radius: 6px; color: var(--ink-mid); font-size: 12.5px; line-height: 1.5; pointer-events: none; }
+  .fb-hls-status:empty { display: none; }
+  body.football-theater { overflow: hidden; }
+  .fb-watch.is-theater { position: fixed; inset: 0; z-index: 1000; width: 100%; max-width: none; height: 100%; height: 100dvh; margin: 0; transform: none; display: flex; flex-direction: column; padding: max(8px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left)); background: #000; }
+  .fb-watch.is-theater .fb-player-tools { flex: none; padding: 0 0 8px; }
+  .fb-watch.is-theater .fb-video { flex: 1; min-height: 0; max-height: none; aspect-ratio: auto; border-radius: 0; }
+  @media (min-width: 1000px) {
+    .fb-watch { width: calc(100vw - var(--gut-l) - var(--gut-r) - 20px); max-width: none; margin-left: 50%; transform: translateX(-50%); }
+    .fb-watch.is-theater { width: 100%; margin-left: 0; transform: none; }
+  }
+  @media (max-width: 540px) { .fb-player-label { display: none; } .fb-player-tools .btn { flex: 1; padding-inline: 8px; } .fb-hls-player[data-state="idle"] .fb-hls-status { display: none; } .fb-hls-player[data-state="error"] .fb-hls-status { top: 4px; left: 4px; right: 4px; padding: 4px 6px; font-size: 12px; } .fb-hls-player[data-state="error"] .fb-hls-retry { bottom: 6px; } }
   .fb-vtitle { margin: 0 0 8px; font-size: 15px; font-weight: 600; color: var(--ink-hi); overflow-wrap: anywhere; }
   .fb-video { position: relative; width: 100%; aspect-ratio: 16 / 9; background: #000; border: 1px solid var(--rule); border-radius: 10px; overflow: hidden; }
   .fb-video iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
@@ -1882,6 +1904,7 @@
 </footer>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+<script src="football-player.js?v=20261123"></script>
 <script>
 'use strict';
 const API = 'https://nv-api.e2jinsoopark.workers.dev';
@@ -2265,6 +2288,7 @@ function currentNext() {
 }
 function route() {
   const seq = ++state.seq;
+  fbClearVideo();
   /* 화면을 바꾸면: 이전 화면에 묶인 '되돌리기' 알림은 닫고, 날아가던 카드 복사본은 지운다 */
   if (toastAct) toastHide();
   for (const n of document.querySelectorAll('.sq-fly, .sq-poof')) n.remove();
@@ -7018,7 +7042,80 @@ function fbVideoSite(v) {
   if (FB_VIDEO_NAME[v.provider]) return FB_VIDEO_NAME[v.provider];
   try { return new URL(v.url).hostname.replace(/^www\./, ''); } catch (e) { return '다른 사이트'; }
 }
+let fbVideoDispose = null;
+function fbClearVideo() {
+  const dispose = fbVideoDispose;
+  fbVideoDispose = null;
+  if (dispose) dispose();
+}
+function fbWatchControls(watch, box, media, original, label) {
+  let theater = false, nativeFull = false, disposed = false;
+  const big = h('button', { class:'btn btn-ghost', type:'button', 'aria-pressed':'false' }, '크게 보기');
+  const full = h('button', { class:'btn btn-ghost', type:'button' }, '전체화면');
+  const setTheater = (value, focus) => {
+    if (disposed) return;
+    theater = value;
+    watch.classList.toggle('is-theater', value);
+    document.body.classList.toggle('football-theater', value);
+    big.textContent = value ? '큰 화면 닫기' : '크게 보기';
+    big.setAttribute('aria-pressed', String(value));
+    if (!value && document.fullscreenElement === watch && document.exitFullscreen) Promise.resolve(document.exitFullscreen()).catch(() => {});
+    if (focus && big.isConnected) big.focus({ preventScroll:true });
+  };
+  big.addEventListener('click', () => setTheater(!theater, true));
+  full.addEventListener('click', async () => {
+    if (disposed) return;
+    if (document.fullscreenElement === watch && document.exitFullscreen) {
+      try { await document.exitFullscreen(); } catch { if (!disposed) toast('큰 화면 닫기로 나갈 수 있어요.'); }
+      return;
+    }
+    setTheater(true, false);
+    try {
+      if (typeof watch.requestFullscreen === 'function') {
+        await watch.requestFullscreen();
+        if (disposed && document.fullscreenElement === watch && document.exitFullscreen) await document.exitFullscreen();
+      }
+      else if (media && typeof media.webkitEnterFullscreen === 'function') media.webkitEnterFullscreen();
+      else if (!disposed) toast('브라우저 전체화면 대신 큰 화면으로 열었어요.');
+    } catch { if (!disposed) toast('브라우저 전체화면 대신 큰 화면으로 열었어요.'); }
+  });
+  const onFullscreen = () => {
+    if (disposed) return;
+    const current = document.fullscreenElement === watch;
+    full.textContent = current ? '전체화면 끝내기' : '전체화면';
+    if (nativeFull && !current) setTheater(false, true);
+    nativeFull = current;
+  };
+  const onKey = (event) => {
+    if (!theater) return;
+    if (event.key === 'Escape' && document.fullscreenElement !== watch) setTheater(false, true);
+    if (event.key === 'Tab') {
+      const nodes = [...watch.querySelectorAll('button:not([disabled]), a[href], video, iframe, [tabindex="0"]')].filter(el => !el.hidden && el.getClientRects().length && getComputedStyle(el).visibility !== 'hidden');
+      const first = nodes[0], last = nodes[nodes.length - 1];
+      if (first && ((!event.shiftKey && document.activeElement === last) || (event.shiftKey && document.activeElement === first))) {
+        event.preventDefault(); (event.shiftKey ? last : first).focus();
+      }
+    }
+  };
+  const onVideoFullscreenEnd = () => { if (!disposed) setTheater(false, true); };
+  if (media) media.addEventListener('webkitendfullscreen', onVideoFullscreenEnd);
+  document.addEventListener('fullscreenchange', onFullscreen);
+  document.addEventListener('keydown', onKey);
+  const tools = h('div', { class:'fb-player-tools' }, h('span', { class:'fb-player-label' }, label || '같이 보기'), big, full,
+    original ? h('a', { class:'btn btn-ghost', href:original, target:'_blank', rel:'noopener noreferrer' }, '원래 페이지 ↗') : null);
+  watch.append(tools, box);
+  return () => {
+    if (disposed) return;
+    disposed = true;
+    document.removeEventListener('fullscreenchange', onFullscreen);
+    document.removeEventListener('keydown', onKey);
+    if (media) media.removeEventListener('webkitendfullscreen', onVideoFullscreenEnd);
+    document.body.classList.remove('football-theater');
+    if (document.fullscreenElement === watch && document.exitFullscreen) Promise.resolve(document.exitFullscreen()).catch(() => {});
+  };
+}
 function fbVideoSection(v, onChange) {
+  fbClearVideo();
   const staff = !!(state.me && state.me.is_staff);
   const src = v ? fbEmbedUrl(v) : null;
   const isWeb = !!(v && v.provider === 'web');
@@ -7034,11 +7131,17 @@ function fbVideoSection(v, onChange) {
     kids.push(h('p', { class: 'fb-meta' }, `${site} · 운영진이 올렸어요`, isNum(v.set_at) ? [' · ', timeEl(v.set_at, true)] : null));
   } else if (src) {
     if (v.title) kids.push(h('p', { class: 'fb-vtitle' }, v.title));
-    const frame = h('iframe', { src, title: v.title || '같이 보기 영상', allow: 'encrypted-media; picture-in-picture; fullscreen; clipboard-write; web-share', allowfullscreen: true, referrerpolicy: 'strict-origin-when-cross-origin' });
-    /* 그 밖의 사이트는 sandbox로 띄운다: 클럽 공간 창을 다른 곳으로 옮기지 못하게(allow-top-navigation 없음). 새 탭 열기는 허용 */
-    if (isWeb) frame.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-forms allow-presentation allow-popups allow-popups-to-escape-sandbox');
-    const box = h('div', { class: `fb-video fb-v-${v.provider}` }, frame);
-    kids.push(box);
+    const directHls = typeof NVFootballPlayer !== 'undefined' && NVFootballPlayer.isHlsSource(v);
+    const player = directHls ? NVFootballPlayer.create({ url:v.id, title:v.title || '같이 보기 방송' }) : null;
+    const frame = player ? null : h('iframe', { src, title: v.title || '같이 보기 영상', allow: 'encrypted-media; picture-in-picture; fullscreen; clipboard-write; web-share', allowfullscreen: true, referrerpolicy: 'strict-origin-when-cross-origin' });
+    /* 일반 페이지는 기존 sandbox를 유지한다. 직접 HLS는 페이지 iframe 대신 video 플레이어로 처리한다. */
+    if (frame && isWeb) frame.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-forms allow-presentation allow-popups allow-popups-to-escape-sandbox');
+    const box = h('div', { class: `fb-video fb-v-${directHls ? 'hls' : v.provider}` }, player ? player.element : frame);
+    const watch = h('div', { class:'fb-watch' });
+    const disposeControls = fbWatchControls(watch, box, player ? player.video : null, original, v.title || '같이 보기');
+    let observer = null;
+    fbVideoDispose = () => { disposeControls(); if (observer) observer.disconnect(); if (player) player.destroy(); };
+    kids.push(watch);
     /* Twitch는 플레이어가 400×300 이상이어야 한다. 폭이 400보다 좁으면(돌리거나 창을 줄여도) Twitch로 가는 링크로 바꾼다 */
     if (v.provider === 'twitch' && typeof ResizeObserver === 'function') {
       const narrow = h('div', { class: 'fb-vnarrow' }, h('p', null, '화면이 좁아서 Twitch 규칙상 여기서는 재생할 수 없어요.'),
@@ -7049,11 +7152,12 @@ function fbVideoSection(v, onChange) {
         const want = box.clientWidth >= 400 ? frame : narrow;
         if (want !== shown) { shown = want; box.replaceChildren(want); }
       });
+      observer = ro;
       ro.observe(box);
     }
     kids.push(h('p', { class: 'fb-meta' }, `${fbVideoSite(v)} · 운영진이 올렸어요`, isNum(v.set_at) ? [' · ', timeEl(v.set_at, true)] : null,
       original ? [' · ', h('a', { href: original, target: '_blank', rel: 'noopener noreferrer' }, '원래 페이지에서 보기 ↗')] : null));
-    if (isWeb) kids.push(h('p', { class: 'fb-vhint' }, '화면이 비어 있거나 오류가 나면 그 사이트가 다른 곳에 넣는 걸 막은 거예요. ‘원래 페이지에서 보기’로 열어 주세요.'));
+    if (isWeb) kids.push(h('p', { class: 'fb-vhint' }, directHls ? '재생 버튼을 눌러 방송을 시작해 주세요. 재생이 안 되면 주소 만료·연결 상태·브라우저 영상 형식 지원을 확인해 주세요.' : '브라우저의 쿠키·재생 권한이나 원본 사이트의 퍼가기 제한에 따라 재생이 달라질 수 있어요. 원래 페이지에서도 확인해 주세요.'));
     if (v.provider === 'youtube') kids.push(h('p', { class: 'fb-legal' }, 'YouTube 영상에는 ', h('a', { href: 'https://www.youtube.com/t/terms', target: '_blank', rel: 'noopener noreferrer' }, 'YouTube 서비스 약관'), '과 ', h('a', { href: 'https://policies.google.com/privacy', target: '_blank', rel: 'noopener noreferrer' }, 'Google 개인정보처리방침'), '이 적용돼요.'));
   } else kids.push(h('p', { class: 'hint', style: 'margin:0 0 6px' }, '올린 영상이 없어요. 주소를 넣으면 클럽원 모두에게 이 자리에서 보여요.'));
   if (staff) {
@@ -7078,7 +7182,7 @@ function fbVideoSection(v, onChange) {
         h('div', { class: 'fb-vbtns' }, h('button', { class: 'btn', type: 'submit' }, src || link ? '바꾸기' : '올리기'),
           src || link ? h('button', { class: 'btn btn-ghost', type: 'button', onclick: () => send('DELETE') }, '내리기') : null),
         h('ul', { class: 'fb-vhelp' },
-          h('li', null, '어떤 사이트 주소든 넣을 수 있어요(https). 그 페이지를 이 자리에 그대로 띄워요.'),
+          h('li', null, 'https 주소를 넣을 수 있어요. .m3u8 방송 주소는 전용 영상 플레이어로, 일반 페이지는 페이지 화면으로 보여 줘요.'),
           h('li', null, 'YouTube·Twitch·치지직 클립·SOOP 주소는 공식 플레이어로 바꿔서 보여 줘요.'),
           h('li', null, '사이트가 다른 곳에 넣는 걸 막아 두었으면 빈 화면이 나와요. 그때는 ‘원래 페이지에서 보기’ 링크로 열면 돼요. 치지직 생방송처럼 막는 걸로 알려진 곳은 링크만 보여 줘요.'),
           h('li', null, '내리기 전까지 계속 보여요.')))));
@@ -7401,7 +7505,7 @@ async function renderFootball(seq) {
   try { const r = await api('/api/football/video'); video = r && r.video ? r.video : null; } catch (e) { if (e.handled || stale(seq)) return; videoErr = e; }
   if (stale(seq)) return;
   const videoBox = h('div');
-  const paintVideo = (v) => { videoBox.replaceChildren(); append(videoBox, fbVideoSection(v, paintVideo)); };
+  const paintVideo = (v) => { if (stale(seq)) return; fbClearVideo(); videoBox.replaceChildren(); append(videoBox, fbVideoSection(v, paintVideo)); };
   /* 못 불러온 것을 '올린 영상 없음'처럼 보이지 않게 따로 알린다 */
   if (videoErr) append(videoBox, h('section', { class: 'fb-sec', 'aria-labelledby': 'fb-video' }, h('h2', { class: 'st-h3', id: 'fb-video' }, '같이 보기'),
     errorBox({ code: videoErr.code }, () => renderFootball(++state.seq))));
