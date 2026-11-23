@@ -413,6 +413,35 @@
   .reduce .sec-staff, .nogl .sec-staff { background: radial-gradient(ellipse 45% 60% at 20% 50%, rgba(160, 7, 30, 0.13), transparent 70%); }
   .reduce .sec-join, .nogl .sec-join { background: radial-gradient(ellipse 50% 60% at 65% 60%, rgba(160, 7, 30, 0.14), transparent 70%); }
 
+  /* ---------- 자주 쓰는 클럽 기능 ---------- */
+  .quick-section { position: relative; padding: 24px 0 8px; }
+  .quick-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+  .quick-card { display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 4px 16px; align-content: center; min-height: 136px; padding: 24px; border: 1px solid var(--line-soft); background: linear-gradient(135deg, rgba(160,7,30,.14), rgba(5,5,5,.8)); text-decoration: none; color: var(--ink-hi); transition: border-color .2s, background-color .2s; }
+  .quick-card:hover { border-color: var(--red-bot); background-color: rgba(160,7,30,.12); }
+  .quick-card svg { width: 30px; height: 30px; grid-row: 1 / span 3; margin-top: 3px; color: var(--red-bot); }
+  .quick-title { font-size: 22px; line-height: 1.4; font-weight: 700; }
+  .quick-desc { font-size: 15px; line-height: 1.65; color: var(--ink-mid); }
+  .quick-meta { font-size: 13px; line-height: 1.6; color: var(--ink-dim); }
+  .channel-videos { flex-basis: 100%; width: 100%; margin-top: 8px; }
+  .channel-videos[hidden] { display: none; }
+  .video-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 20px; margin-bottom: 16px; }
+  .video-head h4 { margin: 0; font-size: 21px; font-weight: 700; color: var(--ink-hi); }
+  .video-head p, .video-updated { margin: 0; font-size: 13px; line-height: 1.7; color: var(--ink-dim); }
+  .video-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+  .video-list li { min-width: 0; }
+  .nv-video { display: flex; flex-direction: column; height: 100%; color: var(--ink-hi); text-decoration: none; background: rgba(5,5,5,.8); border: 1px solid var(--glass-edge); transition: border-color .2s; }
+  .nv-video:hover { border-color: var(--red-bot); }
+  .nv-video-thumb { position: relative; display: block; aspect-ratio: 16 / 9; overflow: hidden; background: #0d0b0c; }
+  .nv-video-thumb img { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .nv-video-play { position: absolute; right: 12px; bottom: 10px; display: grid; place-items: center; width: 34px; height: 26px; border-radius: 5px; background: rgba(160,7,30,.92); color: #fff; font-size: 12px; }
+  .nv-video-copy { display: grid; gap: 8px; padding: 16px 18px 18px; }
+  .nv-video-title { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; min-height: 3em; font-size: 16px; line-height: 1.5; font-weight: 600; overflow-wrap: anywhere; }
+  .nv-video-meta { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 12px; font-size: 13px; line-height: 1.6; color: var(--ink-dim); }
+  .nv-video-channel { color: var(--sky); }
+  .video-updated { margin-top: 14px; }
+  @media (min-width: 701px) and (max-width: 900px) { .video-list { grid-template-columns: repeat(2, minmax(0, 1fr)); } .quick-card { padding: 20px 16px; gap: 4px 10px; } .quick-title { font-size: 19px; } }
+  @media (max-width: 700px) { .quick-grid, .video-list { grid-template-columns: minmax(0, 1fr); } .quick-card { min-height: 110px; padding: 20px; } .quick-title { font-size: 21px; } .quick-desc { font-size: 15px; } .quick-section { padding-top: 16px; } .video-head { margin-top: 8px; } }
+
   /* ---------- 클럽 소개 ---------- */
   .about-grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: 24px; row-gap: 64px; align-items: center; }
   .about-text { grid-column: 1 / span 5; }
@@ -749,6 +778,23 @@
     <div class="scroll-cue" aria-hidden="true"><span></span></div>
   </section>
 
+  <section class="quick-section" aria-label="자주 쓰는 클럽 기능">
+    <div class="wrap quick-grid">
+      <a class="quick-card" href="https://dindoopark.github.io/nv-league/" target="_blank" rel="noopener">
+        <svg viewBox="0 0 32 32" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 5h12v7a6 6 0 0 1-12 0zM10 7H5v3a5 5 0 0 0 5 5M22 7h5v3a5 5 0 0 1-5 5M16 18v7M10 27h12"/></svg>
+        <span class="quick-title">내전 리그</span><span class="quick-desc">이번 주 일정과 팀·개인 순위</span><span class="quick-meta">리그 페이지 보기</span>
+      </a>
+      <a class="quick-card" href="club/#/stats">
+        <svg viewBox="0 0 32 32" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 27h23M9 23v-8h4v8M17 23V9h4v14M25 23V4h3v19"/></svg>
+        <span class="quick-title">전적 보기</span><span class="quick-desc">내 기록과 클럽 랭킹·어워드</span><span class="quick-meta">클럽원 · 디스코드 로그인</span>
+      </a>
+      <a class="quick-card" href="club/#/squad">
+        <svg viewBox="0 0 32 32" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="6" y="3" width="20" height="26" rx="1"/><path d="M6 16h20M12 3v6h8V3M12 29v-6h8v6"/><circle cx="16" cy="16" r="4"/></svg>
+        <span class="quick-title">스쿼드 만들기</span><span class="quick-desc">선수 찾기부터 자동 편성까지</span><span class="quick-meta">클럽원 · 디스코드 로그인</span>
+      </a>
+    </div>
+  </section>
+
   <section class="sec sec-about" id="about" aria-labelledby="about-h">
     <div class="wrap about-grid">
       <div class="about-text">
@@ -767,12 +813,17 @@
         <li class="act panel rv d2"><span class="act-ic" aria-hidden="true"><svg viewBox="0 0 100 100"><polygon points="50,3 90.7,26.5 90.7,73.5 50,97 9.3,73.5 9.3,26.5"></polygon></svg><span>03</span></span><div><h3>디스코드</h3><p>내전 때는 평균 15명 안팎, 평소에도 5~10명 이상 접속해 있습니다.</p></div></li>
         <li class="act act-key panel rv d3"><span class="act-ic" aria-hidden="true"><svg viewBox="0 0 100 100"><polygon points="50,3 90.7,26.5 90.7,73.5 50,97 9.3,73.5 9.3,26.5"></polygon></svg><span>04</span></span><div><h3>우대하는 분</h3><p>활발하고 접속률이 좋으며, 예의와 바른 인성 보유자를 우대합니다.</p></div></li>
       </ul>
-      <div class="channels rv">
+      <div class="channels rv" id="channels">
         <h3 id="ch-h">클럽원 채널</h3>
         <ul class="ch-list" aria-labelledby="ch-h">
           <li><a class="chip" href="https://www.youtube.com/@NVchang" target="_blank" rel="noopener"><svg viewBox="0 0 18 18" aria-hidden="true"><circle cx="9" cy="9" r="7.6" fill="none" stroke="currentColor" stroke-opacity="0.55"></circle><path d="M7.3 5.9v6.2L12.2 9z" fill="#e64a58"></path></svg>NV창희 · YouTube <span class="arr" aria-hidden="true">&#8599;</span></a></li>
           <li><a class="chip" href="https://www.youtube.com/@%ED%81%AC%EC%B9%B4%EB%AA%A8-FCO" target="_blank" rel="noopener"><svg viewBox="0 0 18 18" aria-hidden="true"><circle cx="9" cy="9" r="7.6" fill="none" stroke="currentColor" stroke-opacity="0.55"></circle><path d="M7.3 5.9v6.2L12.2 9z" fill="#e64a58"></path></svg>NV크카모 · YouTube <span class="arr" aria-hidden="true">&#8599;</span></a></li>
         </ul>
+        <div class="channel-videos" id="channelVideos" hidden aria-labelledby="channel-videos-h">
+          <div class="video-head"><h4 id="channel-videos-h">클럽원 최신 영상</h4><p>채널별 최근 3개 · YouTube</p></div>
+          <ul class="video-list" id="channelVideoList"></ul>
+          <p class="video-updated" id="channelVideoStatus"></p>
+        </div>
       </div>
     </div>
   </section>
@@ -968,6 +1019,59 @@
         if (nav) nav.hidden = false;
       })
       .catch(function () {});
+  })();
+</script>
+
+<script>
+  /* 공개 RSS의 영상 제목·채널·썸네일 링크만 표시한다. 실패해도 위 채널 링크는 그대로 쓴다. */
+  (function () {
+    var root = document.getElementById('channels');
+    var box = document.getElementById('channelVideos');
+    var list = document.getElementById('channelVideoList');
+    if (!root || !box || !list || !window.fetch) return;
+    var API = 'https://nv-api.e2jinsoopark.workers.dev';
+    if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+      var local = new URLSearchParams(location.search).get('api');
+      if (local && /^https?:\/\/(localhost|127\.0\.0\.1)(:\d{1,5})?$/.test(local)) API = local;
+    }
+    var names = { UC1VivORoFOuEPzIDGqDvTkw: 'NV창희', UCReokOBLD7NxIh3ahvfWWdw: 'NV크카모' };
+    var day = new Intl.DateTimeFormat('ko-KR', { timeZone: 'Asia/Seoul', year: 'numeric', month: 'long', day: 'numeric' });
+    function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+    var started = false;
+    function load() {
+      if (started) return; started = true;
+      var ctl = window.AbortController ? new AbortController() : null;
+      var timer = ctl ? setTimeout(function () { ctl.abort(); }, 8000) : null;
+      var options = { credentials: 'omit' }; if (ctl) options.signal = ctl.signal;
+      fetch(API + '/api/public/videos', options).then(function (r) { return r.ok ? r.json() : null; }).then(function (d) {
+        if (!d || !Array.isArray(d.videos)) return;
+        var seen = {}, counts = {};
+        d.videos.slice(0, 6).forEach(function (v) {
+          if (!v || typeof v.id !== 'string' || !/^[A-Za-z0-9_-]{11}$/.test(v.id) || typeof v.channel_id !== 'string' || !Object.prototype.hasOwnProperty.call(names, v.channel_id) || seen[v.id] || (counts[v.channel_id] || 0) >= 3
+            || typeof v.title !== 'string' || !v.title || v.title.length > 200 || typeof v.published_at !== 'number' || !isFinite(v.published_at)) return;
+          var published = new Date(v.published_at); if (!isFinite(published.getTime())) return;
+          seen[v.id] = true; counts[v.channel_id] = (counts[v.channel_id] || 0) + 1;
+          var a = el('a', 'nv-video'); a.href = 'https://www.youtube.com/watch?v=' + v.id; a.target = '_blank'; a.rel = 'noopener noreferrer';
+          var thumb = el('span', 'nv-video-thumb');
+          var img = document.createElement('img'); img.src = 'https://i.ytimg.com/vi/' + v.id + '/hqdefault.jpg'; img.alt = ''; img.width = 480; img.height = 270; img.loading = 'lazy'; img.decoding = 'async'; img.referrerPolicy = 'no-referrer';
+          thumb.appendChild(img); var play = el('span', 'nv-video-play', '▶'); play.setAttribute('aria-hidden', 'true'); thumb.appendChild(play); a.appendChild(thumb);
+          var copy = el('span', 'nv-video-copy'); copy.appendChild(el('span', 'nv-video-title', v.title));
+          var meta = el('span', 'nv-video-meta'); meta.appendChild(el('span', 'nv-video-channel', names[v.channel_id]));
+          var time = el('time', '', day.format(published)); time.dateTime = published.toISOString(); meta.appendChild(time); copy.appendChild(meta); a.appendChild(copy);
+          var li = document.createElement('li'); li.appendChild(a); list.appendChild(li);
+        });
+        if (!list.children.length) return;
+        var status = document.getElementById('channelVideoStatus');
+        var bits = [];
+        if (typeof d.updated_at === 'number' && isFinite(new Date(d.updated_at).getTime())) bits.push('마지막 확인 ' + day.format(new Date(d.updated_at)));
+        if (d.stale) bits.push('일부 채널은 마지막으로 확인한 영상을 보여 드려요.');
+        status.textContent = bits.join(' · '); box.hidden = false;
+      }).catch(function () {}).finally(function () { if (timer) clearTimeout(timer); });
+    }
+    if ('IntersectionObserver' in window) {
+      var observer = new IntersectionObserver(function (entries) { if (entries.some(function (entry) { return entry.isIntersecting; })) { observer.disconnect(); load(); } }, { rootMargin: '600px' });
+      observer.observe(root);
+    } else load();
   })();
 </script>
 
