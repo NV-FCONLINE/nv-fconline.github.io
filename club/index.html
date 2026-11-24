@@ -1877,23 +1877,22 @@
 .sq-import-form > input { flex:1 1 180px; min-width:0; }
 .sq-import-result:not(:empty) { margin-top:14px; }
 .sq-import-players { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:8px; padding-left:20px; margin:14px 0; font-size:14px; }
-.sq-quiz { max-width:760px; }
-.sq-quiz-progress { width:100%; height:8px; accent-color:var(--red-mid); margin:0 0 22px; }
-.sq-quiz-choices { display:grid; gap:12px; margin:22px 0; }
-.sq-quiz-choice { display:flex; align-items:center; gap:12px; min-height:56px; padding:14px; border:1px solid var(--line); border-radius:12px; cursor:pointer; font-size:16px; }
-.sq-quiz-choice:has(input:checked) { border-color:var(--red-mid); background:rgba(160,7,30,.12); }
-.sq-quiz-choice input { width:18px; height:18px; flex:none; accent-color:var(--red-mid); }
-.sq-quiz-form { font-size:clamp(28px,7vw,42px); font-weight:800; margin:16px 0; }
 .sq-team-grid { display:grid; grid-template-columns:minmax(230px,320px) minmax(0,1fr); gap:20px; align-items:start; }
 .sq-team-top, .sq-team-detail { min-width:0; }
 .sq-team-list { list-style:none; padding:0; margin:12px 0 0; }
 .sq-team-pick { display:flex; width:100%; align-items:center; justify-content:space-between; gap:12px; min-height:46px; padding:10px 4px; border:0; border-bottom:1px solid var(--line); background:transparent; color:inherit; text-align:left; font:inherit; cursor:pointer; }
+.sq-team-label { display:flex; min-width:0; align-items:center; gap:8px; }
+.sq-team-rank { flex:none; min-width:18px; color:var(--ink-dim); font-size:12px; }
+.sq-team-icon { flex:none; display:inline-block; width:32px; height:32px; object-fit:contain; }
+.sq-team-name { min-width:0; overflow-wrap:anywhere; }
+.sq-team-title { display:flex; align-items:center; gap:10px; }
 .sq-team-pick[aria-pressed=true] { color:var(--red-mid); font-weight:800; }
 .sq-team-detail > .chips { margin:14px 0; flex-wrap:wrap; }
 .sq-team-table-wrap { overflow-x:auto; }
 .sq-team-table { width:100%; border-collapse:collapse; font-size:14px; }
 .sq-team-detail > .select { margin:0 8px 12px 0; width:auto; max-width:100%; }
-.sq-team-pick b { white-space:nowrap; font-size:12px; }
+.sq-team-pick b { white-space:nowrap; font-size:12px; text-align:right; }
+.sq-team-pick b > span + span::before { content:" · "; }
 .sq-sample-details { margin-top:18px; }
 .sq-sample-details summary { padding:10px 0; cursor:pointer; }
 .sq-team-table th, .sq-team-table td { padding:12px 8px; border-bottom:1px solid var(--line); text-align:left; }
@@ -1903,10 +1902,16 @@
 @media(max-width:759px) {
   .sq-team-grid { grid-template-columns:minmax(0,1fr); }
   .sq-team-list { display:grid; grid-template-columns:minmax(0,1fr); gap:0; max-height:300px; overflow-y:auto; overflow-x:hidden; }
-  .sq-team-pick { font-size:14px; }
+  .sq-team-pick { font-size:14px; gap:8px; }
+  .sq-team-label { gap:6px; }
+  .sq-team-icon { width:28px; height:28px; }
   .sq-import-form > .btn { flex:1 1 auto; }
 }
 
+@media(max-width:420px) {
+  .sq-team-pick b > span { display:block; line-height:1.5; }
+  .sq-team-pick b > span + span::before { content:none; }
+}
 </style>
 </head>
 <body>
@@ -1946,7 +1951,7 @@
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script src="football-player.js?v=20261123"></script>
-<script src="squad-tools.js?v=20261123-tools1"></script>
+<script src="squad-tools.js?v=20261124-icons1"></script>
 <script>
 'use strict';
 const API = 'https://nv-api.e2jinsoopark.workers.dev';
@@ -2348,7 +2353,7 @@ function route() {
     return show([tabs(null), h('h1', { class: 'h1', tabindex: '-1' }, '클럽 공간'), h('p', { class: 'desc' }, '아직 볼 수 있는 게시판이 없어요.')]);
   }
   if (hsh === '#/football') return renderFootball(seq);
-  if (hsh === '#/squad/style') return renderSquadStyle(seq);
+  if (hsh === '#/squad/style') { history.replaceState(history.state, '', location.pathname + location.search + '#/squad'); return renderSquad(seq); }
   if (hsh === '#/squad/rankers') return renderTeamRankers(seq);
   if (hsh === '#/feedback') return renderFeedback(seq);
   if (hsh === '#/squad') return renderSquad(seq);
@@ -5247,7 +5252,7 @@ const sqCardFromRanker = (it, group, grade) => ({ spid: it.spid, grade: grade ||
 const sqInfoUrl = (spid, grade) => `https://fconline.nexon.com/DataCenter/PlayerInfo?spid=${spid}&n1Strong=${grade || 1}`;
 
 function squadNav(active) {
-  const items = [['make', '만들기', '#/squad'], ['auto', '자동 편성', '#/squad/auto'], ['rankers', '팀컬러 랭킹', '#/squad/rankers'], ['style', '내 스타일', '#/squad/style'], ['saved', '저장·공유', '#/squad/saved']];
+  const items = [['make', '만들기', '#/squad'], ['auto', '자동 편성', '#/squad/auto'], ['rankers', '팀컬러 랭킹', '#/squad/rankers'], ['saved', '저장·공유', '#/squad/saved']];
   return h('nav', { class: 'snav', 'aria-label': '스쿼드 메뉴' }, items.map(([k, label, href]) => h('a', { href, 'aria-current': k === active ? 'page' : null }, label)));
 }
 const sqSource = (tcIn) => h('p', { class: 'sq-src' }, `선수·급여·시세·랭커·팀컬러 자료: FC온라인 공식 홈페이지 데이터센터(넥슨). 시세는 받아 둔 때 기준이에요. ${tcIn ? '팀컬러는 선발 11명 기준으로 OVR에 넣었어요(자동 편성·저장 목록의 OVR에는 넣지 않아요).' : '이 화면의 OVR에는 팀컬러 보너스를 넣지 않았어요(스쿼드 메이커에서 열면 넣어요).'}`);
@@ -6711,60 +6716,13 @@ async function renderSquad(seq) {
   draw();
 }
 
-/* ---------- 플레이 스타일 설문·팀컬러 랭킹 ---------- */
-function renderSquadStyle(seq) {
-  setTitle('내 플레이 스타일');
-  const quiz = state.sqQuiz || (state.sqQuiz = { answers: Array(NVSquadTools.questions.length).fill(null), step: 0, result: false });
-  const head = [tabs(SQUAD_TAB), squadNav('style'), h('p', { class: 'idx' }, 'MY PLAY STYLE'), h('h1', { class: 'h1', tabindex: '-1' }, '내 플레이 스타일'),
-    h('p', { class: 'desc' }, '경기에서 편하게 느끼는 선택을 골라 보세요. 네 가지 질문으로 포메이션의 출발점을 추천해요.')];
-  const content = h('section', { class: 'panel sq-quiz', 'aria-live': 'polite' });
-  function draw() {
-    if (stale(seq)) return;
-    if (quiz.result) {
-      const r = NVSquadTools.scoreAnswers(quiz.answers);
-      content.replaceChildren(...sqKids(h('p', { class: 'idx' }, '추천 결과'), h('h2', { class: 'sq-h' }, r.name), h('p', { class: 'sq-quiz-form' }, r.formation), h('p', { class: 'desc' }, r.text),
-        h('p', { class: 'hint' }, `함께 시도해 볼 포메이션: ${r.other}`),
-        h('div', { class: 'actions' },
-          h('button', { class: 'btn btn-primary', type: 'button', onclick: () => {
-            const sq = sqState();
-            if (sq.slots.some(Boolean) && !confirm(`현재 초안의 선수를 ${r.formation}으로 재배치할까요?`)) return;
-            sqRemapFormation(sq, r.formation); sqSaveDraft(); state.sqUi = null; go('#/squad');
-          } }, '이 포메이션을 메이커에 적용'),
-          h('button', { class: 'btn btn-ghost', type: 'button', onclick: async () => {
-            try { const m = await sqMeta(); if (stale(seq)) return; state.sqAuto = { ...sqAutoDefaults(m), ...(state.sqAuto || {}), formation: r.formation }; go('#/squad/auto'); }
-            catch (e) { if (!e.handled && !stale(seq)) toast(sqErrText(e)); }
-          } }, '이 포메이션으로 자동 편성'),
-          h('button', { class: 'btn btn-text', type: 'button', onclick: () => { quiz.answers.fill(null); quiz.step = 0; quiz.result = false; draw(); } }, '다시 고르기'))));
-      return;
-    }
-    const q = NVSquadTools.questions[quiz.step];
-    const next = h('button', { type: 'button', class: 'btn btn-primary', disabled: quiz.answers[quiz.step] == null, onclick: () => {
-      if (quiz.answers[quiz.step] == null) return;
-      if (quiz.step === NVSquadTools.questions.length - 1) quiz.result = true; else quiz.step++;
-      draw(); content.querySelector('h2')?.focus({ preventScroll: true });
-    } }, quiz.step === NVSquadTools.questions.length - 1 ? '추천 결과 보기' : '다음 질문');
-    const choices = h('div', { class: 'sq-quiz-choices', role: 'radiogroup', 'aria-label': q.text }, q.choices.map((c, i) => h('label', { class: 'sq-quiz-choice' },
-      h('input', { type: 'radio', name: 'sq-style-answer', value: i, checked: quiz.answers[quiz.step] === i, onchange: () => { quiz.answers[quiz.step] = i; next.disabled = false; } }), h('span', null, c.text))));
-    content.replaceChildren(h('p', { class: 'hint' }, `${quiz.step + 1} / ${NVSquadTools.questions.length}`), h('progress', { class: 'sq-quiz-progress', max: NVSquadTools.questions.length, value: quiz.step + 1, 'aria-label': '질문 진행' }),
-      h('h2', { class: 'sq-h', tabindex: '-1' }, q.text), choices,
-      h('div', { class: 'actions' }, quiz.step ? h('button', { class: 'btn btn-ghost', type: 'button', onclick: () => { quiz.step--; draw(); } }, '이전 질문') : null, next));
-  }
-  show([head, content]); draw();
-}
-
-function sqRemapFormation(sq, formation) {
-  if (!SQ_FORM[formation]) return;
-  const oldLay = sqLayout(sq.formation), nextLay = sqLayout(formation);
-  const remaining = sq.slots.map((p,i) => p ? { p, role:oldLay[i].role, group:oldLay[i].group, used:false } : null).filter(Boolean);
-  const slots = Array(11).fill(null);
-  const take = (test) => remaining.forEach(o => {
-    if (o.used) return;
-    const i = nextLay.findIndex((x,j) => !slots[j] && test(o,x));
-    if (i >= 0) { slots[i] = o.p; o.used = true; }
-  });
-  take((o,x) => o.role === x.role); take((o,x) => o.group === x.group);
-  take((o,x) => !!(sqOvr(o.p,x.group) || {}).fit); take(() => true);
-  sq.formation = formation; sq.slots = slots;
+/* ---------- 팀컬러 랭킹 ---------- */
+function sqTeamIcon(team) {
+  // 공식 TOP30에서 확인한 구단·국가 아이콘 경로만 사용한다.
+  const src = typeof team?.img === 'string' && /^https:\/\/fco\.dn\.nexoncdn\.co\.kr\/live\/externalAssets\/common\/(?:crests\/light\/medium\/l\d+\.png|countries\/largeflags\/f_\d+\.png)$/.test(team.img) ? team.img : null;
+  if (!src) return h('span', { class:'sq-team-icon', 'aria-hidden':'true' });
+  return h('img', { class:'sq-team-icon', src, alt:'', width:32, height:32, loading:'lazy', decoding:'async', referrerpolicy:'no-referrer',
+    onerror:e => { e.currentTarget.replaceWith(h('span', {class:'sq-team-icon','aria-hidden':'true'})); } });
 }
 
 async function renderTeamRankers(seq) {
@@ -6801,8 +6759,8 @@ async function renderTeamRankers(seq) {
     const top = h('section', { class:'panel sq-team-top' }, h('h2', { class:'sq-h' }, '공식 팀컬러 TOP 30'), h('p',{class:'hint'},'공식 데일리차트 갱신 전에는 이전 집계가 표시될 수 있어요.'),
       h('p', { class:'hint' }, `공식 화면 조회일 ${d.source_date || ''} · ${filters.type===52?'감독모드':'공식경기'} 상위 10,000명 기준 · 공식 화면의 사용 비율을 그대로 표시해요.`),
       h('ol', { class:'sq-team-list' }, rows.map((t,i) => h('li', null, h('button', { class:'sq-team-pick', type:'button', 'aria-pressed':String(t.id)===String(filters.team)?'true':'false', onclick:() => { filters.team=String(t.id); load(); } },
-        h('span', null, `${i+1}. ${t.name}`), h('b', null, `${t.count}명${Number.isFinite(t.share)?` · ${t.share.toFixed(1)}%`:''}`))))));
-    const detail = h('section', { class:'panel sq-team-detail' }, h('h2', { class:'sq-h' }, d.selected ? d.selected.name : '팀컬러별 선수 추천'), mode, chooser, groups);
+        h('span', {class:'sq-team-label'}, h('span',{class:'sq-team-rank'},i+1), sqTeamIcon(t), h('span',{class:'sq-team-name'},t.name)), h('b', null, h('span',null,`${t.count}명`), Number.isFinite(t.share)?h('span',null,`${t.share.toFixed(1)}%`):null))))));
+    const detail = h('section', { class:'panel sq-team-detail' }, h('h2', { class:'sq-h sq-team-title' }, d.selected ? [sqTeamIcon(d.selected), d.selected.name] : '팀컬러별 선수 추천'), mode, chooser, groups);
     if (!d.selected) detail.append(h('p', { class:'empty' }, '팀컬러를 고르면 최근 선발을 확인한 랭커들의 포지션별 사용 선수가 나와요.'));
     else {
       const sample = d.sample || {};
