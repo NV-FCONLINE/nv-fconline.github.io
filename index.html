@@ -382,7 +382,7 @@
   .sec-title .idx { margin-bottom: 18px; }
   .lead { margin: 0; font-size: clamp(16px, 1.25vw, 19px); line-height: 1.85; color: var(--ink-mid); max-width: 34em; }
   /* 패널 밖(입자 위)에 놓인 글은 그림자로 받쳐 읽기 쉽게 */
-  .lead, .about-close, .cta-note, .prefer, .staff-foot p, .channels h3 { text-shadow: 0 0 14px rgba(0, 0, 0, 0.95), 0 0 3px rgba(0, 0, 0, 0.9); }
+  .lead, .about-close, .cta-note, .prefer, .staff-foot p, .channels > h2 { text-shadow: 0 0 14px rgba(0, 0, 0, 0.95), 0 0 3px rgba(0, 0, 0, 0.9); }
   /* 마지막 줄에 한 낱말만 남지 않게 */
   .lead, .about-close, .act p, .staff-foot p, .cond-d, .cond-note, .prefer, .cta-note { text-wrap: pretty; }
 
@@ -425,7 +425,7 @@
   .channel-videos { flex-basis: 100%; width: 100%; margin-top: 8px; }
   .channel-videos[hidden] { display: none; }
   .video-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 20px; margin-bottom: 16px; }
-  .video-head h4 { margin: 0; font-size: 21px; font-weight: 700; color: var(--ink-hi); }
+  .video-head h3 { margin: 0; font-size: 21px; font-weight: 700; color: var(--ink-hi); }
   .video-head p, .video-updated { margin: 0; font-size: 13px; line-height: 1.7; color: var(--ink-dim); }
   .video-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
   .video-list li { min-width: 0; }
@@ -467,7 +467,8 @@
     grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 14px 28px;
     padding-top: 30px; border-top: 1px solid rgba(216, 216, 214, 0.1);
   }
-  .channels h3 { margin: 0; font-size: 14px; font-weight: 600; letter-spacing: 0.04em; color: var(--sky); }
+  .channels > h2 { margin: 0; font-size: 14px; font-weight: 600; letter-spacing: 0.04em; color: var(--sky); }
+  .sec-channels .channels { padding-top: 0; border-top: 0; }
   .ch-list { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 10px; }
   .chip {
     display: inline-flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 18px; border-radius: 2px;
@@ -700,7 +701,7 @@
     .act h3 { font-size: 18px; }
     .act p { font-size: 15px; line-height: 1.65; }
     .channels { padding-top: 24px; gap: 12px; }
-    .channels h3 { flex-basis: 100%; }
+    .channels > h2 { flex-basis: 100%; }
     .card { min-height: 0; gap: 16px; padding: 22px 16px 20px; }
     .avatar { width: 52px; height: 52px; font-size: 21px; }
     .nick { font-size: 19px; }
@@ -813,18 +814,6 @@
         <li class="act panel rv d2"><span class="act-ic" aria-hidden="true"><svg viewBox="0 0 100 100"><polygon points="50,3 90.7,26.5 90.7,73.5 50,97 9.3,73.5 9.3,26.5"></polygon></svg><span>03</span></span><div><h3>디스코드</h3><p>내전 때는 평균 15명 안팎, 평소에도 5~10명 이상 접속해 있습니다.</p></div></li>
         <li class="act act-key panel rv d3"><span class="act-ic" aria-hidden="true"><svg viewBox="0 0 100 100"><polygon points="50,3 90.7,26.5 90.7,73.5 50,97 9.3,73.5 9.3,26.5"></polygon></svg><span>04</span></span><div><h3>우대하는 분</h3><p>활발하고 접속률이 좋으며, 예의와 바른 인성 보유자를 우대합니다.</p></div></li>
       </ul>
-      <div class="channels rv" id="channels">
-        <h3 id="ch-h">클럽원 채널</h3>
-        <ul class="ch-list" aria-labelledby="ch-h">
-          <li><a class="chip" href="https://www.youtube.com/@NVchang" target="_blank" rel="noopener"><svg viewBox="0 0 18 18" aria-hidden="true"><circle cx="9" cy="9" r="7.6" fill="none" stroke="currentColor" stroke-opacity="0.55"></circle><path d="M7.3 5.9v6.2L12.2 9z" fill="#e64a58"></path></svg>NV창희 · YouTube <span class="arr" aria-hidden="true">&#8599;</span></a></li>
-          <li><a class="chip" href="https://www.youtube.com/@%ED%81%AC%EC%B9%B4%EB%AA%A8-FCO" target="_blank" rel="noopener"><svg viewBox="0 0 18 18" aria-hidden="true"><circle cx="9" cy="9" r="7.6" fill="none" stroke="currentColor" stroke-opacity="0.55"></circle><path d="M7.3 5.9v6.2L12.2 9z" fill="#e64a58"></path></svg>NV크카모 · YouTube <span class="arr" aria-hidden="true">&#8599;</span></a></li>
-        </ul>
-        <div class="channel-videos" id="channelVideos" hidden aria-labelledby="channel-videos-h">
-          <div class="video-head"><h4 id="channel-videos-h">클럽원 최신 영상</h4><p>채널별 최근 3개 · YouTube</p></div>
-          <ul class="video-list" id="channelVideoList"></ul>
-          <p class="video-updated" id="channelVideoStatus"></p>
-        </div>
-      </div>
     </div>
   </section>
 
@@ -919,6 +908,23 @@
           <li class="cond"><div class="cond-b"><span class="cond-t">구단가치 10억 이상</span></div></li>
           <li class="cond"><div class="cond-b"><span class="cond-t">가입 후 닉네임 변경 필수</span></div></li>
         </ol>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec sec-channels" aria-labelledby="ch-h">
+    <div class="wrap">
+      <div class="channels rv" id="channels">
+        <h2 id="ch-h">클럽원 채널</h2>
+        <ul class="ch-list" aria-labelledby="ch-h">
+          <li><a class="chip" href="https://www.youtube.com/@NVchang" target="_blank" rel="noopener"><svg viewBox="0 0 18 18" aria-hidden="true"><circle cx="9" cy="9" r="7.6" fill="none" stroke="currentColor" stroke-opacity="0.55"></circle><path d="M7.3 5.9v6.2L12.2 9z" fill="#e64a58"></path></svg>NV창희 · YouTube <span class="arr" aria-hidden="true">&#8599;</span></a></li>
+          <li><a class="chip" href="https://www.youtube.com/@%ED%81%AC%EC%B9%B4%EB%AA%A8-FCO" target="_blank" rel="noopener"><svg viewBox="0 0 18 18" aria-hidden="true"><circle cx="9" cy="9" r="7.6" fill="none" stroke="currentColor" stroke-opacity="0.55"></circle><path d="M7.3 5.9v6.2L12.2 9z" fill="#e64a58"></path></svg>NV크카모 · YouTube <span class="arr" aria-hidden="true">&#8599;</span></a></li>
+        </ul>
+        <div class="channel-videos" id="channelVideos" hidden aria-labelledby="channel-videos-h">
+          <div class="video-head"><h3 id="channel-videos-h">클럽원 최신 영상</h3><p>채널별 최근 3개 · YouTube</p></div>
+          <ul class="video-list" id="channelVideoList"></ul>
+          <p class="video-updated" id="channelVideoStatus"></p>
+        </div>
       </div>
     </div>
   </section>
