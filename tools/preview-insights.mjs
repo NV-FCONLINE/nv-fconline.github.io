@@ -3,6 +3,7 @@
 import {createServer} from 'node:http';
 import {readFile} from 'node:fs/promises';
 import {ABILITIES} from '../../nv-api/src/squad_lists.js';
+import {getSquadMeta} from '../../nv-api/src/squad.js';
 import {compactGoalPattern,buildInsightReport,buildInsightsResponse,buildDuel} from '../../nv-api/src/insights.js';
 const root=new URL('../',import.meta.url),port=8798,now=Date.now();
 const members=['하늘','바람','노을','구름'].map((name,i)=>({discord_id:String(i+1).padStart(18,'0'),name:'NV예시'+name,nickname:'가상게임'+name,is_staff:false,link:{status:'ok'}}));
@@ -13,7 +14,7 @@ const matches=Array.from({length:24},(_,i)=>{const a=members[0],b=members[1+i%3]
 const internal={members,matches};
 const playerIds=[10535, 231747, 158023, 190042, 190043, 190045, 188545, 243075, 202126, 7826, 156616, 28130],playerNames=["차비", "킬리안 음바페", "리오넬 메시", "마라도나", "펠레", "요한 크루이프", "레반도프스키", "루메니게", "해리 케인", "로빈 반페르시", "프랑크 리베리", "호나우지뉴"];
 const allPlayers=Array.from({length:12},(_,i)=>({spid:100000000+playerIds[i],name:playerNames[i],season:'ICONTM',pay:30+i%5,foot:i%2?'왼발 5 · 오른발 5':'왼발 5 · 오른발 4',img:'p'+playerIds[i],pos:{[i%3?'ST':'CAM']:127-Math.floor(i/4)}}));
-const meta={salary_cap:315,formations:[],abilities:ABILITIES,seasons:[{id:100,code:'ICONTM',name:'ICON TM'}],season_styles:{ICONTM:{color:'#eee'}},traits:['트릭스터','파워 헤더','예리한 감아차기','패스 마스터'],new_traits:['트릭스터'],trait_icons:{'트릭스터':1,'파워 헤더':2,'예리한 감아차기':3,'패스 마스터':4},teamcolors:[{id:1018,name:'레알 마드리드'}]};
+const meta=await(await getSquadMeta({DEV_MODE:'1'})).json();
 let reviews=[{id:1,spid:100190042,grade:8,rating:4,body:'가상 시안 후기입니다.\n패스가 좋고 방향 전환이 편해요.',created_at:now,updated_at:now,author:{id:me.id,name:me.name},can_edit:true,can_delete:true}],nextId=2;
 const json=(res,status,body)=>{res.writeHead(status,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store'});res.end(JSON.stringify(body));};
 const server=createServer(async(req,res)=>{try{const url=new URL(req.url,'http://127.0.0.1:'+port),path=url.pathname;

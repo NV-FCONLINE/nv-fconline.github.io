@@ -97,7 +97,29 @@
     function drawPos(){const change=g=>{if(!g)f.groups=[];else if(f.groups.includes(g))f.groups=f.groups.filter(v=>v!==g);else if(f.groups.length<3)f.groups.push(g);else{posNote.textContent='한 번에 세 곳까지예요. 고른 포지션을 다시 누르면 풀려요.';return;}for(const b of posBox.querySelectorAll('button'))b.setAttribute('aria-pressed',String(b.textContent==='전체'?!f.groups.length:f.groups.includes(b.textContent)));};setChildren(posBox,button('전체',()=>change(null),{'aria-pressed':String(!f.groups.length),class:'pc-position pc-all'}),...POS_ROWS.map(line=>h('div',{class:'pc-pitch-row'},line.map(g=>button(g,()=>change(g),{class:'pc-position','aria-pressed':String(f.groups.includes(g))})))));}
     drawPos();
     const traitBox=h('div',{class:'pc-traits',role:'group','aria-label':'보유 특성, 세 개까지'}),traitNote=note('함께 고른 특성을 모두 가진 선수를 찾아요(최대 세 개).');
-    function drawTraits(focus){const icons=meta.trait_icons || {};setChildren(traitBox,...asArray(meta.traits).map(t=>{const item=typeof t==='string'?{name:t}:t,name=item.name,icon=number(item.icon ?? icons[name]);const selected=f.traits.includes(name);return button('',()=>{if(selected)f.traits=f.traits.filter(x=>x!==name);else if(f.traits.length<3)f.traits.push(name);else{traitNote.textContent='특성은 한 번에 세 개까지 골라 주세요.';return;}drawTraits(name);},{class:'pc-trait'+(asArray(meta.new_traits).includes(name)?' pc-new-trait':''),'aria-label':name,title:name,'aria-pressed':String(selected)});}));[...traitBox.children].forEach((b,i)=>{const item=meta.traits[i],name=typeof item==='string'?item:item.name,icon=number((typeof item==='object'?item.icon:null)??icons[name]);b.append(icon!=null?image(h,FACE+'traits/trait_icon_'+icon+'.png','pc-trait-icon'):h('span',{'aria-hidden':'true'},name.slice(0,1)),h('span',{class:'pc-trait-name'},name));});if(focus)[...traitBox.children].find(b=>b.getAttribute('aria-label')===focus)?.focus();}
+    function drawTraits(focus) {
+      const icons=meta.trait_icons || {};
+      setChildren(traitBox,...asArray(meta.traits).map(t=>{
+        const item=typeof t==='string'?{name:t}:t,name=item.name;
+        const raw=icons[name] ?? item.icon;
+        const id=(typeof raw==='string'||Number.isSafeInteger(raw))&&/^[0-9]{1,4}$/.test(String(raw))?String(raw):null,valid=id!==null;
+        const selected=f.traits.includes(name);
+        const control=button('',()=>{
+          if(selected) f.traits=f.traits.filter(x=>x!==name);
+          else if(f.traits.length<3) f.traits.push(name);
+          else {traitNote.textContent='특성은 한 번에 세 개까지 골라 주세요.';return;}
+          drawTraits(name);
+        },{class:'pc-trait'+(asArray(meta.new_traits).includes(name)?' pc-new-trait':''),'aria-label':name,title:name,'aria-pressed':String(selected)});
+        const fallback=h('span',{class:'pc-trait-fallback','aria-hidden':'true'},name);
+        if(valid) {
+          fallback.hidden=true;
+          control.append(h('img',{src:FACE+'traits/trait_icon_'+id+'.png',class:'pc-trait-icon',alt:'',loading:'lazy',decoding:'async',onerror:e=>{e.currentTarget.hidden=true;fallback.hidden=false;}}));
+        }
+        control.append(fallback,h('span',{class:'pc-trait-name'},name));
+        return control;
+      }));
+      if(focus) [...traitBox.children].find(b=>b.getAttribute('aria-label')===focus)?.focus();
+    }
     drawTraits();
     const payIn=h('input',{class:'input',type:'number',min:1,max:60,inputmode:'numeric',placeholder:'제한 없음','aria-label':'급여 상한'});
     const abilityIn=select('능력치 조건',[['','선택 안 함'],...asArray(meta.abilities)],'',v=>{f.ability=v;});

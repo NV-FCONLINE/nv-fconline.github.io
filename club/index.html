@@ -1930,7 +1930,7 @@
 }
 </style>
 <link rel="stylesheet" href="insights.css?v=20261126-1">
-<link rel="stylesheet" href="player-center.css?v=20261126-1">
+<link rel="stylesheet" href="player-center.css?v=20261126-traits1">
 </head>
 <body>
 <!-- 티어 배지 그림: 홈페이지(../index.html)의 tb-defs를 그대로 옮김. 고칠 때는 두 곳을 같이 고친다 -->
@@ -1971,7 +1971,7 @@
 <script src="football-player.js?v=20261123"></script>
 <script src="squad-tools.js?v=20261124-icons1"></script>
 <script src="insights.js?v=20261126-1"></script>
-<script src="player-center.js?v=20261126-1"></script>
+<script src="player-center.js?v=20261126-traits1"></script>
 <script>
 'use strict';
 const API = 'https://nv-api.e2jinsoopark.workers.dev';
@@ -5602,7 +5602,9 @@ function sqFetchDetails(spids, onDone) {
 const sqNewTraits = () => new Set((state.sqMeta && state.sqMeta.new_traits) || []);
 /* 특성 아이콘(넥슨 그림). 그림이 없는 특성은 아이콘만 숨긴다 */
 function sqTraitIcon(t) {
-  const img = h('img', { class: 'sq-trait-ic', src: `${FACE}traits/trait_icon_${Number(t.icon) || 0}.png`, alt: '', title: t.name, loading: 'lazy' });
+  const suffix = String(state.sqMeta?.trait_icons?.[t.name] ?? t.icon ?? '');
+  if (!/^[0-9]{1,4}$/.test(suffix)) return null;
+  const img = h('img', { class: 'sq-trait-ic', src: `${FACE}traits/trait_icon_${suffix}.png`, alt: '', title: t.name, loading: 'lazy' });
   img.addEventListener('error', () => img.remove());
   return img;
 }
