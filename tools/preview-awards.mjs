@@ -32,11 +32,13 @@ function payload(scenario,type){
     long_shot:award(i=>i<2?25:20-i,{long_shot_games:30,long_shot_try:40,long_shot_goals:i=>i<2?10:6}),
     member_dribble:award(i=>i<2?61.5:Math.round((70-i*3)*1000/130)/10,{dribble_games:30,dribble_try:100,dribble_success:i=>i<2?80:70-i*3,dribble_pct:i=>i<2?80:70-i*3}),
   };
-  for(const key of ['goals','assists','tackle','save','dribble'])awards[key]={count:candidates.length,list:candidates.map((m,i)=>({rank:i<2?1:i+1,member:m,spid:101000190,pos:key==='save'?0:key==='tackle'?5:[25,14,23,18][i%4],grade:8,apps:30,goals:25-i,assists:16-i,tackle_try:40,tackle:30-i,gk_apps:30,faced:60,saved:50-i,dribble_games:30,dribble_try:40,dribble_success:i<2?30:27-i,value:i<2?75:Math.round((27-i)*1000/40)/10}))};
+  for(const key of ['goals','assists','tackle','save'])awards[key]={count:candidates.length,list:candidates.map((m,i)=>({rank:i<2?1:i+1,member:m,spid:101000190,pos:key==='save'?0:key==='tackle'?5:[25,14,23,18][i%4],grade:8,apps:30,goals:25-i,assists:16-i,tackle_try:40,tackle:30-i,gk_apps:30,faced:60,saved:50-i,dribble_games:30,dribble_try:40,dribble_success:i<2?30:27-i,value:i<2?75:Math.round((27-i)*1000/40)/10}))};
+  awards.dribble={version:2,...award(i=>Math.round((i<2?30:27-i)*1000/70)/10,{spid:101000190,pos:i=>[25,20,23,27][i%4],grade:8,apps:30,dribble_games:30,dribble_try:40,dribble_success:i=>i<2?30:27-i,dribble_pct:i=>Math.round((i<2?30:27-i)*1000/40)/10})};
   const data={type,updated_at:now,members_counted:candidates.length,member_awards_counted:candidates.length,possession_members_counted:candidates.length,min_member_games:15,min_possession_games:15,
     rules:{min_apps:15,min_tackles:30,min_faced:30,min_dribbles:30,min_long_shots:30,top:10},window:{size:30,total:candidates.length,done:candidates.length,ready:true},
     heading_coverage:{collected:candidates.length,total:candidates.length},member_dribble_coverage:{collected:pending?2:candidates.length,total:candidates.length,pending:pending?6:0},dribble_coverage:{collected:pending?2:candidates.length,total:candidates.length,pending:pending?6:0},long_shot_coverage:{collected:pending?2:candidates.length,total:candidates.length,pending:pending?6:0},tackle_data:true,internal,awards};
   if(scenario==='old-awards'){delete awards.internal;delete awards.member_dribble;delete data.member_dribble_coverage;delete awards.dribble;delete awards.long_shot;delete data.internal;delete data.dribble_coverage;delete data.long_shot_coverage;}
+  if(scenario==='old-card-dribble'){delete awards.dribble.version;for(const row of awards.dribble.list){row.value=row.dribble_pct;row.pos=14;delete row.dribble_pct;}}
   return data;
 }
 const json=(res,status,data)=>{res.writeHead(status,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store'});res.end(JSON.stringify(data));};

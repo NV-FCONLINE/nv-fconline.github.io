@@ -85,13 +85,13 @@ test('a new award list still renders if legacy headline coverage fields are zero
   const {ctx,root}=setup(d);await ctx.renderAwards(50,0);assert.match(root.textContent,/대포왕/);assert.match(root.textContent,/25\.0%/);
 });
 test('category switch keeps internal controls in members only and exposes dribble rules',async()=>{
-  const d=basePayload();d.awards.dribble={count:1,list:[{rank:1,member:member('1','가'),spid:101000190,pos:25,grade:8,apps:30,dribble_games:20,dribble_try:45,dribble_success:30,value:66.7}]};
+  const d=basePayload();d.awards.dribble={version:2,count:1,list:[{rank:1,member:member('1','가'),spid:101000190,pos:25,grade:8,apps:30,dribble_games:20,dribble_try:45,dribble_success:30,dribble_pct:66.7,value:40}]};
   const {ctx,root}=setup(d);await ctx.renderAwards(50,0);button(root,'선수 카드 어워드').click();
-  assert.equal(byClass(root,'aw-internal-feature').length,0);assert.match(root.textContent,/돌파왕/);assert.match(root.textContent,/66\.7%/);assert.match(root.textContent,/드리블 45회 중 30회/);assert.match(root.textContent,/수비수·골키퍼 자리의 기록은 빼요/);
+  assert.equal(byClass(root,'aw-internal-feature').length,0);assert.match(root.textContent,/돌파왕/);assert.match(root.textContent,/66\.7%/);assert.match(root.textContent,/40\.0점/);assert.match(root.textContent,/시도 45회 · 성공 30회 · 유효 20경기/);assert.match(root.textContent,/미드필더·수비수·골키퍼·교체 자리의 기록은 빼요/);
   button(root,'클럽원 어워드').click();assert.equal(byClass(root,'aw-internal-feature').length,1);
 });
 test('missing new metrics say preparing rather than fabricating zeroes',async()=>{
-  const {ctx,root}=setup(basePayload(),{group:'card'});await ctx.renderAwards(50,0);assert.match(root.textContent,/드리블 집계를 준비/);assert.doesNotMatch(root.textContent,/NaN|undefined%/);
+  const {ctx,root}=setup(basePayload(),{group:'card'});await ctx.renderAwards(50,0);assert.match(root.textContent,/공격수 드리블 점수 집계를 준비/);assert.doesNotMatch(root.textContent,/NaN|undefined%/);
   button(root,'클럽원 어워드').click();assert.match(root.textContent,/박스 밖 슈팅 집계를 준비/);
 });
 test('incomplete new metric coverage and numerator/denominator stay visible',async()=>{
@@ -99,9 +99,9 @@ test('incomplete new metric coverage and numerator/denominator stay visible',asy
   const {ctx,root}=setup(d);await ctx.renderAwards(52,0);assert.match(root.textContent,/대포왕/);assert.match(root.textContent,/25\.0%/);assert.match(root.textContent,/박스 밖 40슈팅 10골/);assert.match(root.textContent,/기록을 다시 모으는 중이에요\. \(2\/8명\)/);
 });
 test('finished collection with missing fields or too few eligible cards is not described as still refilling',async()=>{
-  const d=basePayload();d.dribble_coverage={collected:0,total:8,pending:0};d.long_shot_coverage={collected:0,total:8,pending:0};d.awards.dribble={count:0,list:[]};d.awards.long_shot={count:0,list:[]};
+  const d=basePayload();d.dribble_coverage={collected:0,total:8,pending:0};d.long_shot_coverage={collected:0,total:8,pending:0};d.awards.dribble={version:2,count:0,list:[]};d.awards.long_shot={count:0,list:[]};
   const {ctx,root}=setup(d);await ctx.renderAwards(50,0);assert.doesNotMatch(root.textContent,/다시 모으는 중/);assert.match(root.textContent,/박스 밖 슈팅 기록 15경기 이상/);
-  button(root,'선수 카드 어워드').click();assert.doesNotMatch(root.textContent,/다시 모으는 중/);assert.match(root.textContent,/드리블 30회 이상을 기록한 선수/);
+  button(root,'선수 카드 어워드').click();assert.doesNotMatch(root.textContent,/다시 모으는 중/);assert.match(root.textContent,/공격수로 선발 15경기 이상, 드리블 30회 이상이고 성공 기록/);
 });
 test('new coverage reports the actual legacy members remaining when pending is positive',async()=>{
   const d=basePayload();d.long_shot_coverage={collected:0,total:8,pending:3};d.awards.long_shot={count:0,list:[]};
@@ -144,13 +144,13 @@ test('member dribble award separates adjusted score from real rate and preserves
 
 test('member dribble and card breakthrough awards stay in their respective groups',async()=>{
   const d=basePayload();d.awards.member_dribble={count:1,list:[{rank:1,member:member('1','가'),played:30,dribble_games:20,dribble_try:100,dribble_success:80,dribble_pct:80,value:61.5}]};
-  d.awards.dribble={count:1,list:[{rank:1,member:member('1','가'),spid:101000190,pos:25,grade:8,apps:30,dribble_games:20,dribble_try:45,dribble_success:30,value:66.7}]};
+  d.awards.dribble={version:2,count:1,list:[{rank:1,member:member('1','가'),spid:101000190,pos:25,grade:8,apps:30,dribble_games:20,dribble_try:45,dribble_success:30,dribble_pct:66.7,value:40}]};
   const {ctx,root}=setup(d);await ctx.renderAwards(50,0);
   assert.equal(byClass(root,'aw').some(n=>n.getAttribute('aria-labelledby')==='aw-member_dribble'),true);
   assert.equal(byClass(root,'aw').some(n=>n.getAttribute('aria-labelledby')==='aw-dribble'),false);
   button(root,'선수 카드 어워드').click();
   assert.equal(byClass(root,'aw').some(n=>n.getAttribute('aria-labelledby')==='aw-member_dribble'),false);
-  const card=byClass(root,'aw').find(n=>n.getAttribute('aria-labelledby')==='aw-dribble');assert.ok(card);assert.equal(card.classList.contains('aw-member-dribble'),false);assert.match(card.textContent,/돌파왕/);assert.match(card.textContent,/66\.7%/);
+  const card=byClass(root,'aw').find(n=>n.getAttribute('aria-labelledby')==='aw-dribble');assert.ok(card);assert.equal(card.classList.contains('aw-member-dribble'),false);assert.equal(card.classList.contains('aw-card-dribble'),true);assert.match(card.textContent,/돌파왕/);assert.match(card.textContent,/40\.0점/);assert.match(card.textContent,/66\.7%/);
 });
 
 test('member dribble distinguishes missing summaries, pending rebuild and insufficient records',async()=>{
@@ -167,4 +167,32 @@ test('member dribble keeps pending notice visible while a partial leaderboard is
   const d=basePayload();d.awards.member_dribble={count:1,list:[{rank:1,member:member('1','가'),played:30,dribble_games:20,dribble_try:100,dribble_success:80,dribble_pct:80,value:61.5}]};d.member_dribble_coverage={collected:1,total:8,pending:3};
   const {ctx,root}=setup(d);await ctx.renderAwards(50,0);const card=byClass(root,'aw').find(n=>n.getAttribute('aria-labelledby')==='aw-member_dribble');
   assert.match(card.textContent,/61\.5점/);assert.match(card.textContent,/기록을 다시 모으는 중이에요\. \(3명 남음\)/);
+});
+
+
+test('card breakthrough accepts forward positions only and shows adjusted points separately from success rate',async()=>{
+  const d=basePayload();const row=(pos,id,extras={})=>({rank:id,member:member(String(id),`예시${id}`),spid:101000190,pos,grade:8,apps:30,dribble_games:20,dribble_try:100,dribble_success:80,dribble_pct:80,value:61.5,...extras});
+  d.awards.dribble={version:2,count:5,list:[row(20,1),row(27,2),row(19,3),row(28,4),row(25,5,{dribble_pct:undefined})]};
+  const {ctx,root}=setup(d,{group:'card'});await ctx.renderAwards(50,0);const card=byClass(root,'aw').find(n=>n.getAttribute('aria-labelledby')==='aw-dribble');
+  assert.equal(card.classList.contains('aw-card-dribble'),true);assert.equal(card.classList.contains('aw-dribble-score'),true);
+  assert.match(card.textContent,/공격수 전용 드리블 점수/);assert.match(card.textContent,/61\.5점/);assert.match(card.textContent,/성공률 80\.0%/);assert.match(card.textContent,/시도 100회 · 성공 80회 · 유효 20경기/);
+  assert.equal(byClass(card,'aw-row').length,1);assert.doesNotMatch(card.textContent,/예시3|예시4|예시5|NaN/);
+});
+
+test('legacy card-dribble percentage responses are never relabeled as the new point score',async()=>{
+  for(const version of [undefined,1]){
+    const d=basePayload();d.awards.dribble={version,count:1,list:[{rank:1,member:member('1','구기록'),spid:101000190,pos:14,grade:8,apps:30,dribble_games:20,dribble_try:100,dribble_success:80,value:80}]};
+    d.awards.member_dribble={count:1,list:[{rank:1,member:member('1','가'),played:30,dribble_games:20,dribble_try:100,dribble_success:80,dribble_pct:80,value:61.5}]};
+    const {ctx,root}=setup(d,{group:'card'});await ctx.renderAwards(50,0);const card=byClass(root,'aw').find(n=>n.getAttribute('aria-labelledby')==='aw-dribble');
+    assert.match(card.textContent,/공격수 드리블 점수 집계를 준비/);assert.doesNotMatch(card.textContent,/80\.0점|80\.0%|구기록|NaN/);assert.equal(byClass(card,'aw-win').length,0);
+    button(root,'클럽원 어워드').click();const memberCard=byClass(root,'aw').find(n=>n.getAttribute('aria-labelledby')==='aw-member_dribble');assert.match(memberCard.textContent,/61\.5점/);assert.match(memberCard.textContent,/성공률 80\.0%/);
+  }
+});
+
+test('new forward-card summaries keep the rebuild status distinct from insufficient forward samples',async()=>{
+  const d=basePayload();d.awards.dribble={version:2,count:0,list:[]};d.dribble_coverage={collected:0,total:8,pending:3};
+  const pending=setup(d,{group:'card'});await pending.ctx.renderAwards(50,0);assert.match(pending.root.textContent,/공격수 드리블 기록을 다시 모으는 중이에요\. \(3명 남음\)/);
+  d.dribble_coverage.pending=0;d.rules.min_apps=5;d.rules.min_dribbles=10;
+  const ready=setup(d,{group:'card'});await ready.ctx.renderAwards(50,0);const card=byClass(ready.root,'aw').find(n=>n.getAttribute('aria-labelledby')==='aw-dribble');
+  assert.doesNotMatch(card.textContent,/다시 모으는 중/);assert.match(card.textContent,/공격수로 선발 5경기 이상, 드리블 10회 이상이고 성공 기록/);
 });

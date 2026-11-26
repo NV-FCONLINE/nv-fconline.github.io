@@ -1220,10 +1220,13 @@
   .aw-member .aw-win .aw-own { margin: 5px 0; font-size: 16px; }
   @media (max-width: 480px) {
     .aw-member-dribble .aw-win { grid-template-columns: 50px minmax(0, 1fr); row-gap: 8px; }
-    .aw-member-dribble .aw-val { grid-column: 1 / -1; }
+    .aw-card-dribble .aw-win { grid-template-columns: 68px minmax(0, 1fr); row-gap: 8px; }
+    .aw-dribble-score .aw-val { grid-column: 1 / -1; }
     .aw-member-dribble .aw-row { grid-template-columns: 20px minmax(0, 1fr); row-gap: 4px; }
+    .aw-card-dribble .aw-row { grid-template-columns: 20px 38px minmax(0, 1fr); row-gap: 4px; }
     .aw-member-dribble .aw-rv { grid-column: 2 / -1; }
-    .aw-member-dribble .aw-val, .aw-member-dribble .aw-rv { max-width: none; justify-items: start; text-align: left; }
+    .aw-card-dribble .aw-rv { grid-column: 2 / -1; }
+    .aw-dribble-score .aw-val, .aw-dribble-score .aw-rv { max-width: none; justify-items: start; text-align: left; }
   }
   .aw-view-switch { display: flex; gap: 6px; margin: 22px 0 16px; padding: 4px; border: 1px solid var(--rule); border-radius: 3px; background: #09090d; }
   .aw-view-switch button { flex: 1; min-height: 44px; padding: 8px 12px; border: 1px solid transparent; border-radius: 2px; background: transparent; color: var(--ink-dim); font: inherit; font-size: 14px; cursor: pointer; }
@@ -4773,7 +4776,7 @@ async function renderPicks(type, seq) {
 const AWARD_CATS = [
   { key: 'internal', member: true, title: '내전왕', what: '클럽원끼리 내전 경기 수', val: (e) => `${e.played}경기`, sub: (e) => `${e.win}승 ${e.draw}무 ${e.lose}패` },
   { key: 'member_dribble', member: true, image: 'dribble', title: '드리블왕', what: '성공률에 시도 수를 반영해요', note: '드리블 점수 = 성공 횟수 × 100 ÷ (시도 횟수 + 30)', val: (e) => `${fx(e.value, 1)}점`, sub: (e) => `성공률 ${fx(e.dribble_pct, 1)}% · 시도 ${e.dribble_try}회 · 성공 ${e.dribble_success}회 · 유효 ${e.dribble_games}경기` },
-  { key: 'dribble', title: '돌파왕', what: '공격수·미드필더 드리블 성공률', val: (e) => `${fx(e.value, 1)}%`, sub: (e) => `드리블 ${e.dribble_try}회 중 ${e.dribble_success}회` },
+  { key: 'dribble', title: '돌파왕', what: '공격수 전용 드리블 점수', note: '성공 횟수 × 100 ÷ (시도 횟수 + 30) · 같은 성공률이면 시도가 많을수록 높아요', val: (e) => `${fx(e.value, 1)}점`, sub: (e) => `성공률 ${fx(e.dribble_pct, 1)}% · 시도 ${e.dribble_try}회 · 성공 ${e.dribble_success}회 · 유효 ${e.dribble_games}경기` },
   { key: 'long_shot', member: true, title: '대포왕', what: '페널티박스 밖 슈팅 득점률', val: (e) => `${fx(e.value, 1)}%`, sub: (e) => `박스 밖 ${e.long_shot_try}슈팅 ${e.long_shot_goals}골` },
   { key: 'goals', title: '득점왕', what: '선발 1경기당 골', val: (e) => `${fx(e.goals / e.apps, 2)}골`, sub: (e) => `${e.apps}경기 ${e.goals}골` },
   { key: 'assists', title: '도움왕', what: '선발 1경기당 도움', val: (e) => `${fx(e.assists / e.apps, 2)}도움`, sub: (e) => `${e.apps}경기 ${e.assists}도움` },
@@ -4805,6 +4808,9 @@ async function renderAwards(type, seq) {
     cacheSet(key, d);
   }
   const aw = { ...(d.awards || {}) };
+  // Earlier card-dribble responses used FW/MF success percentages as value.
+  if (aw.dribble?.version !== 2) delete aw.dribble;
+  else if (Array.isArray(aw.dribble.list)) aw.dribble = { ...aw.dribble, list: aw.dribble.list.filter(e => Number.isInteger(e.pos) && e.pos >= 20 && e.pos <= 27 && isNum(e.value) && isNum(e.dribble_pct)) };
   const internalData = d.internal || null;
   const internalRows = statsInternalRanking(internalData && internalData.table);
   if (!aw.internal && internalData) aw.internal = { count: internalRows.length, list: internalRows.slice(0, 10).map(r => ({ ...r, member: { discord_id:r.discord_id, name:r.name, nickname:r.nickname, is_staff:r.is_staff } })) };
@@ -4870,10 +4876,10 @@ async function renderAwards(type, seq) {
       : awaitingCoverage(d.member_dribble_coverage)
         ? `클럽원 드리블 기록을 다시 모으는 중이에요. (${coverageProgress(d.member_dribble_coverage)})`
         : `공격수·미드필더 드리블 기록 ${minMember}경기 이상, 시도 ${rules.min_dribbles ?? 30}회 이상이고 성공 기록이 있는 클럽원이 아직 없어요.`,
-    dribble: !aw.dribble ? '드리블 집계를 준비하고 있어요.'
+    dribble: !aw.dribble ? '공격수 드리블 점수 집계를 준비하고 있어요.'
       : awaitingCoverage(d.dribble_coverage)
-        ? `드리블 기록을 다시 모으는 중이에요. (${coverageProgress(d.dribble_coverage)})`
-        : `공격수·미드필더로 선발 ${minApps}경기 이상, 드리블 ${rules.min_dribbles ?? 30}회 이상을 기록한 선수가 아직 없어요.`,
+        ? `공격수 드리블 기록을 다시 모으는 중이에요. (${coverageProgress(d.dribble_coverage)})`
+        : `공격수로 선발 ${minApps}경기 이상, 드리블 ${rules.min_dribbles ?? 30}회 이상이고 성공 기록이 있는 선수가 아직 없어요.`,
     long_shot: !aw.long_shot ? '박스 밖 슈팅 집계를 준비하고 있어요.'
       : awaitingCoverage(d.long_shot_coverage)
         ? `박스 밖 슈팅 기록을 다시 모으는 중이에요. (${coverageProgress(d.long_shot_coverage)})`
@@ -4897,7 +4903,7 @@ async function renderAwards(type, seq) {
   function section(c, list) {
     const image = h('img', { class:'aw-image', src:`../assets/awards/${c.image || c.key}.webp`, alt:'', loading:'lazy', decoding:'async', width:'160', height:'90' });
     image.addEventListener('error', () => { image.hidden = true; });
-    const box = h('section', { class: 'aw' + (c.member ? ' aw-member' : '') + (c.key === 'member_dribble' ? ' aw-member-dribble' : ''), 'aria-labelledby': `aw-${c.key}` },
+    const box = h('section', { class: 'aw' + (c.member ? ' aw-member' : '') + (c.key === 'member_dribble' ? ' aw-member-dribble aw-dribble-score' : c.key === 'dribble' ? ' aw-card-dribble aw-dribble-score' : ''), 'aria-labelledby': `aw-${c.key}` },
       h('div', { class:'aw-heading' }, image, h('div', { class:'aw-heading-copy' },
         h('div', { class: 'aw-h' }, h('h2', { id: `aw-${c.key}` }, c.title), h('span', null, c.what)),
         c.key === 'internal' ? h('p', { class:'aw-note' }, '최근 28일 수집한 내전 · 경기 수가 같으면 공동 순위') : null,
@@ -4960,7 +4966,7 @@ async function renderAwards(type, seq) {
       h('li', null, `헤딩왕은 헤딩 수가 기록된 ${minMember}경기 이상을 기준으로 경기당 헤딩 골을 비교해요. 빠진 기록은 0골로 세지 않아요.`),
       h('li', null, `클럽원마다 최근 ${W}경기에서 선발로 ${minApps}경기 이상 뛴 선수만 넣어요. 같은 선수라도 쓴 클럽원이 다르면 따로 세요.`),
       h('li', null, `드리블왕은 클럽원이 쓴 공격수·미드필더 선발의 드리블을 합산해요. 유효 ${minMember}경기·시도 ${rules.min_dribbles ?? 30}회 이상이고 성공 기록이 있어야 해요. 점수는 성공 횟수 × 100 ÷ (시도 횟수 + 30)이며, 성공률이 같으면 시도가 많을수록 높아요. 빠진 기록이 있는 경기는 빼고 수비수·골키퍼·교체 자리의 기록은 세지 않아요.`),
-      h('li', null, `돌파왕은 공격수·미드필더 자리에서 드리블 수가 기록된 선발 ${minApps}경기 이상, 시도 ${rules.min_dribbles ?? 30}회 이상인 선수의 성공률이에요. 수비수·골키퍼 자리의 기록은 빼요.`),
+      h('li', null, `돌파왕은 공격수 자리에서 드리블 수가 기록된 선발 ${minApps}경기 이상, 시도 ${rules.min_dribbles ?? 30}회 이상이고 성공 기록이 있는 선수를 뽑아요. 드리블왕과 같은 점수(성공 횟수 × 100 ÷ (시도 횟수 + 30))를 쓰며, 미드필더·수비수·골키퍼·교체 자리의 기록은 빼요. 실제 드리블 성공률은 점수와 따로 보여 줘요.`),
       h('li', null, `대포왕은 박스 밖 슈팅 수가 기록된 ${minMember}경기 이상, 시도 ${rules.min_long_shots ?? 30}회 이상인 클럽원의 득점률이에요. 빠진 기록은 0으로 세지 않아요.`),
       h('li', null, `수비왕은 수비수(DF) 자리에서 태클을 ${rules.min_tackles ?? 30}번 이상 한 선수의 태클 성공률이에요.`),
       h('li', null, `선방왕은 골키퍼로 상대 유효슈팅을 ${rules.min_faced ?? 30}개 이상 받은 선수가 골을 내주지 않은 비율이에요.`),
