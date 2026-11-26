@@ -9,7 +9,7 @@
 <meta name="robots" content="noindex, follow">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="theme-color" content="#000000">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https://nv-api.e2jinsoopark.workers.dev http://localhost:* http://127.0.0.1:* https://cdn.discordapp.com https://fco.dn.nexoncdn.co.kr https://ssl.nexon.com https://crests.football-data.org data: blob:; connect-src 'self' https: http://localhost:* http://127.0.0.1:*; media-src https: blob:; worker-src 'self'; frame-src https:; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https://nv-api.e2jinsoopark.workers.dev http://localhost:* http://127.0.0.1:* https://cdn.discordapp.com https://fco.dn.nexoncdn.co.kr https://ssl.nexon.com https://crests.football-data.org data: blob:; connect-src 'self' https: http://localhost:* http://127.0.0.1:*; media-src https: blob:; worker-src 'self'; frame-src https:; base-uri 'none'; form-action 'none'">
 <link rel="icon" type="image/png" sizes="32x32" href="../favicon-32.png">
 <link rel="apple-touch-icon" href="../apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1929,6 +1929,8 @@
   .sq-team-pick b > span + span::before { content:none; }
 }
 </style>
+<link rel="stylesheet" href="insights.css?v=20261126-1">
+<link rel="stylesheet" href="player-center.css?v=20261126-1">
 </head>
 <body>
 <!-- 티어 배지 그림: 홈페이지(../index.html)의 tb-defs를 그대로 옮김. 고칠 때는 두 곳을 같이 고친다 -->
@@ -1968,6 +1970,8 @@
 
 <script src="football-player.js?v=20261123"></script>
 <script src="squad-tools.js?v=20261124-icons1"></script>
+<script src="insights.js?v=20261126-1"></script>
+<script src="player-center.js?v=20261126-1"></script>
 <script>
 'use strict';
 const API = 'https://nv-api.e2jinsoopark.workers.dev';
@@ -2346,6 +2350,16 @@ function renderWho() {
   else av.hidden = true;
 }
 
+function insightsContext(seq) {
+  return {h,api,show,seq,stale,setTitle,toast,me:state.me,errorText:statsErr,
+    header:active=>[tabs(STATS_TAB),statsNav(active)]};
+}
+function playerCenterContext(seq) {
+  return {h,api,show,seq,stale,setTitle,toast,me:state.me,
+    header:active=>[tabs(SQUAD_TAB),squadNav(active)],meta:()=>sqMeta(),players:params=>sqPlayers(params),
+    getDetail:spid=>sqDetail(spid),detailBody:(...args)=>sqDetailBody(...args),traitIcon:t=>sqTraitIcon(t),errorText:sqErrText};
+}
+
 /* ---------- 라우팅 ---------- */
 function currentNext() {
   const hsh = location.hash;
@@ -2361,6 +2375,7 @@ function route() {
   let m;
   const onStats = /^#\/stats(\/|$)/.test(hsh);
   document.body.classList.toggle('tall', onStats && !!state.me);
+  document.body.classList.toggle('player-center-wide', !!state.me && /^#\/(players|team-colors)(\/|$)/.test(hsh));
   if (!onStats) state.statsBack = null;
   if (hsh === '#/privacy') return renderPrivacy();
   if (!state.me) return renderLogin();
@@ -2368,6 +2383,11 @@ function route() {
     if (state.boards[0]) return renderBoard(state.boards[0].slug, seq);
     return show([tabs(null), h('h1', { class: 'h1', tabindex: '-1' }, '클럽 공간'), h('p', { class: 'desc' }, '아직 볼 수 있는 게시판이 없어요.')]);
   }
+  if ((m=hsh.match(/^#\/stats\/insights(?:\/(\d{5,25})(?:\/(50|52))?)?$/))) return NVInsights.renderInsights(insightsContext(seq),m[1],m[2]?+m[2]:50);
+  if ((m=hsh.match(/^#\/stats\/duel(?:\/(\d{5,25})(?:\/(\d{5,25})(?:\/(all|40|50|52))?)?)?$/))) return NVInsights.renderDuel(insightsContext(seq),m[1],m[2],m[3]||'all');
+  if (hsh === '#/players') return NVPlayerCenter.renderPlayers(playerCenterContext(seq));
+  if ((m=hsh.match(/^#\/players\/reviews(?:\/(\d{6,12}))?$/))) return NVPlayerCenter.renderReviews(playerCenterContext(seq),m[1]?+m[1]:undefined);
+  if (hsh === '#/team-colors') return NVPlayerCenter.renderTeamColors(playerCenterContext(seq));
   if (hsh === '#/football') return renderFootball(seq);
   if (hsh === '#/squad/style') { history.replaceState(history.state, '', location.pathname + location.search + '#/squad'); return renderSquad(seq); }
   if (hsh === '#/squad/rankers') return renderTeamRankers(seq);
@@ -3608,13 +3628,15 @@ async function renderStats(seq, keep) {
 
 /* ---------- 전적 하위 메뉴: 개요 · 랭킹 · 클럽 픽 · 검색 ---------- */
 /* 클럽원 상세는 개요에서 들어가는 화면이라 개요를 '상위'(aria-current=true)로 표시한다 */
-const STATS_NAV = [['overview', '개요'], ['rank', '랭킹'], ['duo', '2대2'], ['best', '어워드'], ['picks', '클럽 픽'], ['search', '검색']];
+const STATS_NAV = [['overview', '개요'], ['rank', '랭킹'], ['duo', '2대2'], ['best', '어워드'], ['insights', '플레이 진단'], ['duel', '맞대결'], ['picks', '클럽 픽'], ['search', '검색']];
 /* 이름이 같거나 닉네임을 바꿔도 로그인 계정 번호로 본인을 구분한다. */
 function isStatsMe(member) { return !!(state.me && state.me.id && member && member.discord_id === state.me.id); }
 function statsMeBadge(member) { return isStatsMe(member) ? badge('나', 'me') : null; }
 function statsNav(active, parent) {
   const href = {
     overview: '#/stats',
+    insights: '#/stats/insights',
+    duel: '#/stats/duel',
     rank: state.rankType === 52 ? '#/stats/rank/52' : '#/stats/rank',
     duo: '#/stats/duo',
     best: state.bestType === 52 ? '#/stats/best/52' : '#/stats/best',
@@ -5318,7 +5340,7 @@ const sqCardFromRanker = (it, group, grade) => ({ spid: it.spid, grade: grade ||
 const sqInfoUrl = (spid, grade) => `https://fconline.nexon.com/DataCenter/PlayerInfo?spid=${spid}&n1Strong=${grade || 1}`;
 
 function squadNav(active) {
-  const items = [['make', '만들기', '#/squad'], ['auto', '자동 편성', '#/squad/auto'], ['rankers', '팀컬러 랭킹', '#/squad/rankers'], ['saved', '저장·공유', '#/squad/saved']];
+  const items = [['make', '만들기', '#/squad'], ['players', '선수 DB', '#/players'], ['reviews', '선수 리뷰', '#/players/reviews'], ['colors', '팀컬러 찾기', '#/team-colors'], ['auto', '자동 편성', '#/squad/auto'], ['rankers', '팀컬러 랭킹', '#/squad/rankers'], ['saved', '저장·공유', '#/squad/saved']];
   return h('nav', { class: 'snav', 'aria-label': '스쿼드 메뉴' }, items.map(([k, label, href]) => h('a', { href, 'aria-current': k === active ? 'page' : null }, label)));
 }
 const sqSource = (tcIn) => h('p', { class: 'sq-src' }, `선수·급여·시세·랭커·팀컬러 자료: FC온라인 공식 홈페이지 데이터센터(넥슨). 시세는 받아 둔 때 기준이에요. ${tcIn ? '팀컬러는 선발 11명 기준으로 OVR에 넣었어요(자동 편성·저장 목록의 OVR에는 넣지 않아요).' : '이 화면의 OVR에는 팀컬러 보너스를 넣지 않았어요(스쿼드 메이커에서 열면 넣어요).'}`);
@@ -6793,7 +6815,7 @@ function sqTeamIcon(team) {
 
 async function renderTeamRankers(seq) {
   setTitle('팀컬러 랭킹');
-  const filters = state.sqTeamRanker || (state.sqTeamRanker = { team:'', group:'ST', type:50 });
+  const filters = state.sqTeamRanker || (state.sqTeamRanker = { team:'', group:'ST', type:50, limit:40, formation:'' });
   const shell = h('div', { class:'sq-tr-shell' });
   const head = [tabs(SQUAD_TAB), squadNav('rankers'), h('p', { class:'idx' }, 'TEAMCOLOR PICKS'), h('h1', { class:'h1', tabindex:'-1' }, '팀컬러 랭킹'),
     h('p', { class:'desc' }, '공식 데이터센터의 팀컬러 순위와, 해당 팀컬러 랭커의 최근 경기 선발에서 확인한 선수를 봅니다.')];
@@ -6804,7 +6826,8 @@ async function renderTeamRankers(seq) {
     shell.replaceChildren(loadingEl('공식 팀컬러 집계를 불러오는 중이에요.'));
     for (let step = 0; step < 10; step++) {
       try {
-        const qs = new URLSearchParams({ group:filters.group, type:filters.type || 50 });
+        const qs = new URLSearchParams({ group:filters.group, type:filters.type || 50, limit:filters.limit || 40 });
+        if(filters.formation) qs.set('formation',filters.formation);
         if (filters.team) qs.set('team', filters.team);
         const d = await api(`/api/squad/team-rankers?${qs}`);
         if (gone()) return;
@@ -6819,6 +6842,8 @@ async function renderTeamRankers(seq) {
   function draw(d) {
     const rows = Array.isArray(d.teams) ? d.teams : [];
     const mode = h('select', { class:'input select', 'aria-label':'팀컬러 경기 종류', onchange:e => { filters.type=Number(e.target.value); load(); } }, [ [50,'공식경기'],[52,'감독모드'] ].map(([v,t]) => h('option',{value:v, selected:(filters.type || 50)===v},t)));
+    const sampleLimit = h('select',{class:'input select','aria-label':'랭커 표본 수',onchange:e=>{filters.limit=Number(e.target.value);load();}},[20,40,60,80,100].map(v=>h('option',{value:v,selected:(filters.limit||40)===v},`상위 최대 ${v}명 표본`)));
+    const formation = h('select',{class:'input select','aria-label':'랭커 포메이션',onchange:e=>{filters.formation=e.target.value;load();}},h('option',{value:''},'확인한 포메이션 전체'),(d.formations||[]).map(f=>h('option',{value:f.name,selected:filters.formation===f.name},`${f.name} · ${f.count}명`)));
     const chooser = h('select', { class:'input select', 'aria-label':'팀컬러 선택', onchange:e => { filters.team=e.target.value; load(); } },
       h('option', { value:'' }, '팀컬러를 고르세요'), rows.map(t => h('option', { value:t.id, selected:String(t.id)===String(filters.team) }, `${t.name} · ${t.count}명`)));
     const groups = h('div', { class:'chips', role:'group', 'aria-label':'선수 포지션' }, SQ_GROUPS.map(g => h('button', { class:'chip', type:'button', 'aria-pressed':g===filters.group?'true':'false', onclick:() => { filters.group=g; load(); } }, g)));
@@ -6826,7 +6851,7 @@ async function renderTeamRankers(seq) {
       h('p', { class:'hint' }, `공식 화면 조회일 ${d.source_date || ''} · ${filters.type===52?'감독모드':'공식경기'} 상위 10,000명 기준 · 공식 화면의 사용 비율을 그대로 표시해요.`),
       h('ol', { class:'sq-team-list' }, rows.map((t,i) => h('li', null, h('button', { class:'sq-team-pick', type:'button', 'aria-pressed':String(t.id)===String(filters.team)?'true':'false', onclick:() => { filters.team=String(t.id); load(); } },
         h('span', {class:'sq-team-label'}, h('span',{class:'sq-team-rank'},i+1), sqTeamIcon(t), h('span',{class:'sq-team-name'},t.name)), h('b', null, h('span',null,`${t.count}명`), Number.isFinite(t.share)?h('span',null,`${t.share.toFixed(1)}%`):null))))));
-    const detail = h('section', { class:'panel sq-team-detail' }, h('h2', { class:'sq-h sq-team-title' }, d.selected ? [sqTeamIcon(d.selected), d.selected.name] : '팀컬러별 선수 추천'), mode, chooser, groups);
+    const detail = h('section', { class:'panel sq-team-detail' }, h('h2', { class:'sq-h sq-team-title' }, d.selected ? [sqTeamIcon(d.selected), d.selected.name] : '팀컬러별 선수 추천'), mode, chooser, h('div',{class:'sq-import-row'},sampleLimit,formation), groups);
     if (!d.selected) detail.append(h('p', { class:'empty' }, '팀컬러를 고르면 최근 선발을 확인한 랭커들의 포지션별 사용 선수가 나와요.'));
     else {
       const sample = d.sample || {};
@@ -6834,6 +6859,7 @@ async function renderTeamRankers(seq) {
       const total = sample.target ?? sample.total ?? 0;
       const positionUsers = sample.position_users ?? sample.position_count;
       detail.append(h('p', {class:'hint'}, `현재 시즌 팀컬러 검색 결과 ${sample.total ?? '확인 중'}명 중 상위 최대 ${sample.limit || 20}명을 확인해요. 최근 경기 선발은 팀컬러 집계 시점과 다를 수 있어요.`));
+      detail.append(h('p',{class:'hint',role:'status'},`랭커 목록 ${sample.loaded??sample.target??0} / 목표 ${sample.target??0}명 · 선발 확인 완료 ${sample.checked??0}명${filters.formation?` · ${filters.formation} 확인 ${sample.formation_collected??confirmed}명`:''}. 포메이션 필터는 확인한 표본 안에서 적용해요.`));
       detail.append(h('p', { class:'info' }, `랭커 선발 확인 ${confirmed}${total?` / ${total}`:''}명${Number.isFinite(positionUsers)?` · ${filters.group} 기용 ${positionUsers}명`:''}. 이 아래는 확인한 표본의 통계예요.`));
       if (sample.failed) detail.append(h('p',{class:'hint'},`선발을 확인할 수 없는 ${sample.failed}명은 선수 사용률에서 제외했어요.`));
       const checkedTime = sample.oldest_checked_at && new Date(sample.oldest_checked_at);
@@ -6860,6 +6886,7 @@ async function renderTeamRankers(seq) {
 
 /* ---------- 보고 있는 화면에서 제보 ---------- */
 function feedbackContext(hash) {
+  if (/^#\/(players|team-colors)(\/|$)/.test(hash)) return {name:'선수·팀컬러',route:hash.startsWith('#/team-colors')?'#/team-colors':'#/players'};
   if (/^#\/squad/.test(hash)) return { name:'스쿼드', route:hash.startsWith('#/squad/auto')?'#/squad/auto':hash.startsWith('#/squad/rankers')?'#/squad/rankers':'#/squad' };
   if (/^#\/stats/.test(hash)) return { name:'전적', route:'#/stats' };
   if (/^#\/football/.test(hash)) return { name:'해외축구', route:'#/football' };
