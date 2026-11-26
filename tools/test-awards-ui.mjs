@@ -125,3 +125,46 @@ test('overview links to awards and no longer renders a duplicate internal match 
   const overview=between('async function renderStats(','/* ---------- 전적 하위 메뉴:');assert.doesNotMatch(overview,/statsInternalRecords\(|matchItem\(|mt-list/);assert.match(overview,/내전왕 · 최근 경기 보기/);
   const rank=between("if (k === 'internal')", "if (k === 'overall')");assert.match(rank,/statsInternalRanking\(tb\)/);assert.doesNotMatch(rank,/승점|pts\(/);
 });
+
+
+test('member dribble award separates adjusted score from real rate and preserves me, ties and expansion',async()=>{
+  const d=basePayload();
+  d.awards.member_dribble={count:5,list:Array.from({length:5},(_,i)=>({rank:i<2?1:i+1,member:member(String(i+1),`예시${i+1}`),played:30,dribble_games:20,dribble_try:100,dribble_success:80,dribble_pct:80,value:61.5-i*(i>1?1:0)}))};
+  d.member_dribble_coverage={collected:5,total:5,pending:0};
+  const {ctx,root}=setup(d);await ctx.renderAwards(50,0);
+  const card=byClass(root,'aw').find(n=>n.getAttribute('aria-labelledby')==='aw-member_dribble');assert.ok(card);
+  assert.equal(card.classList.contains('aw-member-dribble'),true);
+  assert.match(card.textContent,/드리블왕/);assert.match(card.textContent,/성공률에 시도 수를 반영해요/);assert.match(card.textContent,/61\.5점/);assert.match(card.textContent,/성공률 80\.0%/);
+  assert.match(card.textContent,/시도 100회 · 성공 80회 · 유효 20경기/);assert.match(card.textContent,/공동 1위/);
+  assert.equal(byClass(card,'aw-win')[0].classList.contains('is-me'),true);assert.equal(byClass(card,'b-me').length,1);
+  assert.equal(byTag(card,'img')[0].getAttribute('src'),'../assets/awards/dribble.webp');
+  assert.equal(byClass(card,'aw-row').length,2);button(card,'5명까지 보기').click();assert.equal(byClass(card,'aw-row').length,4);assert.equal(button(card,'접기').getAttribute('aria-expanded'),'true');
+  assert.match(root.textContent,/성공 횟수 × 100 ÷ \(시도 횟수 \+ 30\)/);assert.match(root.textContent,/수비수·골키퍼·교체 자리/);
+});
+
+test('member dribble and card breakthrough awards stay in their respective groups',async()=>{
+  const d=basePayload();d.awards.member_dribble={count:1,list:[{rank:1,member:member('1','가'),played:30,dribble_games:20,dribble_try:100,dribble_success:80,dribble_pct:80,value:61.5}]};
+  d.awards.dribble={count:1,list:[{rank:1,member:member('1','가'),spid:101000190,pos:25,grade:8,apps:30,dribble_games:20,dribble_try:45,dribble_success:30,value:66.7}]};
+  const {ctx,root}=setup(d);await ctx.renderAwards(50,0);
+  assert.equal(byClass(root,'aw').some(n=>n.getAttribute('aria-labelledby')==='aw-member_dribble'),true);
+  assert.equal(byClass(root,'aw').some(n=>n.getAttribute('aria-labelledby')==='aw-dribble'),false);
+  button(root,'선수 카드 어워드').click();
+  assert.equal(byClass(root,'aw').some(n=>n.getAttribute('aria-labelledby')==='aw-member_dribble'),false);
+  const card=byClass(root,'aw').find(n=>n.getAttribute('aria-labelledby')==='aw-dribble');assert.ok(card);assert.equal(card.classList.contains('aw-member-dribble'),false);assert.match(card.textContent,/돌파왕/);assert.match(card.textContent,/66\.7%/);
+});
+
+test('member dribble distinguishes missing summaries, pending rebuild and insufficient records',async()=>{
+  const old=setup();await old.ctx.renderAwards(50,0);assert.match(old.root.textContent,/클럽원 드리블 집계를 준비하고 있어요/);assert.doesNotMatch(old.root.textContent,/NaN|undefined%/);
+  const d=basePayload();d.awards.member_dribble={count:0,list:[]};d.member_dribble_coverage={collected:0,total:8,pending:2};
+  const pending=setup(d);await pending.ctx.renderAwards(50,0);assert.match(pending.root.textContent,/클럽원 드리블 기록을 다시 모으는 중이에요\. \(2명 남음\)/);
+  d.member_dribble_coverage.pending=0;d.min_member_games=5;d.rules.min_dribbles=10;
+  const ready=setup(d);await ready.ctx.renderAwards(50,0);
+  const card=byClass(ready.root,'aw').find(n=>n.getAttribute('aria-labelledby')==='aw-member_dribble');
+  assert.doesNotMatch(card.textContent,/다시 모으는 중/);assert.match(card.textContent,/드리블 기록 5경기 이상, 시도 10회 이상이고 성공 기록/);assert.doesNotMatch(card.textContent,/0\.0점|NaN/);
+});
+
+test('member dribble keeps pending notice visible while a partial leaderboard is already available',async()=>{
+  const d=basePayload();d.awards.member_dribble={count:1,list:[{rank:1,member:member('1','가'),played:30,dribble_games:20,dribble_try:100,dribble_success:80,dribble_pct:80,value:61.5}]};d.member_dribble_coverage={collected:1,total:8,pending:3};
+  const {ctx,root}=setup(d);await ctx.renderAwards(50,0);const card=byClass(root,'aw').find(n=>n.getAttribute('aria-labelledby')==='aw-member_dribble');
+  assert.match(card.textContent,/61\.5점/);assert.match(card.textContent,/기록을 다시 모으는 중이에요\. \(3명 남음\)/);
+});

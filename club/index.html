@@ -1218,6 +1218,13 @@
   .aw-member .aw-row { grid-template-columns: 20px minmax(0, 1fr) auto; }
   .aw-club-mark { display: grid; place-items: center; width: 46px; height: 50px; border: 1px solid rgba(68,160,192,.4); background: rgba(68,160,192,.1); font: 600 16px var(--f-lat); color: #a5e5f5; clip-path: polygon(0 0, 100% 0, 100% 80%, 50% 100%, 0 80%); }
   .aw-member .aw-win .aw-own { margin: 5px 0; font-size: 16px; }
+  @media (max-width: 480px) {
+    .aw-member-dribble .aw-win { grid-template-columns: 50px minmax(0, 1fr); row-gap: 8px; }
+    .aw-member-dribble .aw-val { grid-column: 1 / -1; }
+    .aw-member-dribble .aw-row { grid-template-columns: 20px minmax(0, 1fr); row-gap: 4px; }
+    .aw-member-dribble .aw-rv { grid-column: 2 / -1; }
+    .aw-member-dribble .aw-val, .aw-member-dribble .aw-rv { max-width: none; justify-items: start; text-align: left; }
+  }
   .aw-view-switch { display: flex; gap: 6px; margin: 22px 0 16px; padding: 4px; border: 1px solid var(--rule); border-radius: 3px; background: #09090d; }
   .aw-view-switch button { flex: 1; min-height: 44px; padding: 8px 12px; border: 1px solid transparent; border-radius: 2px; background: transparent; color: var(--ink-dim); font: inherit; font-size: 14px; cursor: pointer; }
   .aw-view-switch [aria-pressed='true'] { border-color: rgba(230,74,88,.4); background: rgba(160,7,30,.16); color: var(--ink-hi); box-shadow: inset 0 -2px 0 var(--red-bot); }
@@ -4765,6 +4772,7 @@ async function renderPicks(type, seq) {
 /* 클럽원 + 선수 카드 한 장이 한 줄. 같은 카드라도 클럽원이 다르면 따로 센다 */
 const AWARD_CATS = [
   { key: 'internal', member: true, title: '내전왕', what: '클럽원끼리 내전 경기 수', val: (e) => `${e.played}경기`, sub: (e) => `${e.win}승 ${e.draw}무 ${e.lose}패` },
+  { key: 'member_dribble', member: true, image: 'dribble', title: '드리블왕', what: '성공률에 시도 수를 반영해요', note: '드리블 점수 = 성공 횟수 × 100 ÷ (시도 횟수 + 30)', val: (e) => `${fx(e.value, 1)}점`, sub: (e) => `성공률 ${fx(e.dribble_pct, 1)}% · 시도 ${e.dribble_try}회 · 성공 ${e.dribble_success}회 · 유효 ${e.dribble_games}경기` },
   { key: 'dribble', title: '돌파왕', what: '공격수·미드필더 드리블 성공률', val: (e) => `${fx(e.value, 1)}%`, sub: (e) => `드리블 ${e.dribble_try}회 중 ${e.dribble_success}회` },
   { key: 'long_shot', member: true, title: '대포왕', what: '페널티박스 밖 슈팅 득점률', val: (e) => `${fx(e.value, 1)}%`, sub: (e) => `박스 밖 ${e.long_shot_try}슈팅 ${e.long_shot_goals}골` },
   { key: 'goals', title: '득점왕', what: '선발 1경기당 골', val: (e) => `${fx(e.goals / e.apps, 2)}골`, sub: (e) => `${e.apps}경기 ${e.goals}골` },
@@ -4858,6 +4866,10 @@ async function renderAwards(type, seq) {
   const coverageProgress = coverage => isNum(coverage.pending) ? `${coverage.pending}명 남음` : `${coverage.collected}/${coverage.total}명`;
   const empty = {
     internal: internalData ? '최근 28일 동안 찾은 내전이 아직 없어요. 두 사람 모두 게임 닉네임이 연결돼 있어야 해요.' : '내전 집계를 준비하고 있어요.',
+    member_dribble: !aw.member_dribble ? '클럽원 드리블 집계를 준비하고 있어요.'
+      : awaitingCoverage(d.member_dribble_coverage)
+        ? `클럽원 드리블 기록을 다시 모으는 중이에요. (${coverageProgress(d.member_dribble_coverage)})`
+        : `공격수·미드필더 드리블 기록 ${minMember}경기 이상, 시도 ${rules.min_dribbles ?? 30}회 이상이고 성공 기록이 있는 클럽원이 아직 없어요.`,
     dribble: !aw.dribble ? '드리블 집계를 준비하고 있어요.'
       : awaitingCoverage(d.dribble_coverage)
         ? `드리블 기록을 다시 모으는 중이에요. (${coverageProgress(d.dribble_coverage)})`
@@ -4883,9 +4895,9 @@ async function renderAwards(type, seq) {
     save: `골키퍼로 선발 ${minApps}경기 이상, 유효슈팅 ${rules.min_faced ?? 30}개 이상 받은 선수가 아직 없어요.`,
   };
   function section(c, list) {
-    const image = h('img', { class:'aw-image', src:`../assets/awards/${c.key}.webp`, alt:'', loading:'lazy', decoding:'async', width:'160', height:'90' });
+    const image = h('img', { class:'aw-image', src:`../assets/awards/${c.image || c.key}.webp`, alt:'', loading:'lazy', decoding:'async', width:'160', height:'90' });
     image.addEventListener('error', () => { image.hidden = true; });
-    const box = h('section', { class: 'aw' + (c.member ? ' aw-member' : ''), 'aria-labelledby': `aw-${c.key}` },
+    const box = h('section', { class: 'aw' + (c.member ? ' aw-member' : '') + (c.key === 'member_dribble' ? ' aw-member-dribble' : ''), 'aria-labelledby': `aw-${c.key}` },
       h('div', { class:'aw-heading' }, image, h('div', { class:'aw-heading-copy' },
         h('div', { class: 'aw-h' }, h('h2', { id: `aw-${c.key}` }, c.title), h('span', null, c.what)),
         c.key === 'internal' ? h('p', { class:'aw-note' }, '최근 28일 수집한 내전 · 경기 수가 같으면 공동 순위') : null,
@@ -4894,7 +4906,7 @@ async function renderAwards(type, seq) {
     if (c.key === 'heading' && d.heading_coverage && d.heading_coverage.collected < d.heading_coverage.total) {
       box.append(h('p', { class: 'aw-note' }, `헤딩 기록을 다시 모으는 중이에요. (${d.heading_coverage.collected}/${d.heading_coverage.total}명)`));
     }
-    const coverage = c.key === 'dribble' ? d.dribble_coverage : c.key === 'long_shot' ? d.long_shot_coverage : null;
+    const coverage = c.key === 'member_dribble' ? d.member_dribble_coverage : c.key === 'dribble' ? d.dribble_coverage : c.key === 'long_shot' ? d.long_shot_coverage : null;
     if (awaitingCoverage(coverage)) box.append(h('p', { class:'aw-note' }, `기록을 다시 모으는 중이에요. (${coverageProgress(coverage)})`));
     const rest = list.slice(1);
     const ol = h('ol', { class: 'aw-list' });
@@ -4947,6 +4959,7 @@ async function renderAwards(type, seq) {
       h('li', null, '평화주의자는 무승부 비율, 난사왕은 경기당 슈팅, 본프레레왕은 경기당 득점+실점 합계예요. 짠물수비왕은 경기당 실점이 적을수록 순위가 높아요.'),
       h('li', null, `헤딩왕은 헤딩 수가 기록된 ${minMember}경기 이상을 기준으로 경기당 헤딩 골을 비교해요. 빠진 기록은 0골로 세지 않아요.`),
       h('li', null, `클럽원마다 최근 ${W}경기에서 선발로 ${minApps}경기 이상 뛴 선수만 넣어요. 같은 선수라도 쓴 클럽원이 다르면 따로 세요.`),
+      h('li', null, `드리블왕은 클럽원이 쓴 공격수·미드필더 선발의 드리블을 합산해요. 유효 ${minMember}경기·시도 ${rules.min_dribbles ?? 30}회 이상이고 성공 기록이 있어야 해요. 점수는 성공 횟수 × 100 ÷ (시도 횟수 + 30)이며, 성공률이 같으면 시도가 많을수록 높아요. 빠진 기록이 있는 경기는 빼고 수비수·골키퍼·교체 자리의 기록은 세지 않아요.`),
       h('li', null, `돌파왕은 공격수·미드필더 자리에서 드리블 수가 기록된 선발 ${minApps}경기 이상, 시도 ${rules.min_dribbles ?? 30}회 이상인 선수의 성공률이에요. 수비수·골키퍼 자리의 기록은 빼요.`),
       h('li', null, `대포왕은 박스 밖 슈팅 수가 기록된 ${minMember}경기 이상, 시도 ${rules.min_long_shots ?? 30}회 이상인 클럽원의 득점률이에요. 빠진 기록은 0으로 세지 않아요.`),
       h('li', null, `수비왕은 수비수(DF) 자리에서 태클을 ${rules.min_tackles ?? 30}번 이상 한 선수의 태클 성공률이에요.`),
