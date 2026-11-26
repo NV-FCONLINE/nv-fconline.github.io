@@ -1155,6 +1155,22 @@
 
   /* ---------- 최고의 선수 ---------- */
   .aw-grid { display: grid; gap: 14px; }
+  .aw-heading { display: grid; grid-template-columns: 160px minmax(0, 1fr); align-items: center; gap: 16px; margin-bottom: 12px; }
+  .aw-image { display: block; width: 160px; height: 90px; aspect-ratio: 16 / 9; object-fit: contain; border-radius: 3px; background: #0c080b; }
+  .aw-image[hidden] { display: none; }
+  .aw-heading:has(.aw-image[hidden]) { grid-template-columns: minmax(0, 1fr); }
+  .aw-heading-copy { min-width: 0; }
+  .aw-heading-copy .aw-h { display: grid; gap: 5px; margin-bottom: 0; }
+  .aw-heading-copy .aw-note { margin: 7px 0 0; }
+  .aw-internal-feature { display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; grid-column: 1 / -1; min-width: 0; padding-bottom: 12px; border-bottom: 1px solid var(--rule); }
+  .aw-internal-feature > .aw { margin-bottom: 0; }
+  .aw-internal-records { min-width: 0; }
+  .aw-internal-records .st-h3 { margin-top: 0; }
+  .aw-internal-table { grid-column: 1 / -1; margin-top: 0; }
+  .aw-internal-table > summary { display: flex; align-items: center; min-height: 44px; color: var(--ink-mid); font-size: 14px; font-weight: 600; cursor: pointer; }
+  .st-internal-link .btn { margin-top: 8px; }
+  @media (min-width: 900px) { .aw-internal-feature { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; } }
+  @media (max-width: 540px) { .aw-heading { grid-template-columns: 112px minmax(0, 1fr); gap: 12px; } .aw-image { width: 112px; height: 63px; } }
   .aw { padding: 14px 14px 6px; background: rgba(255, 255, 255, 0.02); border: 1px solid var(--rule); border-radius: 2px; }
   .aw-h { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 2px 10px; margin-bottom: 10px; }
   .aw-h h2 { margin: 0; font-size: 19px; font-weight: 700; line-height: 1.3; color: var(--ink-hi); }
@@ -3291,6 +3307,124 @@ function statsHead() { return [h('p', { class: 'idx' }, 'STATS'), h('h1', { clas
 function statsClosed() {
   return show([tabs(STATS_TAB), statsHead(), h('p', { class: 'info', style: 'margin-top:18px' }, '전적 메뉴는 준비 중이에요. 조금만 기다려 주세요.')]);
 }
+/* 같은 경기 수는 공동 순위. 이름·계정 번호는 표시 순서만 안정적으로 정한다. */
+function statsInternalRanking(rows) {
+  const sorted = (Array.isArray(rows) ? rows : []).slice().sort((a, b) => b.played - a.played
+    || String(a.name || a.nickname || '').localeCompare(String(b.name || b.nickname || ''), 'ko')
+    || String(a.discord_id || '').localeCompare(String(b.discord_id || '')));
+  let rank = 0;
+  return sorted.map((row, index) => {
+    if (!index || sorted[index - 1].played !== row.played) rank = index + 1;
+    return { ...row, rank };
+  });
+}
+
+function statsInternalMatchItem(mt, matchTypes, ui, onRow) {
+  const A = mt.a || {}, B = mt.b || {};
+  const typeName = (matchTypes || {})[String(mt.match_type)] || '기타 경기';
+  const draw = A.result === '무' && B.result === '무';
+  const winner = A.result === '승' ? A : B.result === '승' ? B : null;
+  const side = (s, cls) => h('span', { class: `mt-side ${cls}${s.result === '승' ? ' win' : ''}` },
+    h('span', { class: 'mt-nick' }, s.nickname || '알 수 없음'),
+    s.name ? h('span', { class: 'mt-who' }, s.name) : null);
+  const goals = (s) => h('span', { class: s.result === '승' ? 'w' : s.result === '패' ? 'l' : null }, s.goals == null ? '-' : String(s.goals));
+  const det = h('details', { class: 'mt' });
+  if (ui.open.has(mt.match_id)) det.open = true;
+  det.addEventListener('toggle', () => { if (det.open) ui.open.add(mt.match_id); else ui.open.delete(mt.match_id); });
+  det.append(h('summary', null,
+    h('span', { class: 'mt-meta' },
+      h('span', null, timeEl(mt.played_at, true), ` · ${typeName}`, draw ? ' · 무승부' : ''),
+      h('span', { class: 'mt-more', 'aria-hidden': 'true' }, '자세히', icon('down'))),
+    h('span', { class: 'mt-score' },
+      side(A, 'a'),
+      h('span', { class: 'mt-goals' }, goals(A), h('span', { class: 'sep', 'aria-hidden': 'true' }, ':'), h('span', { class: 'sr-only' }, ' 대 '), goals(B)),
+      side(B, 'b')),
+    winner ? h('span', { class: 'sr-only' }, `, ${winner.nickname || ''} 승`) : null));
+  /* 펼친 칸의 닉네임은 클럽원 전적 링크(요약 줄은 통째로 펼침 버튼이라 링크를 넣지 않는다) */
+  const sideHead = (s) => (s.discord_id
+    ? h('a', { class: 'mt-link', href: `#/stats/m/${s.discord_id}`, onclick: onRow }, s.nickname || s.name || '알 수 없음')
+    : s.nickname || '알 수 없음');
+  const as = A.stats || {}, bs = B.stats || {};
+  const val = (k, unit, v) => (v == null || !isFinite(v) ? '-' : k === 'rating' ? Number(v).toFixed(1) : `${Math.round(v)}${unit}`);
+  det.append(h('div', { class: 'mt-detail' },
+    h('table', { class: 'mt-stats' },
+      h('caption', { class: 'sr-only' }, `${A.nickname || ''} 대 ${B.nickname || ''} 경기 기록`),
+      h('thead', null, h('tr', null,
+        h('th', { class: 'sa', scope: 'col' }, sideHead(A)),
+        h('th', { class: 'sl', scope: 'col' }, h('span', { class: 'sr-only' }, '항목')),
+        h('th', { class: 'sb', scope: 'col' }, sideHead(B)))),
+      h('tbody', null, STAT_ROWS.map(([k, label, unit]) => {
+        const x = as[k], y = bs[k];
+        const both = isFinite(x) && isFinite(y) && x != null && y != null && x !== y;
+        return h('tr', null,
+          h('td', { class: 'sa' + (both && x > y ? ' hi' : '') }, val(k, unit, x)),
+          h('th', { class: 'sl', scope: 'row' }, label),
+          h('td', { class: 'sb' + (both && y > x ? ' hi' : '') }, val(k, unit, y)));
+      })))));
+  return det;
+}
+
+function statsInternalRecords(it, matchTypes, ui, { table = true, matches: showMatches = true, id = 'aw-internal' } = {}) {
+  it = it || {};
+  const onRow = () => rememberPlace('어워드');
+  const matches = it.matches || [];
+  const tableRows = it.table || [];
+  const internal = [];
+  if (!matches.length && !tableRows.length) {
+    internal.push(h('div', { class: 'st-empty' },
+      h('p', null, '아직 찾은 내전이 없어요.'),
+      h('p', null, '두 사람 모두 게임 닉네임이 연결된 클럽원일 때 내전으로 기록돼요.')));
+  } else {
+    if (table && tableRows.length) {
+      const gd = (r) => r.gf - r.ga;
+      const rows = statsInternalRanking(tableRows);
+      const body = rows.map((r, i) => {
+        const rank = r.rank;
+        return h('tr', { class: isStatsMe(r) ? 'is-me' : null },
+          h('td', { class: 'c-rank' }, String(rank)),
+          h('th', { class: 'c-name', scope: 'row' }, (() => {
+            const inner = [h('b', null, r.name || r.nickname || '알 수 없음', statsMeBadge(r)), r.name && r.nickname ? h('small', null, r.nickname) : null];
+            return r.discord_id ? h('a', { class: 'c-link', href: `#/stats/m/${r.discord_id}`, onclick: onRow }, inner) : inner;
+          })()),
+          [r.played, r.win, r.draw, r.lose, r.gf, r.ga].map((v) => h('td', null, String(v))),
+          h('td', null, signed(gd(r))));
+      });
+      internal.push(h('h3', { class: 'st-h3', id: `${id}-table-h` }, '클럽원끼리 내전'),
+        h('div', { class: 'st-scroll', role: 'region', 'aria-labelledby': `${id}-table-h`, tabindex: '0' },
+          h('table', { class: 'st-table' },
+            h('thead', null, h('tr', null,
+              h('th', { class: 'c-rank', scope: 'col' }, '순위'), h('th', { class: 'c-name', scope: 'col' }, '이름'),
+              ['경기', '승', '무', '패', '득점', '실점', '득실'].map((t) => h('th', { scope: 'col' }, t)))),
+            h('tbody', null, body))),
+        h('p', { class: 'st-note' }, '최근 28일 동안 클럽원끼리 한 경기 수가 많은 순이에요. 경기 수가 같으면 공동 순위예요.'));
+    }
+    if (showMatches && matches.length) {
+      const list = h('ul', { class: 'mt-list', 'aria-labelledby': `${id}-matches-h` });
+      const more = h('div', { class: 'more' });
+      const moreBtn = h('button', { class: 'btn btn-ghost', type: 'button' });
+      const paintMore = () => {
+        const left = matches.length - list.children.length;
+        moreBtn.textContent = `더 보기 (${left}경기 남음)`;
+        more.hidden = left <= 0;
+      };
+      const addMatches = (from, to) => matches.slice(from, to).forEach((mt) => list.append(h('li', null, statsInternalMatchItem(mt, matchTypes, ui, onRow))));
+      addMatches(0, ui.shown);
+      moreBtn.addEventListener('click', () => {
+        const from = list.children.length;
+        ui.shown = from + MATCH_PAGE;
+        addMatches(from, ui.shown);
+        paintMore();
+        const first = list.children[from] && list.children[from].querySelector('summary');
+        if (first) first.focus();
+      });
+      more.append(moreBtn);
+      paintMore();
+      internal.push(h('h3', { class: 'st-h3', id: `${id}-matches-h` }, '내전 최근 경기'), list, more);
+    }
+  }
+  return h('div', { class: 'aw-internal-records' }, internal);
+}
+
 async function renderStats(seq, keep) {
   setTitle('전적');
   if (!keep) show([tabs(STATS_TAB), statsNav('overview'), statsHead(), loadingEl()]);
@@ -3454,111 +3588,6 @@ async function renderStats(seq, keep) {
   const paintTiers = () => tierList.replaceChildren(...(members.length ? members.map(tierRow) : [h('li', { class: 'empty' }, '아직 클럽원 목록이 없어요.')]));
   paintTiers();
 
-  /* --- 내전 기록 --- */
-  const it = d.internal || {};
-  const matches = it.matches || [];
-  const tableRows = it.table || [];
-  const internal = [];
-  if (!matches.length && !tableRows.length) {
-    internal.push(h('div', { class: 'st-empty' },
-      h('p', null, '아직 찾은 내전이 없어요.'),
-      h('p', null, '두 사람 모두 게임 닉네임이 연결된 클럽원일 때 내전으로 기록돼요.')));
-  } else {
-    if (tableRows.length) {
-      const pts = (r) => r.win * 3 + r.draw;
-      const gd = (r) => r.gf - r.ga;
-      const rows = [...tableRows].sort((x, y) => pts(y) - pts(x) || gd(y) - gd(x) || y.gf - x.gf || x.played - y.played || String(x.name || '').localeCompare(String(y.name || ''), 'ko'));
-      let rank = 0;
-      const body = rows.map((r, i) => {
-        const p = rows[i - 1];
-        if (!p || pts(p) !== pts(r) || gd(p) !== gd(r) || p.gf !== r.gf) rank = i + 1;
-        return h('tr', { class: isStatsMe(r) ? 'is-me' : null },
-          h('td', { class: 'c-rank' }, String(rank)),
-          h('th', { class: 'c-name', scope: 'row' }, (() => {
-            const inner = [h('b', null, r.name || r.nickname || '알 수 없음', statsMeBadge(r)), r.name && r.nickname ? h('small', null, r.nickname) : null];
-            return r.discord_id ? h('a', { class: 'c-link', href: memberHref(r.discord_id), onclick: keepPlace }, inner) : inner;
-          })()),
-          [r.played, r.win, r.draw, r.lose, r.gf, r.ga].map((v) => h('td', null, String(v))),
-          h('td', null, signed(gd(r))));
-      });
-      internal.push(h('h3', { class: 'st-h3', id: 'st-tb-h' }, '순위'),
-        h('div', { class: 'st-scroll', role: 'region', 'aria-labelledby': 'st-tb-h', tabindex: '0' },
-          h('table', { class: 'st-table' },
-            h('thead', null, h('tr', null,
-              h('th', { class: 'c-rank', scope: 'col' }, '순위'), h('th', { class: 'c-name', scope: 'col' }, '이름'),
-              ['경기', '승', '무', '패', '득점', '실점', '득실'].map((t) => h('th', { scope: 'col' }, t)))),
-            h('tbody', null, body))),
-        h('p', { class: 'st-note' }, '승점(승 3, 무 1)이 높은 순이에요. 같으면 득실, 득점 순으로 가려요.'));
-    }
-    if (matches.length) {
-      const list = h('ul', { class: 'mt-list', 'aria-labelledby': 'st-mt-h' });
-      const more = h('div', { class: 'more' });
-      const moreBtn = h('button', { class: 'btn btn-ghost', type: 'button' });
-      const paintMore = () => {
-        const left = matches.length - list.children.length;
-        moreBtn.textContent = `더 보기 (${left}경기 남음)`;
-        more.hidden = left <= 0;
-      };
-      const addMatches = (from, to) => matches.slice(from, to).forEach((mt) => list.append(h('li', null, matchItem(mt))));
-      addMatches(0, ui.shown);
-      moreBtn.addEventListener('click', () => {
-        const from = list.children.length;
-        ui.shown = from + MATCH_PAGE;
-        addMatches(from, ui.shown);
-        paintMore();
-        const first = list.children[from] && list.children[from].querySelector('summary');
-        if (first) first.focus();
-      });
-      more.append(moreBtn);
-      paintMore();
-      internal.push(h('h3', { class: 'st-h3', id: 'st-mt-h' }, '최근 경기'), list, more);
-    }
-  }
-  function matchItem(mt) {
-    const A = mt.a || {}, B = mt.b || {};
-    const typeName = (d.match_types || {})[String(mt.match_type)] || '기타 경기';
-    const draw = A.result === '무' && B.result === '무';
-    const winner = A.result === '승' ? A : B.result === '승' ? B : null;
-    const side = (s, cls) => h('span', { class: `mt-side ${cls}${s.result === '승' ? ' win' : ''}` },
-      h('span', { class: 'mt-nick' }, s.nickname || '알 수 없음'),
-      s.name ? h('span', { class: 'mt-who' }, s.name) : null);
-    const goals = (s) => h('span', { class: s.result === '승' ? 'w' : s.result === '패' ? 'l' : null }, s.goals == null ? '-' : String(s.goals));
-    const det = h('details', { class: 'mt' });
-    if (ui.open.has(mt.match_id)) det.open = true;
-    det.addEventListener('toggle', () => { if (det.open) ui.open.add(mt.match_id); else ui.open.delete(mt.match_id); });
-    det.append(h('summary', null,
-      h('span', { class: 'mt-meta' },
-        h('span', null, timeEl(mt.played_at, true), ` · ${typeName}`, draw ? ' · 무승부' : ''),
-        h('span', { class: 'mt-more', 'aria-hidden': 'true' }, '자세히', icon('down'))),
-      h('span', { class: 'mt-score' },
-        side(A, 'a'),
-        h('span', { class: 'mt-goals' }, goals(A), h('span', { class: 'sep', 'aria-hidden': 'true' }, ':'), h('span', { class: 'sr-only' }, ' 대 '), goals(B)),
-        side(B, 'b')),
-      winner ? h('span', { class: 'sr-only' }, `, ${winner.nickname || ''} 승`) : null));
-    /* 펼친 칸의 닉네임은 클럽원 전적 링크(요약 줄은 통째로 펼침 버튼이라 링크를 넣지 않는다) */
-    const sideHead = (s) => (s.discord_id
-      ? h('a', { class: 'mt-link', href: memberHref(s.discord_id), onclick: keepPlace }, s.nickname || s.name || '알 수 없음')
-      : s.nickname || '알 수 없음');
-    const as = A.stats || {}, bs = B.stats || {};
-    const val = (k, unit, v) => (v == null || !isFinite(v) ? '-' : k === 'rating' ? Number(v).toFixed(1) : `${Math.round(v)}${unit}`);
-    det.append(h('div', { class: 'mt-detail' },
-      h('table', { class: 'mt-stats' },
-        h('caption', { class: 'sr-only' }, `${A.nickname || ''} 대 ${B.nickname || ''} 경기 기록`),
-        h('thead', null, h('tr', null,
-          h('th', { class: 'sa', scope: 'col' }, sideHead(A)),
-          h('th', { class: 'sl', scope: 'col' }, h('span', { class: 'sr-only' }, '항목')),
-          h('th', { class: 'sb', scope: 'col' }, sideHead(B)))),
-        h('tbody', null, STAT_ROWS.map(([k, label, unit]) => {
-          const x = as[k], y = bs[k];
-          const both = isFinite(x) && isFinite(y) && x != null && y != null && x !== y;
-          return h('tr', null,
-            h('td', { class: 'sa' + (both && x > y ? ' hi' : '') }, val(k, unit, x)),
-            h('th', { class: 'sl', scope: 'row' }, label),
-            h('td', { class: 'sb' + (both && y > x ? ' hi' : '') }, val(k, unit, y)));
-        })))));
-    return det;
-  }
-
   show([tabs(STATS_TAB), statsNav('overview'), statsHead(),
     h('p', { class: 'desc' }, 'FC 온라인 기록을 넥슨 Open API에서 받아 와요. 티어는 하루에 한 번, 내전 기록은 몇 시간마다 새로 받아요. 넥슨 쪽 반영이 2~3시간 늦을 수 있어요.'),
     meta,
@@ -3567,10 +3596,10 @@ async function renderStats(seq, keep) {
       h('h2', { class: 'h2', id: 'st-tier-h' }, '클럽원 티어'),
       h('p', { class: 'hint' }, '넥슨 기록에 남은 최고 티어예요.'),
       summary, tierList),
-    h('section', { class: 'st-sec', 'aria-labelledby': 'st-in-h' },
-      h('h2', { class: 'h2', id: 'st-in-h' }, '내전 기록'),
-      h('p', { class: 'hint' }, '클럽원끼리 한 경기만 모았어요.'),
-      internal),
+    h('section', { class: 'st-sec st-internal-link', 'aria-labelledby': 'st-in-h' },
+      h('h2', { class: 'h2', id: 'st-in-h' }, '클럽원끼리 내전'),
+      h('p', { class: 'hint' }, '내전왕과 최근 내전 기록을 어워드 맨 위에서 볼 수 있어요.'),
+      h('a', { class: 'btn btn-ghost', href: '#/stats/best', onclick: () => { state.awardsGroup = 'member'; } }, '내전왕 · 최근 경기 보기')),
     h('p', { class: 'st-attr', lang: 'en' }, 'Data based on NEXON Open API')], { keepScroll: !!keep });
   if (keep && keep.focus) { const el = view.querySelector(keep.focus); if (el) el.focus(); }
   /* 상세 화면에서 돌아오면 보던 자리로 */
@@ -4517,14 +4546,13 @@ async function renderRanking(type, seq) {
         fillBox(h('div', { class: 'st-empty' }, h('p', null, '아직 찾은 내전이 없어요.'), h('p', null, '두 사람 모두 게임 닉네임이 연결된 클럽원일 때 내전으로 기록돼요.')));
         return;
       }
-      const pts = (r) => r.win * 3 + r.draw, gd = (r) => r.gf - r.ga;
-      tb.sort((x, y) => pts(y) - pts(x) || gd(y) - gd(x) || y.gf - x.gf || x.played - y.played || String(x.name || '').localeCompare(String(y.name || ''), 'ko'));
+      const gd = (r) => r.gf - r.ga;
       fillBox(
-        h('ol', { class: 'rk-list' }, ranked(tb, (a, b) => pts(a) === pts(b) && gd(a) === gd(b) && a.gf === b.gf).map(([r, t]) => {
+        h('ol', { class: 'rk-list' }, statsInternalRanking(tb).map((t) => {
           const m = Object.assign({ discord_id: t.discord_id, name: t.name, nickname: t.nickname }, byId.get(t.discord_id) || {});
-          return row(r, m, `승점 ${pts(t)}`, `${t.win}승 ${t.draw}무 ${t.lose}패 · 득실 ${signed(gd(t))}`, `${t.played}경기`);
+          return row(t.rank, m, `${t.played}경기`, `${t.win}승 ${t.draw}무 ${t.lose}패 · 득실 ${signed(gd(t))}`, '클럽원끼리 내전');
         })),
-        h('p', { class: 'st-note' }, '내전은 경기 종류와 상관없이 클럽원끼리 한 경기를 모두 세요. 승점(승 3, 무 1), 득실, 득점 순이에요.'));
+        h('p', { class: 'st-note' }, '최근 28일 동안 수집한 클럽원끼리의 경기 수로 순위를 매겨요. 경기 수가 같으면 공동 순위예요.'));
       return;
     }
     if (k === 'overall') {
@@ -4714,6 +4742,9 @@ async function renderPicks(type, seq) {
 /* ---------- 최고의 선수(#/stats/best/<경기 종류>) ---------- */
 /* 클럽원 + 선수 카드 한 장이 한 줄. 같은 카드라도 클럽원이 다르면 따로 센다 */
 const AWARD_CATS = [
+  { key: 'internal', member: true, title: '내전왕', what: '클럽원끼리 내전 경기 수', val: (e) => `${e.played}경기`, sub: (e) => `${e.win}승 ${e.draw}무 ${e.lose}패` },
+  { key: 'dribble', title: '돌파왕', what: '공격수·미드필더 드리블 성공률', val: (e) => `${fx(e.value, 1)}%`, sub: (e) => `드리블 ${e.dribble_try}회 중 ${e.dribble_success}회` },
+  { key: 'long_shot', member: true, title: '대포왕', what: '페널티박스 밖 슈팅 득점률', val: (e) => `${fx(e.value, 1)}%`, sub: (e) => `박스 밖 ${e.long_shot_try}슈팅 ${e.long_shot_goals}골` },
   { key: 'goals', title: '득점왕', what: '선발 1경기당 골', val: (e) => `${fx(e.goals / e.apps, 2)}골`, sub: (e) => `${e.apps}경기 ${e.goals}골` },
   { key: 'assists', title: '도움왕', what: '선발 1경기당 도움', val: (e) => `${fx(e.assists / e.apps, 2)}도움`, sub: (e) => `${e.apps}경기 ${e.assists}도움` },
   { key: 'tackle', title: '수비왕', what: '수비수 태클 성공률', val: (e) => pctText((e.tackle * 100) / e.tackle_try), sub: (e) => `태클 ${e.tackle_try}번 중 ${e.tackle}번` },
@@ -4743,12 +4774,16 @@ async function renderAwards(type, seq) {
     if (stale(seq)) return;
     cacheSet(key, d);
   }
-  const aw = d.awards || {};
+  const aw = { ...(d.awards || {}) };
+  const internalData = d.internal || null;
+  const internalRows = statsInternalRanking(internalData && internalData.table);
+  if (!aw.internal && internalData) aw.internal = { count: internalRows.length, list: internalRows.slice(0, 10).map(r => ({ ...r, member: { discord_id:r.discord_id, name:r.name, nickname:r.nickname, is_staff:r.is_staff } })) };
+  const internalUi = state.awardsInternalUi && state.awardsInternalUi.owner === state.me?.id ? state.awardsInternalUi : (state.awardsInternalUi = { owner:state.me?.id, shown:3, open:new Set() });
   const rules = d.rules || {};
   const minApps = isNum(rules.min_apps) ? rules.min_apps : 15;
   const minPossession = isNum(d.min_possession_games) ? d.min_possession_games : minApps;
   const minMember = isNum(d.min_member_games) ? d.min_member_games : minPossession;
-  const hasRecords = !!(d.members_counted || d.member_awards_counted || d.possession_members_counted);
+  const hasRecords = !!(d.members_counted || d.member_awards_counted || d.possession_members_counted || Object.values(aw).some(a => Array.isArray(a?.list) && a.list.length) || internalData?.matches?.length);
   const W = winSize(d);
   const lists = AWARD_CATS.map((c) => (aw[c.key] && Array.isArray(aw[c.key].list) ? aw[c.key].list : []));
   const all = lists.flat();
@@ -4767,7 +4802,7 @@ async function renderAwards(type, seq) {
   const link = (mb, cls, kids) => (mb && mb.discord_id
     ? h('a', { class: cls + (isStatsMe(mb) ? ' is-me' : ''), href: `#/stats/m/${mb.discord_id}/${type}`, onclick: onRow }, kids)
     : h('div', { class: cls }, kids));
-  const games = (c, e) => `${c.key === 'save' ? e.gk_apps : e.apps}경기`;
+  const games = (c, e) => `${c.key === 'save' ? e.gk_apps : c.key === 'dribble' ? e.dribble_games : e.apps}경기`;
   function winner(c, e, tied) {
     const mb = e.member || {};
     if (c.member) return link(mb, 'aw-win', [
@@ -4797,7 +4832,18 @@ async function renderAwards(type, seq) {
         owner(mb)),
       h('div', { class: 'aw-rv' }, h('b', null, c.val(e)), h('small', null, c.sub(e)))]));
   }
+  const awaitingCoverage = coverage => !!coverage && (isNum(coverage.pending) ? coverage.pending > 0 : coverage.collected < coverage.total);
+  const coverageProgress = coverage => isNum(coverage.pending) ? `${coverage.pending}명 남음` : `${coverage.collected}/${coverage.total}명`;
   const empty = {
+    internal: internalData ? '최근 28일 동안 찾은 내전이 아직 없어요. 두 사람 모두 게임 닉네임이 연결돼 있어야 해요.' : '내전 집계를 준비하고 있어요.',
+    dribble: !aw.dribble ? '드리블 집계를 준비하고 있어요.'
+      : awaitingCoverage(d.dribble_coverage)
+        ? `드리블 기록을 다시 모으는 중이에요. (${coverageProgress(d.dribble_coverage)})`
+        : `공격수·미드필더로 선발 ${minApps}경기 이상, 드리블 ${rules.min_dribbles ?? 30}회 이상을 기록한 선수가 아직 없어요.`,
+    long_shot: !aw.long_shot ? '박스 밖 슈팅 집계를 준비하고 있어요.'
+      : awaitingCoverage(d.long_shot_coverage)
+        ? `박스 밖 슈팅 기록을 다시 모으는 중이에요. (${coverageProgress(d.long_shot_coverage)})`
+        : `박스 밖 슈팅 기록 ${minMember}경기 이상, 시도 ${rules.min_long_shots ?? 30}회 이상인 클럽원이 아직 없어요.`,
     possession: aw.possession ? `점유율 기록이 있고 ${minPossession}경기 이상 뛴 클럽원이 아직 없어요.` : '점유율 집계를 준비하고 있어요.',
     peace: aw.peace ? `${minMember}경기 이상 뛰고 무승부를 기록한 클럽원이 아직 없어요.` : '무승부 집계를 준비하고 있어요.',
     shots: aw.shots ? `${minMember}경기 이상 뛴 클럽원의 슈팅 기록이 아직 없어요.` : '슈팅 집계를 준비하고 있어요.',
@@ -4815,13 +4861,19 @@ async function renderAwards(type, seq) {
     save: `골키퍼로 선발 ${minApps}경기 이상, 유효슈팅 ${rules.min_faced ?? 30}개 이상 받은 선수가 아직 없어요.`,
   };
   function section(c, list) {
+    const image = h('img', { class:'aw-image', src:`../assets/awards/${c.key}.webp`, alt:'', loading:'lazy', decoding:'async', width:'160', height:'90' });
+    image.addEventListener('error', () => { image.hidden = true; });
     const box = h('section', { class: 'aw' + (c.member ? ' aw-member' : ''), 'aria-labelledby': `aw-${c.key}` },
-      h('div', { class: 'aw-h' }, h('h2', { id: `aw-${c.key}` }, c.title), h('span', null, c.what)),
-      c.note ? h('p', { class: 'aw-note' }, c.note) : null);
+      h('div', { class:'aw-heading' }, image, h('div', { class:'aw-heading-copy' },
+        h('div', { class: 'aw-h' }, h('h2', { id: `aw-${c.key}` }, c.title), h('span', null, c.what)),
+        c.key === 'internal' ? h('p', { class:'aw-note' }, '최근 28일 수집한 내전 · 경기 수가 같으면 공동 순위') : null,
+        c.note ? h('p', { class: 'aw-note' }, c.note) : null)));
     if (!list.length) { append(box, [h('p', { class: 'aw-empty' }, empty[c.key])]); return box; }
     if (c.key === 'heading' && d.heading_coverage && d.heading_coverage.collected < d.heading_coverage.total) {
       box.append(h('p', { class: 'aw-note' }, `헤딩 기록을 다시 모으는 중이에요. (${d.heading_coverage.collected}/${d.heading_coverage.total}명)`));
     }
+    const coverage = c.key === 'dribble' ? d.dribble_coverage : c.key === 'long_shot' ? d.long_shot_coverage : null;
+    if (awaitingCoverage(coverage)) box.append(h('p', { class:'aw-note' }, `기록을 다시 모으는 중이에요. (${coverageProgress(coverage)})`));
     const rest = list.slice(1);
     const ol = h('ol', { class: 'aw-list' });
     let open = false;
@@ -4846,7 +4898,18 @@ async function renderAwards(type, seq) {
         group = key; state.awardsGroup = key; paintGroup(); groupControls.querySelector('[aria-pressed="true"]')?.focus({ preventScroll: true });
       }
     }, label)));
-    groupBody.replaceChildren(...AWARD_CATS.flatMap((c, i) => !!c.member === (group === 'member') ? [section(c, lists[i])] : []));
+    groupBody.replaceChildren(...AWARD_CATS.flatMap((c, i) => {
+      if (!!c.member !== (group === 'member')) return [];
+      if (c.key !== 'internal') return [section(c, lists[i])];
+      const top = h('div', { class:'aw-internal-feature' }, section(c, lists[i]));
+      if (internalData) {
+        const records = statsInternalRecords(internalData, internalData.match_types || d.match_types || {}, internalUi, { table:false });
+        const standings = h('details', { class:'aw-internal-table' }, h('summary', null, `내전 전체 순위 · ${internalRows.length}명`),
+          statsInternalRecords(internalData, internalData.match_types || d.match_types || {}, internalUi, { matches:false, id:'aw-internal-full' }));
+        append(top, [records, standings]);
+      }
+      return [top];
+    }));
   }
   paintGroup();
   show([head(),
@@ -4857,10 +4920,13 @@ async function renderAwards(type, seq) {
     hasRecords ? null : h('div', { class: 'st-empty', style: 'margin-top:18px' }, h('p', null, '아직 모은 기록이 없어요.'), h('p', null, '클럽원 기록을 모으면 여기에 보여요.')),
     hasRecords ? [groupControls, groupBody] : null,
     any || hasRecords ? h('details', { class: 'aw-help' }, h('summary', null, '집계 기준 보기'), h('ul', { class: 'aw-rules' },
-      h('li', null, `클럽원 어워드는 최근 ${W}경기 중 ${minMember}경기 이상 뛴 클럽원을 뽑아요. 같은 표시값이면 공동 순위예요.`),
+      h('li', null, '내전왕은 최근 28일 동안 수집한 클럽원끼리의 경기 수예요. 경기 종류 선택과 관계없이 같은 기록을 보며, 최근 내전은 50경기까지 보여 줘요.'),
+      h('li', null, `그 밖의 클럽원 어워드는 최근 ${W}경기 중 ${minMember}경기 이상 뛴 클럽원을 뽑아요. 같은 표시값이면 공동 순위예요.`),
       h('li', null, '평화주의자는 무승부 비율, 난사왕은 경기당 슈팅, 본프레레왕은 경기당 득점+실점 합계예요. 짠물수비왕은 경기당 실점이 적을수록 순위가 높아요.'),
       h('li', null, `헤딩왕은 헤딩 수가 기록된 ${minMember}경기 이상을 기준으로 경기당 헤딩 골을 비교해요. 빠진 기록은 0골로 세지 않아요.`),
       h('li', null, `클럽원마다 최근 ${W}경기에서 선발로 ${minApps}경기 이상 뛴 선수만 넣어요. 같은 선수라도 쓴 클럽원이 다르면 따로 세요.`),
+      h('li', null, `돌파왕은 공격수·미드필더 자리에서 드리블 수가 기록된 선발 ${minApps}경기 이상, 시도 ${rules.min_dribbles ?? 30}회 이상인 선수의 성공률이에요. 수비수·골키퍼 자리의 기록은 빼요.`),
+      h('li', null, `대포왕은 박스 밖 슈팅 수가 기록된 ${minMember}경기 이상, 시도 ${rules.min_long_shots ?? 30}회 이상인 클럽원의 득점률이에요. 빠진 기록은 0으로 세지 않아요.`),
       h('li', null, `수비왕은 수비수(DF) 자리에서 태클을 ${rules.min_tackles ?? 30}번 이상 한 선수의 태클 성공률이에요.`),
       h('li', null, `선방왕은 골키퍼로 상대 유효슈팅을 ${rules.min_faced ?? 30}개 이상 받은 선수가 골을 내주지 않은 비율이에요.`),
       h('li', null, `볼돌왕은 ${minPossession}경기 이상 뛴 클럽원의 평균 볼 점유율이에요.`))) : null,
