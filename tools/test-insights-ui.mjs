@@ -36,3 +36,45 @@ test('legacy report retains known outcomes while uncollected normal and recent m
 test('rival highlights need at least three games for strength labels and preserve input order',()=>{const{lib}=setup();const rows=[{member:people[0],played:2,win_rate:0},{member:people[1],played:8,win_rate:75}];const before=JSON.stringify(rows);const labels=lib.rivalHighlights(rows);assert.equal(labels[1][1].played,8);assert.equal(JSON.stringify(rows),before);});
 
 test('an unlinked signed-in member defaults to an available linked account',async()=>{const calls=[];const{c,lib}=setup(async path=>{calls.push(path);return path==='/api/stats'?{members:[{...people[0],link:{status:'not_found'}},people[1]]}:payload();});await lib.renderInsights(c);assert.ok(calls[1].includes(people[1].discord_id));});
+
+
+const duelPayload=(period='all',extra={})=>({a:people[0],b:people[1],period,days:period==='all'?null:28,summary:{played:period==='all'?12:2,a_win:period==='all'?8:1,draw:0,b_win:period==='all'?4:1,a_goals:20,b_goals:12},metrics:[],matches:[],opponents:[{member:people[1],played:period==='all'?12:2,win:8,draw:0,lose:4,win_rate:66.7}],...extra});
+const field=(main,label)=>main.querySelectorAll('select').find(n=>n.getAttribute('aria-label')===label);
+
+test('duel defaults to cumulative query and period changes preserve both members and match mode',async()=>{
+ const calls=[];const {main,c,lib}=setup(async path=>{calls.push(path);return path==='/api/stats'?{members:people}:duelPayload(new URLSearchParams(path.split('?')[1]).get('period'));});
+ await lib.renderDuel(c,people[0].discord_id,people[1].discord_id,52);
+ assert.equal(new URLSearchParams(calls[1].split('?')[1]).get('period'),'all');assert.match(main.textContent,/누적 기록/);assert.match(main.textContent,/정기 갱신으로 확인한 맞대결을 모아요/);assert.match(main.textContent,/조회가 중단된 기록은 제외될 수 있어요/);assert.match(main.textContent,/12경기/);
+ const range=field(main,'맞대결 집계 기간');assert.equal(range.value,'all');range.value='28';range.dispatch('change');await tick();
+ const params=new URLSearchParams(calls.at(-1).split('?')[1]);assert.equal(params.get('period'),'28');assert.equal(params.get('type'),'52');assert.equal(params.get('a'),people[0].discord_id);assert.equal(params.get('b'),people[1].discord_id);
+ assert.equal(field(main,'첫 번째 클럽원').value,people[0].discord_id);assert.equal(field(main,'두 번째 클럽원').value,people[1].discord_id);assert.equal(field(main,'맞대결 경기 종류').value,'52');assert.equal(range.value,'28');assert.equal(range.disabled,false);assert.match(main.textContent,/최근 28일 기록/);assert.match(main.textContent,/2경기/);assert.doesNotMatch(main.textContent,/누적 기록은 서버/);
+});
+
+test('changing an opponent keeps the selected duel period',async()=>{
+ const calls=[];const {main,c,lib}=setup(async path=>{calls.push(path);return path==='/api/stats'?{members:people}:duelPayload('28',{b:null});});
+ await lib.renderDuel(c,people[0].discord_id,null,'50','28');main.querySelectorAll('button').find(n=>n.textContent==='예시바람').click();await tick();
+ const params=new URLSearchParams(calls.at(-1).split('?')[1]);assert.equal(params.get('period'),'28');assert.equal(params.get('type'),'50');assert.equal(params.get('b'),people[1].discord_id);assert.equal(field(main,'맞대결 집계 기간').value,'28');
+});
+
+test('failed cumulative or recent queries preserve selected period and retry the same filters',async()=>{
+ const calls=[];let failing=false;const {main,c,lib}=setup(async path=>{calls.push(path);if(path==='/api/stats')return{members:people};if(failing)throw{code:'network'};return duelPayload(new URLSearchParams(path.split('?')[1]).get('period'));});
+ await lib.renderDuel(c,people[0].discord_id,people[1].discord_id,'40');const range=field(main,'맞대결 집계 기간');failing=true;range.value='28';range.dispatch('change');await tick();
+ assert.match(main.textContent,/다시 불러오기/);assert.equal(range.value,'28');assert.equal(range.disabled,false);assert.equal(field(main,'첫 번째 클럽원').disabled,false);assert.equal(field(main,'두 번째 클럽원').value,people[1].discord_id);assert.equal(field(main,'맞대결 경기 종류').value,'40');
+ failing=false;main.querySelectorAll('button').find(n=>n.textContent==='다시 불러오기').click();await tick();assert.equal(new URLSearchParams(calls.at(-1).split('?')[1]).get('period'),'28');assert.match(main.textContent,/최근 28일 기록/);
+});
+
+test('duel dates distinguish earliest match, actual data refresh and latest match',async()=>{
+ const {main,c,lib}=setup(async path=>path==='/api/stats'?{members:people}:duelPayload('all',{first_match_at:Date.UTC(2026,8,28),refreshed_at:Date.UTC(2026,10,27,3),updated_at:Date.UTC(2026,10,20)}));await lib.renderDuel(c);
+ assert.match(main.textContent,/가장 이른 경기/);assert.match(main.textContent,/자료 확인/);assert.match(main.textContent,/최근 경기/);assert.doesNotMatch(main.textContent,/기록 확인/);
+ const notes=main.querySelectorAll('p').map(n=>n.textContent);assert.match(notes.find(t=>t.startsWith('가장 이른 경기')),/2026.*9.*28/);assert.match(notes.find(t=>t.startsWith('자료 확인')),/2026.*11.*27/);assert.match(notes.find(t=>t.startsWith('최근 경기')),/2026.*11.*20/);
+});
+
+test('missing or invalid duel dates stay absent and never turn into epoch or invalid date labels',async()=>{
+ const {main,c,lib}=setup(async path=>path==='/api/stats'?{members:people}:duelPayload('all',{first_match_at:null,refreshed_at:NaN,updated_at:0}));await lib.renderDuel(c);
+ assert.doesNotMatch(main.textContent,/가장 이른 경기|자료 확인|최근 경기|1970|Invalid Date|NaN/);
+});
+
+test('legacy 28-day API results cannot be presented as cumulative records',async()=>{
+ const data=duelPayload('28');delete data.period;const {main,c,lib}=setup(async path=>path==='/api/stats'?{members:people}:data);await lib.renderDuel(c);
+ assert.equal(field(main,'맞대결 집계 기간').value,'all');assert.match(main.textContent,/현재 응답은 최근 28일 기록이에요/);assert.match(main.textContent,/누적 기록은 서버 반영 후 보여요/);assert.doesNotMatch(main.textContent,/정기 갱신으로 확인한 맞대결 전체/);
+});

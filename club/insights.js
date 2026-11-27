@@ -14,7 +14,7 @@ function rivalHighlights(rows){
 }
 function tools(c){
  const h=c.h;
- const error=e=>({member_unlinked:'이 클럽원의 게임 닉네임이 아직 연결되지 않았어요.',member_required:'클럽원을 골라 주세요.',same_member:'서로 다른 두 명을 골라 주세요.',bad_member:'클럽원을 다시 골라 주세요.',bad_type:'경기 종류를 다시 골라 주세요.'}[e?.code]||c.errorText(e));
+ const error=e=>({member_unlinked:'이 클럽원의 게임 닉네임이 아직 연결되지 않았어요.',member_required:'클럽원을 골라 주세요.',same_member:'서로 다른 두 명을 골라 주세요.',bad_member:'클럽원을 다시 골라 주세요.',bad_type:'경기 종류를 다시 골라 주세요.',bad_period:'집계 기간을 다시 골라 주세요.'}[e?.code]||c.errorText(e));
  const note=text=>h('p',{class:'ni-note'},text);
  const empty=text=>h('div',{class:'ni-empty'},text);
  const selectMember=(label,items,value,blank)=>h('label',{class:'ni-field'},h('span',null,label),h('select',{class:'input', 'aria-label':label},blank?h('option',{value:''},blank):null,items.map(m=>h('option',{value:m.discord_id,selected:m.discord_id===value},`${m.name||m.nickname||'클럽원'}${m.discord_id===c.me?.id?' · 나':''}`))));
@@ -60,34 +60,41 @@ async function renderInsights(c,memberId,type=50){
  }
  await load();
 }
-async function renderDuel(c,aId,bId,type='all'){
- const{h,error,note,empty,selectMember,metricTable,stamp}=tools(c);c.setTitle('클럽원 맞대결');
+async function renderDuel(c,aId,bId,type='all',period='all'){
+ const{h,error,note,empty,selectMember,metricTable}=tools(c);c.setTitle('클럽원 맞대결');
  const form=h('form',{class:'ni-filters'}),result=h('div',{class:'ni-results','aria-live':'polite'}),shell=h('div',{class:'ni-page'},form,result);
- c.show([...c.header('duel'),h('p',{class:'idx'},'CLUB RIVAL'),h('h1',{class:'h1',tabindex:'-1'},'클럽원 맞대결'),h('p',{class:'desc'},'최근 28일 수집한 내전에서 두 클럽원의 상대 전적을 비교해요.'),shell]);
+ c.show([...c.header('duel'),h('p',{class:'idx'},'CLUB RIVAL'),h('h1',{class:'h1',tabindex:'-1'},'클럽원 맞대결'),h('p',{class:'desc'},'모아 둔 내전에서 두 클럽원의 상대 전적을 비교해요.'),shell]);
  let roster;try{roster=await c.api('/api/stats');}catch(e){if(!c.stale(c.seq)&&!e.handled)replace(result,empty(error(e)));return;}if(c.stale(c.seq))return;
  const members=(roster.members||[]).filter(m=>m.link?.status==='ok');if(!members.length){result.append(empty('비교할 클럽원 기록이 아직 없어요.'));return;}
  const fa=selectMember('첫 번째 클럽원',members,aId||c.me?.id),fb=selectMember('두 번째 클럽원',members,bId,'상대를 고르세요');
  const a=fa.querySelector('select'),b=fb.querySelector('select'),mode=h('select',{class:'input','aria-label':'맞대결 경기 종류'},[['all','수집한 내전 전체'],['40','클래식 1on1'],['50','공식경기'],['52','감독모드']].map(([v,label])=>h('option',{value:v,selected:String(type)===v},label)));
- const submit=h('button',{class:'btn btn-primary',type:'submit'},'맞대결 보기');form.append(fa,fb,h('label',{class:'ni-field'},h('span',null,'경기 종류'),mode),submit);
- let generation=0;form.addEventListener('submit',e=>{e.preventDefault();load();});
+ const range=h('select',{class:'input','aria-label':'맞대결 집계 기간'},[['all','누적'],['28','최근 28일']].map(([v,label])=>h('option',{value:v,selected:(String(period)==='28'?'28':'all')===v},label)));
+ const submit=h('button',{class:'btn btn-primary',type:'submit'},'맞대결 보기');form.append(fa,fb,h('label',{class:'ni-field'},h('span',null,'경기 종류'),mode),h('label',{class:'ni-field'},h('span',null,'집계 기간'),range),submit);
+ let generation=0;form.addEventListener('submit',e=>{e.preventDefault();load();});range.addEventListener('change',load);
  async function load(){
   if(a.value===b.value){replace(result,empty('서로 다른 두 명을 골라 주세요.'));return;}
-  const mine=++generation,alive=()=>!c.stale(c.seq)&&mine===generation&&shell.isConnected;submit.disabled=true;a.disabled=true;b.disabled=true;mode.disabled=true;result.setAttribute('aria-busy','true');
-  try{const qs=new URLSearchParams({a:a.value,type:mode.value});if(b.value)qs.set('b',b.value);const d=await c.api(`/api/stats/duel?${qs}`);if(alive())draw(d);}
+  const mine=++generation,alive=()=>!c.stale(c.seq)&&mine===generation&&shell.isConnected;submit.disabled=true;a.disabled=true;b.disabled=true;mode.disabled=true;range.disabled=true;result.setAttribute('aria-busy','true');
+  try{const qs=new URLSearchParams({a:a.value,type:mode.value,period:range.value});if(b.value)qs.set('b',b.value);const d=await c.api(`/api/stats/duel?${qs}`);if(alive())draw(d);}
   catch(e){if(alive()&&!e.handled)replace(result,empty(error(e)),h('button',{class:'btn btn-ghost',type:'button',onclick:load},'다시 불러오기'));}
-  finally{if(alive()){submit.disabled=false;a.disabled=false;b.disabled=false;mode.disabled=false;result.removeAttribute('aria-busy');}}
+  finally{if(alive()){submit.disabled=false;a.disabled=false;b.disabled=false;mode.disabled=false;range.disabled=false;result.removeAttribute('aria-busy');}}
  }
  function draw(d){
   const s=d.summary||{},name=p=>p?.name||p?.nickname||'클럽원';
+  const shownPeriod=d.period==='all'?'all':d.period==='28'||d.days===28?'28':null;
+  const datedNote=(label,at,dayOnly=false)=>{if(!finite(at)||at<=0)return null;const date=new Date(at);if(!Number.isFinite(date.getTime()))return null;return note(`${label} ${dayOnly?date.toLocaleDateString('ko-KR',{timeZone:'Asia/Seoul'}):date.toLocaleString('ko-KR',{timeZone:'Asia/Seoul'})}`);};
   const rivalRows=(d.opponents||[]).map(r=>h('tr',null,h('th',{scope:'row'},h('button',{class:'btn btn-text',type:'button',onclick:()=>{b.value=r.member.discord_id;load();}},name(r.member))),h('td',null,r.played),h('td',null,`${r.win} / ${r.draw} / ${r.lose}`),h('td',null,valueText(r.win_rate,'%'))));
   replace(result,
+   note(shownPeriod==='all'?'누적 기록':shownPeriod==='28'?'최근 28일 기록':'집계 기간을 확인하지 못했어요. 기록 범위를 다시 확인해 주세요.'),
+   shownPeriod==='28'&&range.value==='all'?note('현재 응답은 최근 28일 기록이에요. 누적 기록은 서버 반영 후 보여요.'):null,
+   shownPeriod==='all'?note('정기 갱신으로 확인한 맞대결을 모아요. 조회가 중단된 기록은 제외될 수 있어요.'):null,
    d.b?h('section',{class:'ni-duel-score','aria-label':'맞대결 승수'},h('div',null,h('span',null,name(d.a)),h('strong',null,`${s.a_win??0}승`),h('small',null,valueText(s.a_goals,'득점'))),h('div',{class:'ni-duel-mid'},`${s.played??0}경기`,h('small',null,`${s.draw??0}무`)),h('div',null,h('span',null,name(d.b)),h('strong',null,`${s.b_win??0}승`),h('small',null,valueText(s.b_goals,'득점')))):empty('아래 상대 목록에서 클럽원을 누르거나 위에서 상대를 골라 주세요.'),
    d.b&&d.metrics?.length?metricTable(d.metrics,true):null,
    d.b?note(`경기력 지표는 정상 종료 ${d.coverage?.normal_games??0}경기 기준이에요. 몰수 ${d.coverage?.forfeit_games??0}경기와 종료 확인 전 ${d.coverage?.unknown_end_games??0}경기는 승패에만 포함해요.`):null,
    h('div',{class:'ni-rivals'},rivalHighlights(d.opponents).map(([label,r])=>h('button',{class:'ni-rival',type:'button',onclick:()=>{b.value=r.member.discord_id;load();}},h('small',null,label),h('strong',null,name(r.member)),h('span',null,`${r.played}경기 · 내 승률 ${valueText(r.win_rate,'%')}`)))),
    d.b?h('section',null,h('h2',{class:'ni-h2'},'최근 맞대결'),d.matches?.length?h('ul',{class:'ni-match-list'},d.matches.map(m=>h('li',null,h('time',null,new Date(m.played_at).toLocaleDateString('ko-KR',{timeZone:'Asia/Seoul'})+' · '+({40:'클래식',50:'공식경기',52:'감독모드'}[m.match_type]||'내전')),h('span',null,`${name(m.a)} ${m.a?.goals??'—'} : ${m.b?.goals??'—'} ${name(m.b)}`)))):empty('이 기간에 수집한 두 사람의 맞대결이 없어요.')):null,
    h('section',null,h('h2',{class:'ni-h2'},`${name(d.a)}의 상대별 전적`),rivalRows.length?h('div',{class:'ni-scroll'},h('table',{class:'ni-table'},h('thead',null,h('tr',null,['상대','경기','승 / 무 / 패','승률'].map(t=>h('th',{scope:'col'},t)))),h('tbody',null,rivalRows))):empty('이 기간에 수집한 상대별 내전 기록이 없어요.')),
-   note(`상대별 강약점은 3경기 이상에서 표시해요. 최근 ${d.days||28}일 수집 기록 전체로 집계해요. 경기 상세는 최신 30경기까지 보여 드려요. 수집하지 못한 경기는 포함되지 않아요.`),stamp(d),h('p',{class:'sq-src'},'Data based on NEXON Open API'));
+   note(`상대별 강약점은 3경기 이상에서 표시해요. ${shownPeriod==='all'?'정기 갱신으로 확인한 맞대결 전체를 집계해요.':shownPeriod==='28'?'최근 28일 수집 기록 전체로 집계해요.':''} 경기 상세는 최신 30경기까지 보여 드려요. 수집하지 못한 경기는 포함되지 않아요.`),
+   datedNote('가장 이른 경기',d.first_match_at,true),datedNote('자료 확인',d.refreshed_at),datedNote('최근 경기',d.updated_at),h('p',{class:'sq-src'},'Data based on NEXON Open API'));
  }
  await load();
 }
